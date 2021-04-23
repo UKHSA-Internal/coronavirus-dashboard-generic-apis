@@ -1,0 +1,11 @@
+version: '3.7'
+
+services:
+  covid19-generic-apis:
+    build: .
+    env_file:
+      - .env.dev
+    volumes:
+      - ./service/server/:/docker-entrypoint.d/
+    ports:
+      - 5000:5000
