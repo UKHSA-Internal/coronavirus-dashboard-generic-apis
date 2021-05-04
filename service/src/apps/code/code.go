@@ -7,8 +7,14 @@ import (
 	"strings"
 
 	"generic_apis/db"
+	"generic_apis/insight"
 	"github.com/gorilla/mux"
 )
+
+type handler struct {
+	db          *db.Config
+	traceparent string
+}
 
 const areaQuery = `
 SELECT
@@ -56,7 +62,7 @@ var areaTypes = map[string]string{
 	"overview":        "overview",
 }
 
-func fromDatabase(areaType, search string) ([]byte, error) {
+func (conf *handler) fromDatabase(areaType, search string) ([]byte, error) {
 
 	var (
 		ok     bool
@@ -79,7 +85,12 @@ func fromDatabase(areaType, search string) ([]byte, error) {
 		query = areaQuery
 	}
 
-	results, err := db.Query(query, params...)
+	payload := &db.Payload{
+		Query:         query,
+		Args:          params,
+		OperationData: insight.GetOperationData(conf.traceparent),
+	}
+	results, err := conf.db.FetchAll(payload)
 	if err != nil {
 		return nil, err
 	}
@@ -104,30 +115,38 @@ func fromDatabase(areaType, search string) ([]byte, error) {
 
 } // FromDatabase
 
-func QueryByCode(w http.ResponseWriter, r *http.Request) {
+func Handler(config *db.Config) func(w http.ResponseWriter, r *http.Request) {
 
-	pathVars := mux.Vars(r)
+	conf := &handler{config, ""}
 
-	var (
-		category string
-		code     string
-		ok       bool
-	)
+	return func(w http.ResponseWriter, r *http.Request) {
 
-	if category, ok = pathVars["area_type"]; !ok {
-		http.Error(w, "area type not defined", http.StatusBadRequest)
-		return
-	} else if code, ok = pathVars["area_code"]; !ok {
-		http.Error(w, "area code not defined", http.StatusBadRequest)
-	}
+		conf.traceparent = r.Header.Get("traceparent")
 
-	response, err := fromDatabase(category, code)
-	if err != nil {
-		http.Error(w, "failed to retrieve data from the database", http.StatusBadRequest)
-	}
+		pathVars := mux.Vars(r)
 
-	if _, err := w.Write(response); err != nil {
-		panic(err)
+		var (
+			category string
+			code     string
+			ok       bool
+		)
+
+		if category, ok = pathVars["area_type"]; !ok {
+			http.Error(w, "area type not defined", http.StatusBadRequest)
+			return
+		} else if code, ok = pathVars["area_code"]; !ok {
+			http.Error(w, "area code not defined", http.StatusBadRequest)
+		}
+
+		response, err := conf.fromDatabase(category, code)
+		if err != nil {
+			http.Error(w, "failed to retrieve data from the database", http.StatusBadRequest)
+		}
+
+		if _, err = w.Write(response); err != nil {
+			panic(err)
+		}
+
 	}
 
 } // queryByCode

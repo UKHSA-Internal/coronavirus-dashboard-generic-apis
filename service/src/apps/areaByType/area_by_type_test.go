@@ -1,0 +1,38 @@
+package areaByType
+
+import (
+	"testing"
+
+	"generic_apis/db"
+	"generic_apis/insight"
+	"generic_apis/testify"
+	"github.com/microsoft/ApplicationInsights-Go/appinsights"
+)
+
+func TestFromDataBase(t *testing.T) {
+
+	insightClient := insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(insightClient, true)
+
+	database, err := db.Connect(insightClient)
+	if err != nil {
+		panic(err)
+	}
+	defer database.CloseConnection()
+	conf := &handler{database, ""}
+
+	expected := []map[string]interface{}{
+		{"areaCode": "E92000001", "areaName": "England"},
+		{"areaCode": "N92000002", "areaName": "Northern Ireland"},
+		{"areaCode": "S92000003", "areaName": "Scotland"},
+		{"areaCode": "W92000004", "areaName": "Wales"},
+	}
+
+	jsonResponse, err := conf.fromDatabase("nation")
+	if err != nil {
+		t.Error(err)
+	}
+
+	testify.AssertJsonArrResponseMatchExpected(t, expected, jsonResponse)
+
+} // TestFromDataBase

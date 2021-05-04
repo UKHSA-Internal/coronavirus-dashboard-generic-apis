@@ -2,116 +2,136 @@ package db
 
 import (
 	"context"
-	"regexp"
+	"encoding/json"
+	"time"
 
+	"generic_apis/insight"
 	"github.com/caarlos0/env"
+	"github.com/jackc/pgconn"
+	"github.com/jackc/pgconn/stmtcache"
 	"github.com/jackc/pgx/v4"
+	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 )
 
 type (
 	Config struct {
 		DatabaseConnectionString string `env:"POSTGRES_CONNECTION_STRING"`
-		database                 *pgx.Conn
+		Database                 *pgx.Conn
+		dbConfig                 *pgx.ConnConfig
+		Insight                  appinsights.TelemetryClient
+	}
+
+	Payload struct {
+		Query         string
+		Args          []interface{}
+		OperationData *insight.OperationData
 	}
 
 	ResultType map[string]interface{}
 )
 
-var pattern = regexp.MustCompile(
-	`^postgres://(?P<user>[^:]+):?(?P<password>.*)?@(?P<host>.*):?(?P<port>\d*)?/(?P<dbname>.*)?$`)
+func (conf *Config) CloseConnection() {
 
-func (conf *Config) parsedConnStr() *map[string]interface{} {
+	err := conf.Database.Close(context.Background())
 
-	if err := env.Parse(conf); err != nil {
-		panic(err)
-	}
-
-	match := pattern.FindStringSubmatch(conf.DatabaseConnectionString)
-
-	result := make(map[string]interface{})
-	for idx, name := range pattern.SubexpNames() {
-		if idx > 0 && name != "" {
-			result[name] = match[idx]
-		}
-	}
-
-	if result["port"] == "" {
-		result["port"] = uint16(5432)
-	}
-
-	return &result
-
-} // parsedConnStr
-
-func (conf *Config) connect() error {
-
-	if err := env.Parse(conf); err != nil {
-		panic(err)
-	}
-
-	db, err := pgx.Connect(context.Background(), conf.DatabaseConnectionString)
 	if err != nil {
-		return err
+		panic(err)
 	}
 
-	if err := db.Ping(context.Background()); err != nil {
-		return err
+} // closeConnection
+
+// Connect establishes a connection to the DB.
+func Connect(insight appinsights.TelemetryClient) (*Config, error) {
+
+	var err error
+	conf := &Config{Insight: insight}
+	if err = env.Parse(conf); err != nil {
+		panic(err)
 	}
 
-	conf.database = db
-
-	return nil
-
-} // connect
-
-func Query(query string, args ...interface{}) ([]ResultType, error) {
-
-	conf := &Config{}
-	if err := conf.connect(); err != nil {
-		return nil, err
-	}
-	defer conf.database.Close(context.Background())
-
-	rows, err := conf.database.Query(context.Background(), query, args...)
+	conf.dbConfig, err = pgx.ParseConfig(conf.DatabaseConnectionString)
 	if err != nil {
 		return nil, err
 	}
 
-	fieldDescriptions := rows.FieldDescriptions()
-
-	var columnNames []string
-	for _, col := range fieldDescriptions {
-		columnNames = append(columnNames, string(col.Name))
-	}
-	columnsLen := len(columnNames)
-
-	var results []ResultType
-
-	columns := make([]interface{}, columnsLen)
-	columnPointers := make([]interface{}, columnsLen)
-
-	for rows.Next() {
-		// Create a slice of interface{}'s to represent each column,
-		// and a second slice to contain pointers to each item in the columns slice.
-		for index := range columns {
-			columnPointers[index] = &columns[index]
-		}
-
-		// Scan the result into the column pointers...
-		if err := rows.Scan(columnPointers...); err != nil {
-			return nil, err
-		}
-
-		// Create our map, and retrieve the value for each column from the pointers slice,
-		// storing it in the map with the name of the column as the key.
-		rowResult := make(ResultType)
-		for index, colName := range columnNames {
-			val := columnPointers[index].(*interface{})
-			rowResult[colName] = *val
-		}
-		results = append(results, rowResult)
+	// Support for PGBouncer
+	conf.dbConfig.BuildStatementCache = func(conn *pgconn.PgConn) stmtcache.Cache {
+		return stmtcache.New(conn, stmtcache.ModeDescribe, 1024)
 	}
 
-	return results, nil
+	conf.dbConfig.ConnectTimeout = 10 * time.Second
 
-} // Query
+	conf.Database, err = pgx.ConnectConfig(context.Background(), conf.dbConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = conf.Database.Ping(context.Background()); err != nil {
+		return nil, err
+	}
+
+	return conf, nil
+
+} // Connect
+
+// FetchAll establishes a connection to the Database, executes `query`
+// with `args` and returns all returning rows.
+func (conf *Config) FetchAll(payload *Payload) ([]ResultType, error) {
+
+	startTime := time.Now()
+	response, responseErr := conf.fetchAll(payload.Query, payload.Args...)
+	endTime := time.Now()
+
+	dependency := appinsights.NewRemoteDependencyTelemetry(
+		"database",
+		"postgresql",
+		"database",
+		responseErr == nil)
+	dependency.Data = payload.Query
+	dependency.MarkTime(startTime, endTime)
+	argsJson, jsonErr := json.Marshal(payload.Args)
+	if jsonErr == nil {
+		dependency.Properties["args"] = string(argsJson)
+	}
+	dependency.Properties["action"] = "FetchAll"
+	dependency.Id = insight.GenerateOperationId()
+	dependency.Tags.Operation().SetParentId(payload.OperationData.ParentId)
+	dependency.Tags.Operation().SetId(payload.OperationData.OperationId)
+	// dependency.Properties["Parent Id"] = payload.Traceparent
+	// fmt.Println(payload.Traceparent)
+	conf.Insight.Track(dependency)
+
+	return response, responseErr
+
+} // FetchAll
+
+// FetchRow establishes a connection to the Database, executes `query`
+// with `args` and returns the first rows.
+func (conf *Config) FetchRow(payload *Payload) (ResultType, error) {
+
+	startTime := time.Now()
+	response, responseErr := conf.fetchRow(payload.Query, payload.Args...)
+	endTime := time.Now()
+
+	dependency := appinsights.NewRemoteDependencyTelemetry(
+		"database",
+		"postgresql",
+		conf.dbConfig.Host,
+		responseErr == nil)
+	dependency.Data = payload.Query
+	dependency.MarkTime(startTime, endTime)
+	argsJson, jsonErr := json.Marshal(payload.Args)
+	if jsonErr == nil {
+		dependency.Properties["args"] = string(argsJson)
+	}
+	dependency.Properties["action"] = "FetchRow"
+	dependency.Id = insight.GenerateOperationId()
+	// dependency.Tags.Operation().SetParentId(payload.Traceparent)
+	dependency.Tags.Operation().SetParentId(payload.OperationData.ParentId)
+	dependency.Tags.Operation().SetId(payload.OperationData.OperationId)
+	// dependency.Properties["operation_ParentId"] = payload.Traceparent
+	conf.Insight.Track(dependency)
+
+	return response, responseErr
+
+} // FetchRow

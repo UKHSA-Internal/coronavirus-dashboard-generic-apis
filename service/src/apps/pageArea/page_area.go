@@ -1,4 +1,4 @@
-package areaByType
+package pageArea
 
 import (
 	"encoding/json"
@@ -16,12 +16,16 @@ type handler struct {
 	traceparent string
 }
 
-const query = `
-SELECT area_name AS "areaName", area_code AS "areaCode"
-FROM covid19.area_reference
-WHERE area_type = $1
-ORDER BY area_name ASC;
-`
+const (
+	query = `
+SELECT area_type AS "areaType", area_name AS "areaName", area_code AS "areaCode"
+FROM covid19.page AS pg
+	JOIN covid19.page_area_reference AS par ON par.category_id = pg.id
+	JOIN covid19.area_reference AS ar ON ar.id = par.area_id
+WHERE LOWER(pg.title) = $1`
+
+	areaTypeFilter = ` AND ar.area_type = $2`
+)
 
 var areaTypes = map[string]string{
 	"postcode":  "postcode",
@@ -35,16 +39,29 @@ var areaTypes = map[string]string{
 	"overview":  "overview",
 }
 
-func (conf *handler) fromDatabase(areaType string) ([]byte, error) {
+func (conf *handler) fromDatabase(params map[string]string) ([]byte, error) {
 
-	var ok bool
-	if areaType, ok = areaTypes[strings.ToLower(areaType)]; !ok {
-		return nil, fmt.Errorf("invalid area type")
+	var (
+		ok           bool
+		areaType     string
+		args         = []interface{}{strings.ToLower(params["page"])}
+		preppedQuery = query
+	)
+
+	if areaType, ok = params["area_type"]; ok {
+		areaType = strings.ToLower(areaType)
+
+		if areaType, ok = areaTypes[areaType]; !ok {
+			return nil, fmt.Errorf("invalid area type")
+		} else {
+			args = append(args, areaType)
+			preppedQuery += areaTypeFilter
+		}
 	}
 
 	payload := &db.Payload{
-		Query:         query,
-		Args:          []interface{}{areaType},
+		Query:         preppedQuery,
+		Args:          args,
 		OperationData: insight.GetOperationData(conf.traceparent),
 	}
 	results, err := conf.db.FetchAll(payload)
@@ -70,16 +87,11 @@ func Handler(config *db.Config) func(w http.ResponseWriter, r *http.Request) {
 
 		pathVars := mux.Vars(r)
 
-		var (
-			areaType string
-			ok       bool
-		)
-
-		if areaType, ok = pathVars["area_type"]; !ok {
-			panic("no area type")
+		if _, ok := pathVars["page"]; !ok {
+			panic("no page")
 		}
 
-		response, err := conf.fromDatabase(areaType)
+		response, err := conf.fromDatabase(pathVars)
 		if err != nil {
 			panic(err)
 		}
