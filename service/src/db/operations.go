@@ -2,28 +2,70 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v4"
 )
 
+// dbResponse holds response and metadata for a database
+// query.
+type dbResponse struct {
+	// columnNames holds name of columns included in a
+	// database response.
+	columnNames []string
+
+	// rows holds the rows returned in response to a
+	// query from the database.
+	rows pgx.Rows
+
+	// columnsLen holds the number of columns in a
+	// database response.
+	columnsLen int
+}
+
+// fetch makes a call to the the database and prepares
+// the response for additional processing.
+func (conf *Config) fetch(query string, args ...interface{}) (*dbResponse, error) {
+	var (
+		response = &dbResponse{}
+		err      error
+	)
+
+	response.rows, err = conf.Database.Query(context.Background(), query, args...)
+	if err != nil {
+		return response, err
+	}
+
+	fieldDescriptions := response.rows.FieldDescriptions()
+
+	for _, col := range fieldDescriptions {
+		response.columnNames = append(response.columnNames, string(col.Name))
+	}
+
+	response.columnsLen = len(response.columnNames)
+
+	return response, nil
+
+} // fetch
+
+// fetchAll retrieves and prepares all data returned in
+// response to a query.
 func (conf *Config) fetchAll(query string, args ...interface{}) ([]ResultType, error) {
-	rows, err := conf.Database.Query(context.Background(), query, args...)
+
+	var (
+		results  []ResultType
+		response *dbResponse
+		err      error
+	)
+
+	response, err = conf.fetch(query, args...)
 	if err != nil {
 		return nil, err
 	}
 
-	fieldDescriptions := rows.FieldDescriptions()
+	columns := make([]interface{}, response.columnsLen)
+	columnPointers := make([]interface{}, response.columnsLen)
 
-	var columnNames []string
-	for _, col := range fieldDescriptions {
-		columnNames = append(columnNames, string(col.Name))
-	}
-	columnsLen := len(columnNames)
-
-	var results []ResultType
-
-	columns := make([]interface{}, columnsLen)
-	columnPointers := make([]interface{}, columnsLen)
-
-	for rows.Next() {
+	for response.rows.Next() {
 		// Create a slice of interface{}'s to represent each column,
 		// and a second slice to contain pointers to each item in the columns slice.
 		for index := range columns {
@@ -31,14 +73,14 @@ func (conf *Config) fetchAll(query string, args ...interface{}) ([]ResultType, e
 		}
 
 		// Scan the result into the column pointers...
-		if err := rows.Scan(columnPointers...); err != nil {
+		if err = response.rows.Scan(columnPointers...); err != nil {
 			return nil, err
 		}
 
 		// Create our map, and retrieve the value for each column from the pointers slice,
 		// storing it in the map with the name of the column as the key.
 		rowResult := make(ResultType)
-		for index, colName := range columnNames {
+		for index, colName := range response.columnNames {
 			val := columnPointers[index].(*interface{})
 			rowResult[colName] = *val
 		}
@@ -46,27 +88,27 @@ func (conf *Config) fetchAll(query string, args ...interface{}) ([]ResultType, e
 	}
 
 	return results, err
-}
 
+} // fetchAll
+
+// fetchRow retrieves and prepares the first row of data
+// returned in response to a query.
 func (conf *Config) fetchRow(query string, args ...interface{}) (ResultType, error) {
 
-	rows, err := conf.Database.Query(context.Background(), query, args...)
+	var (
+		response *dbResponse
+		err      error
+	)
+
+	response, err = conf.fetch(query, args...)
 	if err != nil {
 		return nil, err
 	}
 
-	fieldDescriptions := rows.FieldDescriptions()
+	columns := make([]interface{}, response.columnsLen)
+	columnPointers := make([]interface{}, response.columnsLen)
 
-	var columnNames []string
-	for _, col := range fieldDescriptions {
-		columnNames = append(columnNames, string(col.Name))
-	}
-	columnsLen := len(columnNames)
-
-	columns := make([]interface{}, columnsLen)
-	columnPointers := make([]interface{}, columnsLen)
-
-	rows.Next()
+	response.rows.Next()
 	// Create a slice of interface{}'s to represent each column,
 	// and a second slice to contain pointers to each item in the columns slice.
 	for index := range columns {
@@ -74,14 +116,14 @@ func (conf *Config) fetchRow(query string, args ...interface{}) (ResultType, err
 	}
 
 	// Scan the result into the column pointers...
-	if err := rows.Scan(columnPointers...); err != nil {
+	if err = response.rows.Scan(columnPointers...); err != nil {
 		return nil, err
 	}
 
 	// Create our map, and retrieve the value for each column from the pointers slice,
 	// storing it in the map with the name of the column as the key.
 	rowResult := make(ResultType)
-	for index, colName := range columnNames {
+	for index, colName := range response.columnNames {
 		val := columnPointers[index].(*interface{})
 		rowResult[colName] = *val
 	}
