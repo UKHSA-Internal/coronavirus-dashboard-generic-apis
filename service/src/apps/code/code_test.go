@@ -42,7 +42,6 @@ func TestFromDataBase(t *testing.T) {
 
 	jsonResponse, err := conf.fromDatabase("postcode", "SW1A 0AA")
 	if err != nil {
-		// fmt.Println(err.Error())
 		t.Error(err.Error())
 	}
 
