@@ -1,39 +1,30 @@
 {
-    "listeners": {
-      "*:5000": {
+  "listeners": {
+    "*:5100": {
+      "pass": "routes"
+    }
+  },
+  "routes": [
+    {
+      "match": {
+        "uri": "/generic/*",
+        "method": [
+          "GET"
+        ]
+      },
+      "action": {
         "pass": "applications/generic_api"
       }
-    },
-    "routes": [
-      {
-        "match": {
-          "uri": "/generic/*",
-          "host": [
-            "*.coronavirus.data.gov.uk",
-            "localhost"
-          ],
-          "scheme": "https",
-          "arguments": {
-            "mode": "strict",
-            "access": "!raw"
-          },
-          "method": [
-            "GET"
-          ]
-        },
-        "action": {
-          "pass": "applications/generic_api"
-        }
-      }
-    ],
-    "applications": {
-      "generic_api": {
-        "type": "external",
-        "executable": "/opt/app/generic_api",
-        "working_directory": "/opt/app",
-        "environment": {
-          "IS_DEV": "0"
-        }
+    }
+  ],
+  "applications": {
+    "generic_api": {
+      "type": "external",
+      "executable": "/opt/app/generic_api",
+      "working_directory": "/opt/app",
+      "environment": {
+        "IS_DEV": "0"
       }
     }
+  }
 }
