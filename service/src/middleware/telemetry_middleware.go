@@ -13,7 +13,7 @@ import (
 
 var isDev = os.Getenv("IS_DEV") == "1"
 
-func PrepareHandlerErrorMiddleware(insightClient appinsights.TelemetryClient) func(next http.Handler) http.Handler {
+func PrepareTelemetryMiddleware(insightClient appinsights.TelemetryClient) func(next http.Handler) http.Handler {
 
 	return func(next http.Handler) http.Handler {
 
@@ -76,4 +76,4 @@ func PrepareHandlerErrorMiddleware(insightClient appinsights.TelemetryClient) fu
 
 	}
 
-} // PrepareHandlerErrorMiddleware
+} // PrepareTelemetryMiddleware
