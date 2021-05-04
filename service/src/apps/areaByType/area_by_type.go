@@ -52,11 +52,7 @@ func (conf *handler) fromDatabase(areaType string) ([]byte, error) {
 		return nil, err
 	}
 
-	if jsonString, err := json.Marshal(results); err != nil {
-		return nil, err
-	} else {
-		return jsonString, nil
-	}
+	return json.Marshal(results)
 
 } // FromDatabase
 

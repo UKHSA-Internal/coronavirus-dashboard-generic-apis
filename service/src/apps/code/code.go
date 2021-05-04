@@ -107,11 +107,7 @@ func (conf *handler) fromDatabase(areaType, search string) ([]byte, error) {
 		data["trimmedPostcode"] = strings.ReplaceAll(postcode, " ", "")
 	}
 
-	if jsonString, err := json.Marshal(data); err != nil {
-		return nil, err
-	} else {
-		return jsonString, nil
-	}
+	return json.Marshal(data)
 
 } // FromDatabase
 

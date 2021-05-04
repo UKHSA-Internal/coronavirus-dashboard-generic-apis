@@ -153,11 +153,7 @@ func (conf *handler) fromDatabase(areaType, areaCode string) ([]byte, error) {
 		}
 	}
 
-	if jsonString, err := json.Marshal(data); err != nil {
-		return nil, err
-	} else {
-		return jsonString, nil
-	}
+	return json.Marshal(data)
 
 } // FromDatabase
 

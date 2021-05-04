@@ -69,11 +69,7 @@ func (conf *handler) fromDatabase(params map[string]string) ([]byte, error) {
 		return nil, err
 	}
 
-	if jsonString, err := json.Marshal(results); err != nil {
-		return nil, err
-	} else {
-		return jsonString, nil
-	}
+	return json.Marshal(results)
 
 } // FromDatabase
 
