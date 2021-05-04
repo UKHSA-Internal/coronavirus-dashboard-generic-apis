@@ -3,9 +3,9 @@ package code
 import (
 	"testing"
 
+	"generic_apis/assert"
 	"generic_apis/db"
 	"generic_apis/insight"
-	"generic_apis/testify"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 )
 
@@ -46,6 +46,6 @@ func TestFromDataBase(t *testing.T) {
 		t.Error(err.Error())
 	}
 
-	testify.AssertJsonObjResponseMatchExpected(t, expected, jsonResponse)
+	assert.JsonObjResponseMatchExpected(t, expected, jsonResponse)
 
 } // TestFromDataBase

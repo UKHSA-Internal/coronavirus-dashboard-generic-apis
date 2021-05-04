@@ -7,9 +7,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"generic_apis/assert"
 	"generic_apis/db"
 	"generic_apis/insight"
-	"generic_apis/testify"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 )
 
@@ -78,7 +78,7 @@ func TestPostcode(t *testing.T) {
 
 	response := executeRequest(req)
 
-	testify.AssertEqual(t, "responseCode", http.StatusOK, response.Code)
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
 
 	data := make(map[string]interface{})
 	if err := json.Unmarshal(response.Body.Bytes(), &data); err != nil {
@@ -87,7 +87,7 @@ func TestPostcode(t *testing.T) {
 	}
 
 	for _, itemToken := range tokens {
-		testify.AssertEqual(t, itemToken.topic, itemToken.expected, data[itemToken.topic])
+		assert.Equal(t, itemToken.topic, itemToken.expected, data[itemToken.topic])
 	}
 
 } // TestPostcode
@@ -124,7 +124,7 @@ func TestRegion(t *testing.T) {
 
 	response := executeRequest(req)
 
-	testify.AssertEqual(t, "responseCode", http.StatusOK, response.Code)
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
 
 	data := make(map[string]interface{})
 	err = json.Unmarshal(response.Body.Bytes(), &data)
@@ -133,7 +133,7 @@ func TestRegion(t *testing.T) {
 	}
 
 	for _, itemToken := range tokens {
-		testify.AssertEqual(t, itemToken.topic, itemToken.expected, data[itemToken.topic])
+		assert.Equal(t, itemToken.topic, itemToken.expected, data[itemToken.topic])
 	}
 } // TestRegion
 
@@ -172,7 +172,7 @@ func TestUtla(t *testing.T) {
 	}
 	response := executeRequest(req)
 
-	testify.AssertEqual(t, "responseCode", http.StatusOK, response.Code)
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
 
 	data := make(map[string]interface{})
 	if err := json.Unmarshal(response.Body.Bytes(), &data); err != nil {
@@ -180,7 +180,7 @@ func TestUtla(t *testing.T) {
 	}
 
 	for _, itemToken := range tokens {
-		testify.AssertEqual(t, itemToken.topic, itemToken.expected, data[itemToken.topic])
+		assert.Equal(t, itemToken.topic, itemToken.expected, data[itemToken.topic])
 	}
 
 } // TestUtla
@@ -226,7 +226,7 @@ func TestMsoa(t *testing.T) {
 	}
 	response := executeRequest(req)
 
-	testify.AssertEqual(t, "responseCode", http.StatusOK, response.Code)
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
 
 	data := make(map[string]interface{})
 	if err := json.Unmarshal(response.Body.Bytes(), &data); err != nil {
@@ -234,7 +234,7 @@ func TestMsoa(t *testing.T) {
 	}
 
 	for _, itemToken := range tokens {
-		testify.AssertEqual(t, itemToken.topic, itemToken.expected, data[itemToken.topic])
+		assert.Equal(t, itemToken.topic, itemToken.expected, data[itemToken.topic])
 	}
 
 } // TestMsoa
@@ -265,7 +265,7 @@ func TestMsoa(t *testing.T) {
 //
 // 	response := executeRequest(req)
 // 	fmt.Println(response.Body.String())
-// 	testify.AssertEqual(t, "responseCode", http.StatusOK, response.Code)
+// 	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
 //
 // } // TestAreaByType
 
@@ -300,9 +300,9 @@ func TestPageAreaQuery(t *testing.T) {
 	}
 	response := executeRequest(req)
 
-	testify.AssertEqual(t, "responseCode", http.StatusOK, response.Code)
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
 
-	testify.AssertJsonArrResponseMatchExpected(t, expected, response.Body.Bytes())
+	assert.JsonArrResponseMatchExpected(t, expected, response.Body.Bytes())
 
 } // TestFromDataBase
 
@@ -340,8 +340,8 @@ func TestAreaOnlyQuery(t *testing.T) {
 	}
 	response := executeRequest(req)
 
-	testify.AssertEqual(t, "responseCode", http.StatusOK, response.Code)
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
 
-	testify.AssertJsonArrResponseContains(t, expected, response.Body.Bytes())
+	assert.JsonArrResponseContains(t, expected, response.Body.Bytes())
 
 } // TestFromDataBase

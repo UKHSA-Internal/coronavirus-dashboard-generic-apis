@@ -3,9 +3,9 @@ package areaByType
 import (
 	"testing"
 
+	"generic_apis/assert"
 	"generic_apis/db"
 	"generic_apis/insight"
-	"generic_apis/testify"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 )
 
@@ -33,6 +33,6 @@ func TestFromDataBase(t *testing.T) {
 		t.Error(err)
 	}
 
-	testify.AssertJsonArrResponseMatchExpected(t, expected, jsonResponse)
+	assert.JsonArrResponseMatchExpected(t, expected, jsonResponse)
 
 } // TestFromDataBase

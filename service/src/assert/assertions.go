@@ -1,4 +1,4 @@
-package testify
+package assert
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func AssertJsonObjResponseMatchExpected(t *testing.T, expected interface{}, jsonResponse []byte) {
+func JsonObjResponseMatchExpected(t *testing.T, expected interface{}, jsonResponse []byte) {
 
 	response := make(map[string]interface{})
 	if err := json.Unmarshal(jsonResponse, &response); err != nil {
@@ -21,9 +21,9 @@ func AssertJsonObjResponseMatchExpected(t *testing.T, expected interface{}, json
 			expected, response, difference)
 	}
 
-} // assertJsonResponseMatchExpected
+} // JsonResponseMatchExpected
 
-func AssertJsonArrResponseMatchExpected(t *testing.T, expected interface{}, jsonResponse []byte) {
+func JsonArrResponseMatchExpected(t *testing.T, expected interface{}, jsonResponse []byte) {
 
 	response := make([]map[string]interface{}, 0)
 	if err := json.Unmarshal(jsonResponse, &response); err != nil {
@@ -37,9 +37,9 @@ func AssertJsonArrResponseMatchExpected(t *testing.T, expected interface{}, json
 			expected, response, difference)
 	}
 
-} // assertJsonResponseMatchExpected
+} // JsonResponseMatchExpected
 
-func AssertJsonArrResponseContains(t *testing.T, expected interface{}, jsonResponse []byte) {
+func JsonArrResponseContains(t *testing.T, expected interface{}, jsonResponse []byte) {
 
 	response := make([]map[string]interface{}, 0)
 	if err := json.Unmarshal(jsonResponse, &response); err != nil {
@@ -61,12 +61,12 @@ func AssertJsonArrResponseContains(t *testing.T, expected interface{}, jsonRespo
 		t.Errorf("Expected to find %d items in the response, found %d instead", lenExpected, lenDetected)
 	}
 
-} // assertJsonResponseMatchExpected
+} // JsonResponseMatchExpected
 
-func AssertEqual(t *testing.T, topic string, expected, actual interface{}) {
+func Equal(t *testing.T, topic string, expected, actual interface{}) {
 
 	if expected != actual {
 		t.Errorf("[%v] Expected response code <%v>. Got <%v>\n", topic, expected, actual)
 	}
 
-} // AssertEqual
+} // Equal

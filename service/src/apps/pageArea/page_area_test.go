@@ -3,9 +3,9 @@ package pageArea
 import (
 	"testing"
 
+	"generic_apis/assert"
 	"generic_apis/db"
 	"generic_apis/insight"
-	"generic_apis/testify"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 )
 
@@ -38,7 +38,7 @@ func TestPageAreaQuery(t *testing.T) {
 		t.Error(err)
 	}
 
-	testify.AssertJsonArrResponseMatchExpected(t, expected, jsonResponse)
+	assert.JsonArrResponseMatchExpected(t, expected, jsonResponse)
 
 } // TestFromDataBase
 
@@ -73,6 +73,6 @@ func TestAreaOnlyQuery(t *testing.T) {
 		t.Error(err)
 	}
 
-	testify.AssertJsonArrResponseContains(t, expected, jsonResponse)
+	assert.JsonArrResponseContains(t, expected, jsonResponse)
 
 } // TestFromDataBase
