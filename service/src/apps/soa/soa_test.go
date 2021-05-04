@@ -31,11 +31,3 @@ func TestTimestamp(t *testing.T) {
 	}
 
 } // TestTimestamp
-
-// func checkResponse(t *testing.T, expected, actual interface{}) {
-//
-// 	if expected != actual {
-// 		t.Errorf("Expected response code %d. Got %d\n", expected, actual)
-// 	}
-//
-// } // checkResponse
