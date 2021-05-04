@@ -2,76 +2,117 @@ package api
 
 import (
 	"net/http"
+	"time"
 
 	"generic_apis/apps/areaByType"
 	"generic_apis/apps/code"
+	"generic_apis/apps/pageArea"
 	"generic_apis/apps/soa"
+	"generic_apis/db"
+	"generic_apis/insight"
 	"generic_apis/middleware"
 	"github.com/gorilla/mux"
-	unit "unit.nginx.org/go"
+	"github.com/microsoft/ApplicationInsights-Go/appinsights"
+	"unit.nginx.org/go"
 )
 
 type (
 	Api struct {
-		Router *mux.Router
+		Router   *mux.Router
+		database *db.Config
+		Insight  appinsights.TelemetryClient
 	}
 
 	routeEntry struct {
 		name    string
 		path    string
-		handler func(http.ResponseWriter, *http.Request)
+		handler func(*db.Config) func(http.ResponseWriter, *http.Request)
 	}
 )
 
 var getRoutes = []routeEntry{
 	{
 		"code",
-		`/generic/code/type/{area_type:[a-zA-Z]{4,10}}/code/{area_code:[a-zA-Z0-9+%\s]{3,12}}`,
-		code.QueryByCode,
+		`/generic/code/{area_type:[a-zA-Z]{4,10}}/{area_code:[a-zA-Z0-9+%\s]{3,12}}`,
+		code.Handler,
 	},
 	{
 		"soa",
-		`/generic/soa/type/{area_type:[a-zA-Z]{4,10}}/code/{area_code:[a-zA-Z0-9]{3,10}}`,
-		soa.SoaQuery,
+		`/generic/soa/{area_type:[a-zA-Z]{4,10}}/{area_code:[a-zA-Z0-9]{3,10}}`,
+		soa.Handler,
 	},
 	{
 		"area",
-		`/generic/area/type/{area_type:[a-zA-Z]{4,10}}`,
-		areaByType.AreaByTypeQuery,
+		`/generic/area/{area_type:[a-zA-Z]{4,10}}`,
+		areaByType.Handler,
+	},
+	{
+		"page_areas",
+		`/generic/page_areas/{page:[a-zA-Z]{3,10}}`,
+		pageArea.Handler,
+	},
+	{
+		"page_areas_with_type",
+		`/generic/page_areas/{page:[a-zA-Z]{3,10}}/{area_type:[a-zA-Z]{5,12}}`,
+		pageArea.Handler,
 	},
 } // routes
 
-func (api *Api) Initialize() {
+func (apiClient *Api) Run(addr string) {
 
-	api.Router = mux.NewRouter()
-	api.initializeRoutes()
+	// Insight initialisation
+	apiClient.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(apiClient.Insight, true)
 
-} // Initialize
+	// DB initialisation
+	var err error
+	apiClient.database, err = db.Connect(apiClient.Insight)
+	if err != nil {
+		panic(err)
+	}
 
-func (api *Api) Run(addr string) {
+	apiClient.Initialize()
 
-	api.Initialize()
-
-	// Uncomment for testing
-	// if err := http.ListenAndServe(addr, api.Router); err != nil {
+	// Uncomment for local testing
+	// if err = http.ListenAndServe(addr, apiClient.Router); err != nil {
 	// 	panic(err)
 	// }
 
 	// Comment for testing
-	// This will only run inside the container.
-	if err := unit.ListenAndServe(addr, api.Router); err != nil {
+	// This will only run inside the container - needs Nginx Unit
+	// to be installed.
+	if err = unit.ListenAndServe(addr, apiClient.Router); err != nil {
 		panic(err)
 	}
 
+	select {
+	case <-apiClient.Insight.Channel().Close(10 * time.Second):
+		// Ten second timeout for retries.
+		// All telemetry should have been submitted
+		// successfully and we can proceed to exiting.
+
+	case <-time.After(30 * time.Second):
+		// Thirty second absolute timeout.  This covers any
+		// previous telemetry submission that may not have
+		// completed before Close was called.
+		// There are a number of reasons we could have
+		// reached here.  Telemetry submission has likely
+		// failed somewhere.
+	}
+
+	defer apiClient.database.CloseConnection()
+
 } // Run
 
-func (api *Api) initializeRoutes() {
+func (apiClient *Api) Initialize() {
 
-	api.Router.Use(middleware.HeadersMiddleware)
+	apiClient.Router = mux.NewRouter()
+	apiClient.Router.Use(middleware.HeadersMiddleware)
+	apiClient.Router.Use(middleware.PrepareHandlerErrorMiddleware(apiClient.Insight))
 
 	for _, route := range getRoutes {
-		api.Router.
-			HandleFunc(route.path, route.handler).
+		apiClient.Router.
+			HandleFunc(route.path, route.handler(apiClient.database)).
 			Name(route.name).
 			Methods("GET")
 	}

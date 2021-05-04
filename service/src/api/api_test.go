@@ -6,6 +6,11 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"generic_apis/db"
+	"generic_apis/insight"
+	"generic_apis/testify"
+	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 )
 
 type (
@@ -29,17 +34,18 @@ func executeRequest(req *http.Request) *httptest.ResponseRecorder {
 
 } // executeRequest
 
-func checkResponse(t *testing.T, topic string, expected, actual interface{}) {
-
-	if expected != actual {
-		t.Errorf("[%v] Expected response code <%v>. Got <%v>\n", topic, expected, actual)
-	}
-
-} // checkResponse
-
 func TestPostcode(t *testing.T) {
 
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
 	api.Initialize()
+	defer api.database.CloseConnection()
 
 	tokens := testTokens{
 		{"postcode", "SW1A 0AA", false},
@@ -60,27 +66,44 @@ func TestPostcode(t *testing.T) {
 		{"nationName", "England", true},
 	}
 
-	url, _ := api.Router.Get("code").URL("area_type", tokens[0].topic, "area_code", tokens[0].expected)
+	url, err := api.Router.Get("code").URL("area_type", tokens[0].topic, "area_code", tokens[0].expected)
+	if err != nil {
+		t.Error(err)
+	}
 
-	req, _ := http.NewRequest("GET", url.String(), nil)
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
+
 	response := executeRequest(req)
 
-	checkResponse(t, "responseCode", http.StatusOK, response.Code)
+	testify.AssertEqual(t, "responseCode", http.StatusOK, response.Code)
 
 	data := make(map[string]interface{})
 	if err := json.Unmarshal(response.Body.Bytes(), &data); err != nil {
+		fmt.Println(err.Error())
 		t.Error(err.Error())
 	}
 
 	for _, itemToken := range tokens {
-		checkResponse(t, itemToken.topic, itemToken.expected, data[itemToken.topic])
+		testify.AssertEqual(t, itemToken.topic, itemToken.expected, data[itemToken.topic])
 	}
 
 } // TestPostcode
 
 func TestRegion(t *testing.T) {
 
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
 	api.Initialize()
+	defer api.database.CloseConnection()
 
 	tokens := testTokens{
 		{"region", "E12000007", false},
@@ -91,27 +114,41 @@ func TestRegion(t *testing.T) {
 
 	url, err := api.Router.Get("code").URL("area_type", tokens[0].topic, "area_code", tokens[0].expected)
 	if err != nil {
-		panic(err.Error())
+		t.Error(err)
 	}
-	req, _ := http.NewRequest("GET", url.String(), nil)
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
+
 	response := executeRequest(req)
 
-	checkResponse(t, "responseCode", http.StatusOK, response.Code)
+	testify.AssertEqual(t, "responseCode", http.StatusOK, response.Code)
 
 	data := make(map[string]interface{})
 	err = json.Unmarshal(response.Body.Bytes(), &data)
 	if err != nil {
-		t.Error(err.Error())
+		t.Error(err)
 	}
 
 	for _, itemToken := range tokens {
-		checkResponse(t, itemToken.topic, itemToken.expected, data[itemToken.topic])
+		testify.AssertEqual(t, itemToken.topic, itemToken.expected, data[itemToken.topic])
 	}
 } // TestRegion
 
 func TestUtla(t *testing.T) {
 
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
 	api.Initialize()
+	defer api.database.CloseConnection()
 
 	tokens := testTokens{
 		{"utla", "E09000033", false},
@@ -124,27 +161,42 @@ func TestUtla(t *testing.T) {
 		{"nationName", "England", true},
 	}
 
-	url, _ := api.Router.Get("code").URL("area_type", tokens[0].topic, "area_code", tokens[0].expected)
+	url, err := api.Router.Get("code").URL("area_type", tokens[0].topic, "area_code", tokens[0].expected)
+	if err != nil {
+		t.Error(err)
+	}
 
-	req, _ := http.NewRequest("GET", url.String(), nil)
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
 	response := executeRequest(req)
 
-	checkResponse(t, "responseCode", http.StatusOK, response.Code)
+	testify.AssertEqual(t, "responseCode", http.StatusOK, response.Code)
 
 	data := make(map[string]interface{})
 	if err := json.Unmarshal(response.Body.Bytes(), &data); err != nil {
-		t.Error(err.Error())
+		t.Error(err)
 	}
 
 	for _, itemToken := range tokens {
-		checkResponse(t, itemToken.topic, itemToken.expected, data[itemToken.topic])
+		testify.AssertEqual(t, itemToken.topic, itemToken.expected, data[itemToken.topic])
 	}
 
 } // TestUtla
 
 func TestMsoa(t *testing.T) {
 
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
 	api.Initialize()
+	defer api.database.CloseConnection()
 
 	tokens := testTokens{
 		{"msoa", "E02000979", false},
@@ -163,33 +215,133 @@ func TestMsoa(t *testing.T) {
 		{"nationName", "England", true},
 	}
 
-	url, _ := api.Router.Get("code").URL("area_type", tokens[0].topic, "area_code", tokens[0].expected)
+	url, err := api.Router.Get("code").URL("area_type", tokens[0].topic, "area_code", tokens[0].expected)
+	if err != nil {
+		t.Error(err)
+	}
 
-	req, _ := http.NewRequest("GET", url.String(), nil)
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
 	response := executeRequest(req)
 
-	checkResponse(t, "responseCode", http.StatusOK, response.Code)
+	testify.AssertEqual(t, "responseCode", http.StatusOK, response.Code)
 
 	data := make(map[string]interface{})
 	if err := json.Unmarshal(response.Body.Bytes(), &data); err != nil {
-		t.Error(err.Error())
+		t.Error(err)
 	}
 
 	for _, itemToken := range tokens {
-		checkResponse(t, itemToken.topic, itemToken.expected, data[itemToken.topic])
+		testify.AssertEqual(t, itemToken.topic, itemToken.expected, data[itemToken.topic])
 	}
 
 } // TestMsoa
 
-func TestAreaByType(t *testing.T) {
+// func _TestAreaByType(t *testing.T) {
+//
+// 	var err error
+// 	api.Insight = insight.InitialiseInsightClient()
+// 	defer appinsights.TrackPanic(api.Insight, true)
+//
+// 	api.database, err = db.Connect(api.Insight)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	api.Initialize()
+// 	defer api.database.CloseConnection()
+//
+// 	url, err := api.Router.Get("area").URL("area_type", "nation")
+// 	if err != nil {
+// 		t.Error(err)
+// 	}
+// 	fmt.Println(">>>>", url)
+//
+// 	req, err := http.NewRequest("GET", url.String(), nil)
+// 	if err != nil {
+// 		t.Error(err)
+// 	}
+//
+// 	response := executeRequest(req)
+// 	fmt.Println(response.Body.String())
+// 	testify.AssertEqual(t, "responseCode", http.StatusOK, response.Code)
+//
+// } // TestAreaByType
 
+func TestPageAreaQuery(t *testing.T) {
+
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
 	api.Initialize()
+	defer api.database.CloseConnection()
 
-	url, _ := api.Router.Get("area").URL("area_type", "nation")
+	expected := []map[string]interface{}{
+		{"areaCode": "E92000001", "areaType": "nation", "areaName": "England"},
+		{"areaCode": "N92000002", "areaType": "nation", "areaName": "Northern Ireland"},
+		{"areaCode": "S92000003", "areaType": "nation", "areaName": "Scotland"},
+		{"areaCode": "W92000004", "areaType": "nation", "areaName": "Wales"},
+	}
 
-	req, _ := http.NewRequest("GET", url.String(), nil)
+	url, err := api.Router.Get("page_areas_with_type").URL("page", "Cases", "area_type", "nation")
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
 	response := executeRequest(req)
-	fmt.Println(response.Body)
-	checkResponse(t, "responseCode", http.StatusOK, response.Code)
 
-} // TestAreaByType
+	testify.AssertEqual(t, "responseCode", http.StatusOK, response.Code)
+
+	testify.AssertJsonArrResponseMatchExpected(t, expected, response.Body.Bytes())
+
+} // TestFromDataBase
+
+func TestAreaOnlyQuery(t *testing.T) {
+
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
+	api.Initialize()
+	defer api.database.CloseConnection()
+
+	expected := []map[string]interface{}{
+		{"areaCode": "E92000001", "areaType": "nation", "areaName": "England"},
+		{"areaCode": "N92000002", "areaType": "nation", "areaName": "Northern Ireland"},
+		{"areaCode": "S92000003", "areaType": "nation", "areaName": "Scotland"},
+		{"areaCode": "W92000004", "areaType": "nation", "areaName": "Wales"},
+		{"areaCode": "E06000041", "areaName": "Wokingham", "areaType": "utla"},
+		{"areaCode": "E07000119", "areaName": "Fylde", "areaType": "ltla"},
+		{"areaCode": "E12000004", "areaName": "East Midlands", "areaType": "region"},
+	}
+
+	url, err := api.Router.Get("page_areas").URL("page", "Cases")
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
+	response := executeRequest(req)
+
+	testify.AssertEqual(t, "responseCode", http.StatusOK, response.Code)
+
+	testify.AssertJsonArrResponseContains(t, expected, response.Body.Bytes())
+
+} // TestFromDataBase
