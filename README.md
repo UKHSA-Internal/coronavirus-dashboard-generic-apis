@@ -1,6 +1,5 @@
-# Coronavirus Dashboard API v.2.1
+# Coronavirus (COVID-19) in the UK - Generic APIs
 
-Source code for the Coronavirus API - version 2.1 
 
 This version introduces the batch downloads API that powers 
 the [map](https://coronavirus.data.gov.uk/details/interactive-map), navigation, hierarchy, and relations
