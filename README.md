@@ -1,7 +1,7 @@
 # Coronavirus (COVID-19) in the UK - Generic APIs
 
 
-This version introduces the batch downloads API that powers 
+APIs that power
 the [map](https://coronavirus.data.gov.uk/details/interactive-map), navigation, hierarchy, and relations
 
  
