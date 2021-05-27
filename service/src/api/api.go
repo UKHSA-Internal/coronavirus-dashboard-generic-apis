@@ -4,16 +4,12 @@ import (
 	"net/http"
 	"time"
 
-	"generic_apis/apps/areaByType"
-	"generic_apis/apps/code"
-	"generic_apis/apps/pageArea"
-	"generic_apis/apps/soa"
 	"generic_apis/db"
 	"generic_apis/insight"
 	"generic_apis/middleware"
 	"github.com/gorilla/mux"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
-	"unit.nginx.org/go"
+	unit "unit.nginx.org/go"
 )
 
 type (
@@ -29,34 +25,6 @@ type (
 		handler func(*db.Config) func(http.ResponseWriter, *http.Request)
 	}
 )
-
-var getRoutes = []routeEntry{
-	{
-		"code",
-		`/generic/code/{area_type:[a-zA-Z]{4,10}}/{area_code:[a-zA-Z0-9+%\s]{3,12}}`,
-		code.Handler,
-	},
-	{
-		"soa",
-		`/generic/soa/{area_type:[a-zA-Z]{4,10}}/{area_code:[a-zA-Z0-9]{3,10}}`,
-		soa.Handler,
-	},
-	{
-		"area",
-		`/generic/area/{area_type:[a-zA-Z]{4,10}}`,
-		areaByType.Handler,
-	},
-	{
-		"page_areas",
-		`/generic/page_areas/{page:[a-zA-Z]{3,10}}`,
-		pageArea.Handler,
-	},
-	{
-		"page_areas_with_type",
-		`/generic/page_areas/{page:[a-zA-Z]{3,10}}/{area_type:[a-zA-Z]{5,12}}`,
-		pageArea.Handler,
-	},
-} // routes
 
 func (apiClient *Api) Run(addr string) {
 
@@ -112,11 +80,11 @@ func (apiClient *Api) Initialize() {
 	apiClient.Router.Use(middleware.HeadersMiddleware)
 	apiClient.Router.Use(telemetryMiddleware)
 
-	for _, route := range getRoutes {
+	for _, route := range urlPatterns {
 		apiClient.Router.
 			HandleFunc(route.path, route.handler(apiClient.database)).
 			Name(route.name).
-			Methods("GET")
+			Methods(http.MethodGet)
 	}
 
 } // initializeRoutes

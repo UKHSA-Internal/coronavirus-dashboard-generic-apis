@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"generic_apis/apps/utils"
 	"generic_apis/db"
 	"generic_apis/insight"
 	"github.com/gorilla/mux"
@@ -14,52 +15,6 @@ import (
 type handler struct {
 	db          *db.Config
 	traceparent string
-}
-
-const areaQuery = `
-SELECT
-	area_code    AS "areaCode",
-	area_name    AS "areaName",
-	ar.area_type AS "areaType"
-FROM covid19.area_reference AS ar
-WHERE id IN (
-	  	 SELECT parent_id
-	  	 FROM covid19.area_reference AS ar2
-		   JOIN covid19.area_relation_se AS pl2 ON pl2.child_id = ar2.id
-	  	 WHERE area_type = $1
-	  	   AND area_code = $2
-	  )
-   OR ( area_type = $1 AND area_code = $2 )
-`
-
-const postcodeQuery = `
-SELECT postcode, 
-	   area_code AS "areaCode", 
-	   area_name AS "areaName", 
-	   ar.area_type AS "areaType"
-FROM covid19.area_reference AS ar
-  JOIN covid19.postcode_lookup AS pl ON pl.area_id = ar.id
-  JOIN covid19.area_priorities AS ap ON ap.area_type = ar.area_type
-WHERE UPPER(REPLACE(postcode, ' ', '')) = $2
-  AND priority >= (
-	SELECT priority 
-	FROM covid19.area_priorities
-	WHERE area_type = $1
-	LIMIT 1
-  )
-`
-
-var areaTypes = map[string]string{
-	"postcode":        "postcode",
-	"trimmedpostcode": "postcode",
-	"msoa":            "msoa",
-	"nhstrust":        "nhsTrust",
-	"nhsregion":       "nhsRegion",
-	"utla":            "utla",
-	"ltla":            "ltla",
-	"region":          "region",
-	"nation":          "nation",
-	"overview":        "overview",
 }
 
 func (conf *handler) fromDatabase(areaType, search string) ([]byte, error) {
@@ -73,12 +28,12 @@ func (conf *handler) fromDatabase(areaType, search string) ([]byte, error) {
 	search = strings.ReplaceAll(strings.ToUpper(search), " ", "")
 	areaType = strings.ToLower(areaType)
 
-	if areaType, ok = areaTypes[areaType]; !ok {
+	if areaType, ok = utils.AreaTypes[areaType]; !ok {
 		return nil, fmt.Errorf("invalid area type")
 	}
 
-	if areaType == areaTypes["postcode"] {
-		params = []interface{}{areaTypes["msoa"], search}
+	if areaType == utils.AreaTypes["postcode"] {
+		params = []interface{}{utils.AreaTypes["msoa"], search}
 		query = postcodeQuery
 	} else {
 		params = []interface{}{areaType, search}
@@ -101,7 +56,7 @@ func (conf *handler) fromDatabase(areaType, search string) ([]byte, error) {
 		data[item["areaType"].(string)] = item["areaCode"].(string)
 	}
 
-	if len(results) > 0 && areaType == areaTypes["postcode"] {
+	if len(results) > 0 && areaType == utils.AreaTypes["postcode"] {
 		postcode := results[0]["postcode"].(string)
 		data["postcode"] = postcode
 		data["trimmedPostcode"] = strings.ReplaceAll(postcode, " ", "")

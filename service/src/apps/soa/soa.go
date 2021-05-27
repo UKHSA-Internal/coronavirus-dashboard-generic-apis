@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"generic_apis/apps/utils"
 	"generic_apis/db"
 	"generic_apis/insight"
 	"github.com/gorilla/mux"
@@ -17,72 +18,9 @@ type handler struct {
 	traceparent string
 }
 
-const query = `
-SELECT
-	area_code AS "areaCode",
-	area_name AS "areaName",
-	area_type AS "areaType",
-	DATE(date)::TEXT AS "date",
-	(payload -> 'rollingSum') AS "rollingSum",
-	(payload -> 'rollingRate') AS "rollingRate",
-	(payload -> 'change') AS "change",
-	(payload -> 'direction') AS "direction",
-	(payload -> 'changePercentage') AS "changePercentage"
-FROM %s AS ts
-	JOIN covid19.area_reference AS ar ON ts.area_id = ar.id
-WHERE area_code = $1
-  AND date = ( SELECT MAX(date) FROM %s )
-`
-
-const queryTable = "covid19.time_series_p%s_%s"
-
-const timestampQuery = `
-SELECT DATE(MAX(timestamp))::TEXT AS date
-FROM covid19.release_reference AS rr
-	JOIN covid19.release_category AS rc ON rc.release_id = rr.id
-WHERE released IS TRUE
-  AND process_name = $1
-`
-
-var (
-	areaTypes = map[string]string{
-		"postcode":  "postcode",
-		"msoa":      "msoa",
-		"nhstrust":  "nhsTrust",
-		"nhsregion": "nhsRegion",
-		"utla":      "utla",
-		"ltla":      "ltla",
-		"region":    "region",
-		"nation":    "nation",
-		"overview":  "overview",
-	}
-
-	releaseCategories = map[string]string{
-		"msoa":      "MSOA",
-		"nhsTrust":  "MAIN",
-		"nhsRegion": "MAIN",
-		"utla":      "MAIN",
-		"ltla":      "MAIN",
-		"region":    "MAIN",
-		"nation":    "MAIN",
-		"overview":  "MAIN",
-	}
-
-	areaPartitions = map[string]string{
-		"msoa":      "msoa",
-		"nhsTrust":  "nhstrust",
-		"nhsRegion": "other",
-		"utla":      "utla",
-		"ltla":      "ltla",
-		"region":    "other",
-		"nation":    "other",
-		"overview":  "other",
-	}
-)
-
 func (conf *handler) getLatestTimestamp(areaType string) (string, error) {
 
-	category := releaseCategories[areaType]
+	category := utils.ReleaseCategories[areaType]
 
 	payload := &db.Payload{
 		Query:         timestampQuery,
@@ -112,8 +50,8 @@ func (conf *handler) getLatestTimestamp(areaType string) (string, error) {
 
 func (conf *handler) getPreppedQuery(areaType string) (string, error) {
 
-	areaType = areaTypes[strings.ToLower(areaType)]
-	partition := areaPartitions[areaType]
+	areaType = utils.AreaTypes[strings.ToLower(areaType)]
+	partition := utils.AreaPartitions[areaType]
 
 	timestamp, err := conf.getLatestTimestamp(areaType)
 	if err != nil {

@@ -97,8 +97,6 @@ func (conf *Config) FetchAll(payload *Payload) ([]ResultType, error) {
 	dependency.Id = insight.GenerateOperationId()
 	dependency.Tags.Operation().SetParentId(payload.OperationData.ParentId)
 	dependency.Tags.Operation().SetId(payload.OperationData.OperationId)
-	// dependency.Properties["Parent Id"] = payload.Traceparent
-	// fmt.Println(payload.Traceparent)
 	conf.Insight.Track(dependency)
 
 	return response, responseErr
@@ -126,10 +124,8 @@ func (conf *Config) FetchRow(payload *Payload) (ResultType, error) {
 	}
 	dependency.Properties["action"] = "FetchRow"
 	dependency.Id = insight.GenerateOperationId()
-	// dependency.Tags.Operation().SetParentId(payload.Traceparent)
 	dependency.Tags.Operation().SetParentId(payload.OperationData.ParentId)
 	dependency.Tags.Operation().SetId(payload.OperationData.OperationId)
-	// dependency.Properties["operation_ParentId"] = payload.Traceparent
 	conf.Insight.Track(dependency)
 
 	return response, responseErr
