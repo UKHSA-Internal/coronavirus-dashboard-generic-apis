@@ -18,4 +18,4 @@ COPY --from=compiler /opt/build ./opt/app
 
 RUN chmod +x /opt/app/generic_api
 
-EXPOSE 5000
+EXPOSE 5100
