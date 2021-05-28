@@ -1,12 +1,14 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
 	"generic_apis/db"
 	"generic_apis/insight"
 	"generic_apis/middleware"
+	"github.com/caarlos0/env"
 	"github.com/gorilla/mux"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 	unit "unit.nginx.org/go"
@@ -17,6 +19,7 @@ type (
 		Router   *mux.Router
 		database *db.Config
 		Insight  appinsights.TelemetryClient
+		Port     string `env:"WEBSITE_PORT"`
 	}
 
 	routeEntry struct {
@@ -26,14 +29,21 @@ type (
 	}
 )
 
-func (apiClient *Api) Run(addr string) {
+func (apiClient *Api) Run() {
+
+	var err error
+
+	if err = env.Parse(apiClient); err != nil {
+		panic(err)
+	}
+
+	addr := fmt.Sprintf(":%s", apiClient.Port)
 
 	// Insight initialisation
 	apiClient.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(apiClient.Insight, true)
 
 	// DB initialisation
-	var err error
 	apiClient.database, err = db.Connect(apiClient.Insight)
 	if err != nil {
 		panic(err)

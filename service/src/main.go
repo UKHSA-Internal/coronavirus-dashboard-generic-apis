@@ -7,6 +7,6 @@ import (
 func main() {
 
 	service := &api.Api{}
-	service.Run(":5100")
+	service.Run()
 
 } // main
