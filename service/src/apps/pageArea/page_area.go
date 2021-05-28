@@ -10,6 +10,7 @@ import (
 	"generic_apis/db"
 	"generic_apis/insight"
 	"github.com/gorilla/mux"
+	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 )
 
 type handler struct {
@@ -51,19 +52,23 @@ func (conf *handler) fromDatabase(params map[string]string) ([]byte, error) {
 
 } // FromDatabase
 
-func Handler(config *db.Config) func(w http.ResponseWriter, r *http.Request) {
+func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r *http.Request) {
 
-	conf := &handler{config, ""}
+	conf := &handler{}
 
 	return func(w http.ResponseWriter, r *http.Request) {
 
+		var err error
+
 		conf.traceparent = r.Header.Get("traceparent")
 
-		pathVars := mux.Vars(r)
-
-		if _, ok := pathVars["page"]; !ok {
-			panic("no page")
+		conf.db, err = db.Connect(insight)
+		if err != nil {
+			panic(err)
 		}
+		defer conf.db.CloseConnection()
+
+		pathVars := mux.Vars(r)
 
 		response, err := conf.fromDatabase(pathVars)
 		if err != nil {

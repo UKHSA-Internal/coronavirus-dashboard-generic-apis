@@ -10,6 +10,7 @@ import (
 	"generic_apis/db"
 	"generic_apis/insight"
 	"github.com/gorilla/mux"
+	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 )
 
 type handler struct {
@@ -66,30 +67,25 @@ func (conf *handler) fromDatabase(areaType, search string) ([]byte, error) {
 
 } // FromDatabase
 
-func Handler(config *db.Config) func(w http.ResponseWriter, r *http.Request) {
+func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r *http.Request) {
 
-	conf := &handler{config, ""}
+	conf := &handler{}
 
 	return func(w http.ResponseWriter, r *http.Request) {
 
+		var err error
+
 		conf.traceparent = r.Header.Get("traceparent")
+
+		conf.db, err = db.Connect(insight)
+		if err != nil {
+			panic(err)
+		}
+		defer conf.db.CloseConnection()
 
 		pathVars := mux.Vars(r)
 
-		var (
-			category string
-			code     string
-			ok       bool
-		)
-
-		if category, ok = pathVars["area_type"]; !ok {
-			http.Error(w, "area type not defined", http.StatusBadRequest)
-			return
-		} else if code, ok = pathVars["area_code"]; !ok {
-			http.Error(w, "area code not defined", http.StatusBadRequest)
-		}
-
-		response, err := conf.fromDatabase(category, code)
+		response, err := conf.fromDatabase(pathVars["area_type"], pathVars["area_code"])
 		if err != nil {
 			http.Error(w, "failed to retrieve data from the database", http.StatusBadRequest)
 		}

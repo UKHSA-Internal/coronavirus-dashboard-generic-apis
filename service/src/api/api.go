@@ -25,7 +25,7 @@ type (
 	routeEntry struct {
 		name    string
 		path    string
-		handler func(*db.Config) func(http.ResponseWriter, *http.Request)
+		handler func(appinsights.TelemetryClient) func(http.ResponseWriter, *http.Request)
 	}
 )
 
@@ -42,12 +42,6 @@ func (apiClient *Api) Run() {
 	// Insight initialisation
 	apiClient.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(apiClient.Insight, true)
-
-	// DB initialisation
-	apiClient.database, err = db.Connect(apiClient.Insight)
-	if err != nil {
-		panic(err)
-	}
 
 	apiClient.Initialize()
 
@@ -78,8 +72,6 @@ func (apiClient *Api) Run() {
 		// failed somewhere.
 	}
 
-	defer apiClient.database.CloseConnection()
-
 } // Run
 
 func (apiClient *Api) Initialize() {
@@ -92,7 +84,7 @@ func (apiClient *Api) Initialize() {
 
 	for _, route := range urlPatterns {
 		apiClient.Router.
-			HandleFunc(route.path, route.handler(apiClient.database)).
+			HandleFunc(route.path, route.handler(apiClient.Insight)).
 			Name(route.name).
 			Methods(http.MethodGet)
 	}

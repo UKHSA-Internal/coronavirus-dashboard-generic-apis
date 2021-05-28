@@ -6,6 +6,7 @@ import (
 
 	"generic_apis/db"
 	"generic_apis/insight"
+	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 )
 
 type handler struct {
@@ -34,17 +35,26 @@ func (conf *handler) fromDatabase() ([]byte, error) {
 
 } // FromDatabase
 
-func Handler(config *db.Config) func(w http.ResponseWriter, r *http.Request) {
+func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r *http.Request) {
 
-	conf := &handler{config, ""}
+	conf := &handler{}
 
 	return func(w http.ResponseWriter, r *http.Request) {
 
+		var err error
+
 		conf.traceparent = r.Header.Get("traceparent")
+
+		conf.db, err = db.Connect(insight)
+		if err != nil {
+			panic(err)
+		}
+		defer conf.db.CloseConnection()
 
 		response, err := conf.fromDatabase()
 		if err != nil {
-			http.Error(w, "failed to retrieve data from the database", http.StatusBadRequest)
+			http.Error(w, "db connection failed", http.StatusInternalServerError)
+			return
 		}
 
 		if _, err = w.Write(response); err != nil {

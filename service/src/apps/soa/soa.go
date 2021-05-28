@@ -11,6 +11,7 @@ import (
 	"generic_apis/db"
 	"generic_apis/insight"
 	"github.com/gorilla/mux"
+	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 )
 
 type handler struct {
@@ -95,29 +96,25 @@ func (conf *handler) fromDatabase(areaType, areaCode string) ([]byte, error) {
 
 } // FromDatabase
 
-func Handler(config *db.Config) func(w http.ResponseWriter, r *http.Request) {
+func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r *http.Request) {
 
-	conf := &handler{config, ""}
+	conf := &handler{}
 
 	return func(w http.ResponseWriter, r *http.Request) {
 
+		var err error
+
 		conf.traceparent = r.Header.Get("traceparent")
+
+		conf.db, err = db.Connect(insight)
+		if err != nil {
+			panic(err)
+		}
+		defer conf.db.CloseConnection()
 
 		pathVars := mux.Vars(r)
 
-		var (
-			areaType string
-			areaCode string
-			ok       bool
-		)
-
-		if areaType, ok = pathVars["area_type"]; !ok {
-			panic("no category")
-		} else if areaCode, ok = pathVars["area_code"]; !ok {
-			panic("no code")
-		}
-
-		response, err := conf.fromDatabase(areaType, areaCode)
+		response, err := conf.fromDatabase(pathVars["area_type"], pathVars["area_code"])
 		if err != nil {
 			panic(err)
 		}
