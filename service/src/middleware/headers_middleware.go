@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"log"
 	"net/http"
 )
 
@@ -20,8 +19,8 @@ var headers = map[string]string{
 func HeadersMiddleware(next http.Handler) http.Handler {
 
 	middleware := func(w http.ResponseWriter, r *http.Request) {
-		log.Println(r.RequestURI)
 
+		w.Header()
 		for key, value := range headers {
 			w.Header().Set(key, value)
 		}
