@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	"generic_apis/apps/utils"
 	"generic_apis/db"
@@ -17,44 +16,19 @@ import (
 type handler struct {
 	db          *db.Config
 	traceparent string
+	insight     appinsights.TelemetryClient
 }
-
-func (conf *handler) getLatestTimestamp(areaType string) (string, error) {
-
-	category := utils.ReleaseCategories[areaType]
-
-	payload := &db.Payload{
-		Query:         timestampQuery,
-		Args:          []interface{}{category},
-		OperationData: insight.GetOperationData(conf.traceparent),
-	}
-	results, err := conf.db.FetchRow(payload)
-	if err != nil {
-		return "", err
-	}
-
-	if len(results) == 0 {
-		return "", fmt.Errorf("no valid timestamp for '%s'", areaType)
-	}
-
-	if _, ok := results["date"]; !ok {
-		return "", err
-	}
-
-	date, _ := time.Parse("2006-01-02", results["date"].(string))
-
-	result := strings.ReplaceAll(date.Format("2006 1 2"), " ", "_")
-
-	return result, nil
-
-} // getLatestTimestamp
 
 func (conf *handler) getPreppedQuery(areaType string) (string, error) {
 
 	areaType = utils.AreaTypes[strings.ToLower(areaType)]
 	partition := utils.AreaPartitions[areaType]
 
-	timestamp, err := conf.getLatestTimestamp(areaType)
+	req := &utils.GenericRequest{
+		Traceparent: conf.traceparent,
+		Insight:     conf.insight,
+	}
+	timestamp, err := req.GetLatestTimestamp(areaType)
 	if err != nil {
 		return "", err
 	}
@@ -98,7 +72,7 @@ func (conf *handler) fromDatabase(areaType, areaCode string) ([]byte, error) {
 
 func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r *http.Request) {
 
-	conf := &handler{}
+	conf := &handler{insight: insight}
 
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -106,7 +80,7 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 
 		conf.traceparent = r.Header.Get("traceparent")
 
-		conf.db, err = db.Connect(insight)
+		conf.db, err = db.Connect(conf.insight)
 		if err != nil {
 			panic(err)
 		}
@@ -116,7 +90,7 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 
 		response, err := conf.fromDatabase(pathVars["area_type"], pathVars["area_code"])
 		if err != nil {
-			panic(err)
+			panic(err.Error())
 		}
 
 		if _, err = w.Write(response); err != nil {
