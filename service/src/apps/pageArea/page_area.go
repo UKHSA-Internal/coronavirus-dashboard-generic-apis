@@ -28,21 +28,30 @@ func (conf *handler) fromDatabase(params map[string]string) ([]byte, error) {
 	)
 
 	if areaType, ok = params["area_type"]; ok {
+		areaTypeTemplate := "%s"
+		if areaType != "la" {
+			areaTypeTemplate = "'%s'"
+		}
+
 		areaType = strings.ToLower(areaType)
 
 		if areaType, ok = utils.AreaTypes[areaType]; !ok {
 			return nil, fmt.Errorf("invalid area type")
 		} else {
-			args = append(args, areaType)
-			preppedQuery += areaTypeFilter
+			areaType = fmt.Sprintf(areaTypeTemplate, areaType)
+			preppedQuery += fmt.Sprintf(areaTypeFilter, areaType)
 		}
 	}
 
+	preppedQuery += queryExtras
+
 	payload := &db.Payload{
-		Query:         preppedQuery,
+		Query:         fmt.Sprintf(queryWrapper, preppedQuery),
 		Args:          args,
 		OperationData: insight.GetOperationData(conf.traceparent),
 	}
+
+	println(fmt.Sprintf("%v", payload))
 	results, err := conf.db.FetchAll(payload)
 	if err != nil {
 		return nil, err
