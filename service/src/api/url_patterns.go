@@ -36,7 +36,7 @@ var urlPatterns = []routeEntry{
 	},
 	{
 		"page_areas_with_type",
-		`/generic/page_areas/{page:[a-zA-Z]{3,10}}/{area_type:[a-zA-Z]{5,12}}`,
+		`/generic/page_areas/{page:[a-zA-Z]{3,10}}/{area_type:[a-zA-Z]{2,12}}`,
 		pageArea.Handler,
 	},
 } // routes
