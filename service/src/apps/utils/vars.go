@@ -11,6 +11,7 @@ var (
 		"region":    "region",
 		"nation":    "nation",
 		"overview":  "overview",
+		"la":        "ANY('{utla,ltla}'::VARCHAR[])",
 	}
 
 	ReleaseCategories = map[string]string{
