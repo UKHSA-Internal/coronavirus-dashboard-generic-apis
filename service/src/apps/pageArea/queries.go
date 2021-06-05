@@ -6,7 +6,12 @@ const query = `
 		JOIN covid19.page_area_reference AS par ON par.category_id = pg.id
 		JOIN covid19.area_reference 	 AS ar  ON ar.id = par.area_id
 		JOIN covid19.area_priorities 	 AS ap  ON ap.area_type = ar.area_type
-	WHERE LOWER(pg.title) = $1`
+	WHERE LOWER(pg.title) = $1
+	  AND (
+		   LOWER(pg.title) != 'vaccinations'
+	    OR ar.area_type = 'nation'
+	    OR area_code ~ '^[^WN]'
+      )`
 
 const areaTypeFilter = ` AND ar.area_type = %s`
 
