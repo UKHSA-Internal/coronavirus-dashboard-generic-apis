@@ -65,6 +65,8 @@ func PrepareTelemetryMiddleware(insightClient appinsights.TelemetryClient) func(
 			request.Tags.Operation().SetId(traceparent.OperationId)
 			request.Tags.Operation().SetParentId(traceparent.OperationId)
 			request.Tags.Operation().SetName(fmt.Sprintf("GET %s", uri))
+			request.Tags.Cloud().SetRole(insight.GetCloudRoleName())
+			request.Tags.Cloud().SetRoleInstance(insight.GetCloudRoleInstance())
 
 			next.ServeHTTP(w, r)
 			w.Header().Set("traceparent", traceparent.TraceParent)
