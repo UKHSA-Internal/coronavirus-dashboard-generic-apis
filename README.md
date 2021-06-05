@@ -1,5 +1,7 @@
 # Coronavirus (COVID-19) in the UK - Generic APIs
+![GitHub go.mod Go version (branch & subdirectory of monorepo)](https://img.shields.io/github/go-mod/go-version/publichealthengland/coronavirus-dashboard-generic-apis/development?filename=%2Fservice%2Fsrc%2Fgo.mod)
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/y/publichealthengland/coronavirus-dashboard-generic-apis)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/publichealthengland/coronavirus-dashboard-generic-apis.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/publichealthengland/coronavirus-dashboard-generic-apis/alerts/)
 
 APIs that power
 the [map](https://coronavirus.data.gov.uk/details/interactive-map), navigation, hierarchy, and relations
