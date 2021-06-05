@@ -18,7 +18,7 @@ type handler struct {
 	traceparent string
 }
 
-func (conf *handler) fromDatabase(areaType, search string) ([]byte, error) {
+func (conf *handler) fromDatabase(areaType, code string) ([]byte, error) {
 
 	var (
 		ok     bool
@@ -26,7 +26,7 @@ func (conf *handler) fromDatabase(areaType, search string) ([]byte, error) {
 		query  string
 	)
 
-	search = strings.ReplaceAll(strings.ToUpper(search), " ", "")
+	code = strings.ReplaceAll(strings.ToUpper(code), " ", "")
 	areaType = strings.ToLower(areaType)
 
 	if areaType, ok = utils.AreaTypes[areaType]; !ok {
@@ -34,10 +34,10 @@ func (conf *handler) fromDatabase(areaType, search string) ([]byte, error) {
 	}
 
 	if areaType == utils.AreaTypes["postcode"] {
-		params = []interface{}{utils.AreaTypes["msoa"], search}
+		params = []interface{}{utils.AreaTypes["msoa"], code}
 		query = postcodeQuery
 	} else {
-		params = []interface{}{areaType, search}
+		params = []interface{}{areaType, code}
 		query = areaQuery
 	}
 
@@ -87,7 +87,7 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 
 		response, err := conf.fromDatabase(pathVars["area_type"], pathVars["area_code"])
 		if err != nil {
-			http.Error(w, "failed to retrieve data from the database", http.StatusBadRequest)
+			http.Error(w, "failed to retrieve data", http.StatusBadRequest)
 		}
 
 		if _, err = w.Write(response); err != nil {
