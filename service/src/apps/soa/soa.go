@@ -40,7 +40,7 @@ func (conf *handler) getPreppedQuery(areaType string) (string, error) {
 
 } // getPreppedQuery
 
-func (conf *handler) fromDatabase(areaType, areaCode string) ([]byte, error) {
+func (conf *handler) fromDatabase(areaType, areaCode, metric string) ([]byte, error) {
 
 	preppedQuery, err := conf.getPreppedQuery(areaType)
 	if err != nil {
@@ -51,7 +51,7 @@ func (conf *handler) fromDatabase(areaType, areaCode string) ([]byte, error) {
 
 	payload := &db.Payload{
 		Query:         preppedQuery,
-		Args:          []interface{}{areaCode},
+		Args:          []interface{}{areaCode, metric},
 		OperationData: insight.GetOperationData(conf.traceparent),
 	}
 	results, err := conf.db.FetchAll(payload)
@@ -88,7 +88,7 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 
 		pathVars := mux.Vars(r)
 
-		response, err := conf.fromDatabase(pathVars["area_type"], pathVars["area_code"])
+		response, err := conf.fromDatabase(pathVars["area_type"], pathVars["area_code"], pathVars["metric"])
 		if err != nil {
 			panic(err.Error())
 		}
