@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -52,3 +54,17 @@ func (req *GenericRequest) GetLatestTimestamp(areaType string) (string, error) {
 	return result, nil
 
 } // GetLatestTimestamp
+
+// JSONMarshal is a custom marshal function to serialise JSON payloads
+// without escaping HTML characters and converting them to unicode codes.
+func JSONMarshal(payload interface{}) ([]byte, error) {
+
+	buffer := &bytes.Buffer{}
+	encoder := json.NewEncoder(buffer)
+	encoder.SetEscapeHTML(false)
+
+	err := encoder.Encode(payload)
+
+	return buffer.Bytes(), err
+
+} // JSONMarshal
