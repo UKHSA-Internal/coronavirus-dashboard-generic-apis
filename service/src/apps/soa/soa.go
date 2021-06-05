@@ -19,7 +19,23 @@ type handler struct {
 	insight     appinsights.TelemetryClient
 }
 
-func (conf *handler) getPreppedQuery(areaType string) (string, error) {
+func getDateQuery(date, targetTable string) string {
+
+	var dateQuery string
+
+	if len(date) == 0 {
+		// If date param is empty, get the latest available data.
+		dateQuery = fmt.Sprintf(latestDate, targetTable)
+	} else {
+		// If date has been requested, use the query param.
+		dateQuery = definedDate
+	}
+
+	return dateQuery
+
+} // getDateQuery
+
+func (conf *handler) getPreppedQuery(areaType, date string) (string, error) {
 
 	areaType = utils.AreaTypes[strings.ToLower(areaType)]
 	partition := utils.AreaPartitions[areaType]
@@ -34,24 +50,30 @@ func (conf *handler) getPreppedQuery(areaType string) (string, error) {
 	}
 
 	targetTable := fmt.Sprintf(queryTable, timestamp, partition)
-	preppedQuery := fmt.Sprintf(query, targetTable, targetTable)
+	dateQuery := getDateQuery(date, targetTable)
+	preppedQuery := fmt.Sprintf(query, targetTable, dateQuery)
 
 	return preppedQuery, nil
 
 } // getPreppedQuery
 
-func (conf *handler) fromDatabase(areaType, areaCode, metric string) ([]byte, error) {
+func (conf *handler) fromDatabase(areaType, areaCode, metric, date string) ([]byte, error) {
 
-	preppedQuery, err := conf.getPreppedQuery(areaType)
+	preppedQuery, err := conf.getPreppedQuery(areaType, date)
 	if err != nil {
 		return nil, err
 	}
 
 	areaCode = strings.ToUpper(areaCode)
+	queryArgs := []interface{}{areaCode, metric}
+
+	if len(date) != 0 {
+		queryArgs = append(queryArgs, date)
+	}
 
 	payload := &db.Payload{
 		Query:         preppedQuery,
-		Args:          []interface{}{areaCode, metric},
+		Args:          queryArgs,
 		OperationData: insight.GetOperationData(conf.traceparent),
 	}
 	results, err := conf.db.FetchAll(payload)
@@ -87,8 +109,9 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 		defer conf.db.CloseConnection()
 
 		pathVars := mux.Vars(r)
+		date := r.URL.Query().Get("date")
 
-		response, err := conf.fromDatabase(pathVars["area_type"], pathVars["area_code"], pathVars["metric"])
+		response, err := conf.fromDatabase(pathVars["area_type"], pathVars["area_code"], pathVars["metric"], date)
 		if err != nil {
 			panic(err.Error())
 		}

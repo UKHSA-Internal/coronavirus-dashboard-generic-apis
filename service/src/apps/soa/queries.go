@@ -13,7 +13,11 @@ FROM %s AS ts
 	JOIN covid19.metric_reference AS mr ON ts.metric_id = mr.id
 WHERE area_code = $1
   AND metric = $2
-  AND date = ( SELECT MAX(date) FROM %s )
+  %s
 `
 
 const queryTable = "covid19.time_series_p%s_%s"
+
+const latestDate = "AND date = ( SELECT MAX(date) FROM %s )"
+
+const definedDate = "AND date = $3"
