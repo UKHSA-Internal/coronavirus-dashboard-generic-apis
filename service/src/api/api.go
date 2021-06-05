@@ -23,9 +23,10 @@ type (
 	}
 
 	routeEntry struct {
-		name    string
-		path    string
-		handler func(appinsights.TelemetryClient) func(http.ResponseWriter, *http.Request)
+		name        string
+		path        string
+		queryParams []string
+		handler     func(appinsights.TelemetryClient) func(http.ResponseWriter, *http.Request)
 	}
 )
 
@@ -85,6 +86,7 @@ func (apiClient *Api) Initialize() {
 	for _, route := range urlPatterns {
 		apiClient.Router.
 			HandleFunc(route.path, route.handler(apiClient.Insight)).
+			Queries().
 			Name(route.name).
 			Methods(http.MethodGet)
 	}
