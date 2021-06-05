@@ -34,7 +34,7 @@ func GetCloudRoleName() string {
 
 func GetCloudRoleInstance() string {
 
-	cloudRoleInstance, _ := os.LookupEnv("WEBSITE_INSTANCE_ID.")
+	cloudRoleInstance, _ := os.LookupEnv("WEBSITE_INSTANCE_ID")
 
 	return cloudRoleInstance
 
