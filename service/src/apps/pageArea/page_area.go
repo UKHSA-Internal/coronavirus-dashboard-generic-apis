@@ -51,7 +51,6 @@ func (conf *handler) fromDatabase(params map[string]string) ([]byte, error) {
 		OperationData: insight.GetOperationData(conf.traceparent),
 	}
 
-	println(fmt.Sprintf("%v", payload))
 	results, err := conf.db.FetchAll(payload)
 	if err != nil {
 		return nil, err
