@@ -1,7 +1,6 @@
 package areaByType
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -35,7 +34,7 @@ func (conf *handler) fromDatabase(areaType string) ([]byte, error) {
 		return nil, err
 	}
 
-	return json.Marshal(results)
+	return utils.JSONMarshal(results)
 
 } // FromDatabase
 

@@ -1,7 +1,6 @@
 package pageArea
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -56,7 +55,7 @@ func (conf *handler) fromDatabase(params map[string]string) ([]byte, error) {
 		return nil, err
 	}
 
-	return json.Marshal(results)
+	return utils.JSONMarshal(results)
 
 } // FromDatabase
 

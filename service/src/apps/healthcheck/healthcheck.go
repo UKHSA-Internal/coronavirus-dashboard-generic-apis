@@ -1,9 +1,9 @@
 package healthcheck
 
 import (
-	"encoding/json"
 	"net/http"
 
+	"generic_apis/apps/utils"
 	"generic_apis/db"
 	"generic_apis/insight"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
@@ -31,7 +31,7 @@ func (conf *handler) fromDatabase() ([]byte, error) {
 		"database": "healthy",
 	}
 
-	return json.Marshal(data)
+	return utils.JSONMarshal(data)
 
 } // FromDatabase
 

@@ -1,7 +1,6 @@
 package code
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -63,7 +62,7 @@ func (conf *handler) fromDatabase(areaType, code string) ([]byte, error) {
 		data["trimmedPostcode"] = strings.ReplaceAll(postcode, " ", "")
 	}
 
-	return json.Marshal(data)
+	return utils.JSONMarshal(data)
 
 } // FromDatabase
 

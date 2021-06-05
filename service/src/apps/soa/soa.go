@@ -1,7 +1,6 @@
 package soa
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -88,7 +87,7 @@ func (conf *handler) fromDatabase(areaType, areaCode, metric, date string) ([]by
 		}
 	}
 
-	return json.Marshal(data)
+	return utils.JSONMarshal(data)
 
 } // FromDatabase
 
