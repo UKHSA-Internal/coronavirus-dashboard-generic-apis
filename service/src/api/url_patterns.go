@@ -31,12 +31,12 @@ var urlPatterns = []routeEntry{
 	},
 	{
 		"page_areas",
-		`/generic/page_areas/{page:[a-zA-Z]{3,10}}`,
+		`/generic/page_areas/{page:[a-zA-Z]{3,12}}`,
 		pageArea.Handler,
 	},
 	{
 		"page_areas_with_type",
-		`/generic/page_areas/{page:[a-zA-Z]{3,10}}/{area_type:[a-zA-Z]{2,12}}`,
+		`/generic/page_areas/{page:[a-zA-Z]{3,12}}/{area_type:[a-zA-Z]{2,12}}`,
 		pageArea.Handler,
 	},
 } // routes
