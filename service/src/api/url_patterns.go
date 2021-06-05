@@ -21,7 +21,7 @@ var urlPatterns = []routeEntry{
 	},
 	{
 		"soa",
-		`/generic/soa/{area_type:[a-zA-Z]{4,10}}/{area_code:[a-zA-Z0-9]{3,10}}`,
+		`/generic/soa/{area_type:[a-zA-Z]{4,10}}/{area_code:[a-zA-Z0-9]{3,10}}/{metric:[a-zA-Z2860]{5,120}}`,
 		soa.Handler,
 	},
 	{
