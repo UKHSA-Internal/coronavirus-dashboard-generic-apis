@@ -17,7 +17,7 @@ type OperationData struct {
 var TraceParentPattern = regexp.MustCompile(
 	`^[ \t]*(?P<version>[0-9a-f]{2})-(?P<operationId>[0-9a-f]{32})-(?P<parentId>[0-9a-f]{16})-(?P<traceFlag>[0-9a-f]{2})(-.*)?[ \t]*$`)
 
-func getCloudRoleName() string {
+func GetCloudRoleName() string {
 
 	var (
 		cloudRoleName  string
@@ -30,7 +30,15 @@ func getCloudRoleName() string {
 
 	return cloudRoleName
 
-} // getCloudRoleName
+} // GetCloudRoleName
+
+func GetCloudRoleInstance() string {
+
+	cloudRoleInstance, _ := os.LookupEnv("WEBSITE_INSTANCE_ID.")
+
+	return cloudRoleInstance
+
+} // GetCloudRoleInstance
 
 func GetOperationData(traceparent string) *OperationData {
 
