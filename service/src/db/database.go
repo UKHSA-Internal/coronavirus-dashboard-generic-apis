@@ -74,30 +74,48 @@ func Connect(insight appinsights.TelemetryClient) (*Config, error) {
 
 } // Connect
 
+func (conf *Config) trackRequest(payload *Payload, action string) func(error) {
+
+	startTime := time.Now()
+
+	return func(err error) {
+		endTime := time.Now()
+
+		dependency := appinsights.NewRemoteDependencyTelemetry(
+			"database",
+			"postgresql",
+			"database",
+			err == nil)
+
+		dependency.Data = payload.Query
+		dependency.MarkTime(startTime, endTime)
+
+		argsJson, jsonErr := json.Marshal(payload.Args)
+		if jsonErr == nil {
+			dependency.Properties["args"] = string(argsJson)
+		}
+
+		dependency.Properties["action"] = action
+
+		dependency.Id = insight.GenerateOperationId()
+		dependency.Tags.Operation().SetParentId(payload.OperationData.ParentId)
+		dependency.Tags.Operation().SetId(payload.OperationData.OperationId)
+		dependency.Tags.Cloud().SetRole(payload.OperationData.CloudRoleName)
+		dependency.Tags.Cloud().SetRoleInstance(payload.OperationData.CloudRoleInstance)
+
+		conf.Insight.Track(dependency)
+
+	}
+
+} // trackRequest
+
 // FetchAll establishes a connection to the Database, executes `query`
 // with `args` and returns all returning rows.
 func (conf *Config) FetchAll(payload *Payload) ([]ResultType, error) {
 
-	startTime := time.Now()
+	trackerDone := conf.trackRequest(payload, "FetchAll")
 	response, responseErr := conf.fetchAll(payload.Query, payload.Args...)
-	endTime := time.Now()
-
-	dependency := appinsights.NewRemoteDependencyTelemetry(
-		"database",
-		"postgresql",
-		"database",
-		responseErr == nil)
-	dependency.Data = payload.Query
-	dependency.MarkTime(startTime, endTime)
-	argsJson, jsonErr := json.Marshal(payload.Args)
-	if jsonErr == nil {
-		dependency.Properties["args"] = string(argsJson)
-	}
-	dependency.Properties["action"] = "FetchAll"
-	dependency.Id = insight.GenerateOperationId()
-	dependency.Tags.Operation().SetParentId(payload.OperationData.ParentId)
-	dependency.Tags.Operation().SetId(payload.OperationData.OperationId)
-	conf.Insight.Track(dependency)
+	trackerDone(responseErr)
 
 	return response, responseErr
 
@@ -107,26 +125,9 @@ func (conf *Config) FetchAll(payload *Payload) ([]ResultType, error) {
 // with `args` and returns the first rows.
 func (conf *Config) FetchRow(payload *Payload) (ResultType, error) {
 
-	startTime := time.Now()
+	trackerDone := conf.trackRequest(payload, "FetchRow")
 	response, responseErr := conf.fetchRow(payload.Query, payload.Args...)
-	endTime := time.Now()
-
-	dependency := appinsights.NewRemoteDependencyTelemetry(
-		"database",
-		"postgresql",
-		conf.dbConfig.Host,
-		responseErr == nil)
-	dependency.Data = payload.Query
-	dependency.MarkTime(startTime, endTime)
-	argsJson, jsonErr := json.Marshal(payload.Args)
-	if jsonErr == nil {
-		dependency.Properties["args"] = string(argsJson)
-	}
-	dependency.Properties["action"] = "FetchRow"
-	dependency.Id = insight.GenerateOperationId()
-	dependency.Tags.Operation().SetParentId(payload.OperationData.ParentId)
-	dependency.Tags.Operation().SetId(payload.OperationData.OperationId)
-	conf.Insight.Track(dependency)
+	trackerDone(responseErr)
 
 	return response, responseErr
 
