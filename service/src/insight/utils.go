@@ -6,12 +6,16 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+
+	"github.com/caarlos0/env"
 )
 
 type OperationData struct {
-	OperationId string
-	ParentId    string
-	TraceParent string
+	OperationId       string
+	ParentId          string
+	TraceParent       string
+	CloudRoleName     string `env:"WEBSITE_SITE_NAME" envDefault:"generic-apis"`
+	CloudRoleInstance string `env:"WEBSITE_INSTANCE_ID" envDefault:""`
 }
 
 var TraceParentPattern = regexp.MustCompile(
@@ -48,7 +52,13 @@ func GetOperationData(traceparent string) *OperationData {
 		return generateTraceParent()
 	}
 
-	response := &OperationData{TraceParent: traceparent}
+	response := &OperationData{}
+
+	if err := env.Parse(response); err != nil {
+		panic(err)
+	}
+
+	response.TraceParent = traceparent
 
 	result := make(map[string]string)
 	for idx, name := range TraceParentPattern.SubexpNames() {
