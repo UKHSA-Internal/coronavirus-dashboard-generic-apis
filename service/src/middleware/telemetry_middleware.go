@@ -43,7 +43,7 @@ func PrepareTelemetryMiddleware(insightClient appinsights.TelemetryClient) func(
 					exception := appinsights.NewExceptionTelemetry(err)
 					exception.SeverityLevel = appinsights.Warning
 					exception.Properties["url"] = uri
-					insightClient.Track(exception)
+					insightClient.TrackException(exception)
 
 					status = http.StatusInternalServerError
 					http.Error(w, "Internal server error", status)
@@ -57,19 +57,19 @@ func PrepareTelemetryMiddleware(insightClient appinsights.TelemetryClient) func(
 			}()
 
 			start := time.Now()
-			traceparent := insight.GetOperationData(r.Header.Get("traceparent"))
+			optData := insight.GetOperationData(r.Header.Get("optData"))
 			request := appinsights.NewRequestTelemetry("GET", uri, 0, fmt.Sprintf("%d", status))
 
-			r.Header.Set("traceparent", traceparent.TraceParent)
-			request.Id = traceparent.ParentId
-			request.Tags.Operation().SetId(traceparent.OperationId)
-			request.Tags.Operation().SetParentId(traceparent.OperationId)
+			r.Header.Set("optData", optData.TraceParent)
+			request.Id = optData.ParentId
+			request.Tags.Operation().SetId(optData.OperationId)
+			request.Tags.Operation().SetParentId(optData.OperationId)
 			request.Tags.Operation().SetName(fmt.Sprintf("GET %s", uri))
-			request.Tags.Cloud().SetRole(insight.GetCloudRoleName())
-			request.Tags.Cloud().SetRoleInstance(insight.GetCloudRoleInstance())
+			request.Tags.Cloud().SetRole(optData.CloudRoleName)
+			request.Tags.Cloud().SetRoleInstance(optData.CloudRoleInstance)
 
 			next.ServeHTTP(w, r)
-			w.Header().Set("traceparent", traceparent.TraceParent)
+			w.Header().Set("optData", optData.TraceParent)
 			request.Success = success
 			request.MarkTime(start, time.Now())
 			insightClient.Track(request)
