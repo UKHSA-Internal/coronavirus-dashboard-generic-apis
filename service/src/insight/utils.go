@@ -46,19 +46,16 @@ func GetCloudRoleInstance() string {
 
 func GetOperationData(traceparent string) *OperationData {
 
-	match := TraceParentPattern.FindStringSubmatch(traceparent)
-
-	if len(match) == 0 {
-		return generateTraceParent()
-	}
-
-	response := &OperationData{}
-
-	if err := env.Parse(response); err != nil {
+	data := &OperationData{}
+	if err := env.Parse(data); err != nil {
 		panic(err)
 	}
 
-	response.TraceParent = traceparent
+	data.TraceParent = traceparent
+	match := TraceParentPattern.FindStringSubmatch(data.TraceParent)
+	if len(match) == 0 {
+		return generateTraceParent(data)
+	}
 
 	result := make(map[string]string)
 	for idx, name := range TraceParentPattern.SubexpNames() {
@@ -73,27 +70,24 @@ func GetOperationData(traceparent string) *OperationData {
 	)
 
 	if value, ok = result["operationId"]; ok {
-		response.OperationId = value
+		data.OperationId = value
 	}
 
 	if value, ok = result["parentId"]; ok {
-		response.ParentId = value
+		data.ParentId = value
 	}
 
-	return response
+	return data
 
 } // GetOperationData
 
-func generateTraceParent() *OperationData {
+func generateTraceParent(data *OperationData) *OperationData {
 
-	response := &OperationData{
-		OperationId: GenerateOperationId(),
-		ParentId:    GenerateParentId(),
-	}
+	data.OperationId = GenerateOperationId()
+	data.ParentId = GenerateParentId()
+	data.TraceParent = fmt.Sprintf("00-%s-%s-01", data.OperationId, data.ParentId)
 
-	response.TraceParent = fmt.Sprintf("00-%s-%s-00", response.OperationId, response.ParentId)
-
-	return response
+	return data
 
 } // generateTraceParent
 
