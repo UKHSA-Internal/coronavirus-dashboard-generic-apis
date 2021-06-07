@@ -57,10 +57,10 @@ func PrepareTelemetryMiddleware(insightClient appinsights.TelemetryClient) func(
 			}()
 
 			start := time.Now()
-			optData := insight.GetOperationData(r.Header.Get("optData"))
+			optData := insight.GetOperationData(r.Header.Get("traceparent"))
 			request := appinsights.NewRequestTelemetry("GET", uri, 0, fmt.Sprintf("%d", status))
 
-			r.Header.Set("optData", optData.TraceParent)
+			r.Header.Set("traceparent", optData.TraceParent)
 			request.Id = optData.ParentId
 			request.Tags.Operation().SetId(optData.OperationId)
 			request.Tags.Operation().SetParentId(optData.OperationId)
@@ -69,7 +69,7 @@ func PrepareTelemetryMiddleware(insightClient appinsights.TelemetryClient) func(
 			request.Tags.Cloud().SetRoleInstance(optData.CloudRoleInstance)
 
 			next.ServeHTTP(w, r)
-			w.Header().Set("optData", optData.TraceParent)
+			w.Header().Set("traceparent", optData.TraceParent)
 			request.Success = success
 			request.MarkTime(start, time.Now())
 			insightClient.Track(request)
