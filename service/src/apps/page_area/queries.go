@@ -1,4 +1,4 @@
-package pageArea
+package page_area
 
 const query = `
 	SELECT MIN(ap.priority), MIN(ar.area_type) AS area_type, area_name, area_code

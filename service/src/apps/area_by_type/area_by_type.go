@@ -1,4 +1,4 @@
-package areaByType
+package area_by_type
 
 import (
 	"fmt"

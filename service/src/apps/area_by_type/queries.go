@@ -1,4 +1,4 @@
-package areaByType
+package area_by_type
 
 const query = `
 SELECT area_name AS "areaName", area_code AS "areaCode"

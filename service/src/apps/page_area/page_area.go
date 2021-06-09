@@ -1,4 +1,4 @@
-package pageArea
+package page_area
 
 import (
 	"fmt"
