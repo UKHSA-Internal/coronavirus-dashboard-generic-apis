@@ -17,6 +17,18 @@ type GenericRequest struct {
 	Insight     appinsights.TelemetryClient
 }
 
+func FormatPartitionTimestamp(template, timestamp string) (string, error) {
+
+	parsedTimestamp, err := time.Parse(template, timestamp)
+
+	if err != nil {
+		return "", err
+	}
+
+	return strings.ReplaceAll(parsedTimestamp.Format("2006 1 2"), " ", "_"), nil
+
+} // FormatPartitionTimestamp
+
 func (req *GenericRequest) GetLatestTimestamp(areaType string) (string, error) {
 
 	areaType = AreaTypes[strings.ToLower(areaType)]
@@ -47,11 +59,7 @@ func (req *GenericRequest) GetLatestTimestamp(areaType string) (string, error) {
 		return "", err
 	}
 
-	date, _ := time.Parse("2006-01-02", results["date"].(string))
-
-	result := strings.ReplaceAll(date.Format("2006 1 2"), " ", "_")
-
-	return result, nil
+	return FormatPartitionTimestamp("2006-01-02", results["date"].(string))
 
 } // GetLatestTimestamp
 
