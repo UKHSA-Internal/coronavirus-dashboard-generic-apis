@@ -8,7 +8,8 @@ JOIN covid19.metric_reference AS mr ON mr.id = ts.metric_id
 WHERE area_type = $1 %s
   AND date > (SELECT MAX(date) FROM %s) - INTERVAL '30 days'
   AND mr.released IS TRUE
-GROUP BY metric;
+GROUP BY metric
+ORDER BY metric;
 `
 
 const areaCodeFilter = `AND area_code = $2`
