@@ -18,8 +18,8 @@ WHERE id IN (
 
 const postcodeQuery = `
 SELECT postcode, 
-	   area_code AS "areaCode", 
-	   area_name AS "areaName", 
+	   area_code    AS "areaCode",
+	   area_name    AS "areaName",
 	   ar.area_type AS "areaType"
 FROM covid19.area_reference AS ar
   JOIN covid19.postcode_lookup AS pl ON pl.area_id = ar.id
