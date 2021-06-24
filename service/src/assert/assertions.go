@@ -53,6 +53,7 @@ func JsonArrResponseContains(t *testing.T, expected interface{}, jsonResponse []
 		for _, responseItem := range response {
 			if cmp.Equal(expectedItem, responseItem) {
 				lenDetected += 1
+				break
 			}
 		}
 	}
