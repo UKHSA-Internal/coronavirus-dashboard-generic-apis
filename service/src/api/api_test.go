@@ -324,7 +324,7 @@ func TestAreaOnlyQuery(t *testing.T) {
 		{"areaCode": "N92000002", "areaType": "nation", "areaName": "Northern Ireland"},
 		{"areaCode": "S92000003", "areaType": "nation", "areaName": "Scotland"},
 		{"areaCode": "W92000004", "areaType": "nation", "areaName": "Wales"},
-		{"areaCode": "E06000041", "areaName": "Wokingham", "areaType": "utla"},
+		{"areaCode": "E10000002", "areaName": "Buckinghamshire", "areaType": "utla"},
 		{"areaCode": "E07000119", "areaName": "Fylde", "areaType": "ltla"},
 		{"areaCode": "E12000004", "areaName": "East Midlands", "areaType": "region"},
 	}
@@ -341,6 +341,58 @@ func TestAreaOnlyQuery(t *testing.T) {
 	response := executeRequest(req)
 
 	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
+
+	assert.JsonArrResponseContains(t, expected, response.Body.Bytes())
+
+} // TestFromDataBase
+
+func TestMetricSearchQuery(t *testing.T) {
+
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
+	api.Initialize()
+	defer api.database.CloseConnection()
+
+	expected := []map[string]interface{}{
+		{"metric": "changeInNewCasesBySpecimenDate", "metric_name": "Change in new cases by specimen date", "category": "Cases", "tags": []interface{}{"event date"}},
+		{"metric": "cumCasesBySpecimenDate", "metric_name": "Cumulative cases by specimen date", "category": "Cases", "tags": []interface{}{"cumulative", "event date"}},
+		{"metric": "cumCasesBySpecimenDateRate", "metric_name": "Cumulative cases by specimen date rate", "category": "Cases", "tags": []interface{}{"cumulative", "event date", "incidence rate"}},
+		{"metric": "newCasesBySpecimenDate", "metric_name": "New cases by specimen date", "category": "Cases", "tags": []interface{}{"daily", "event date"}},
+		{"metric": "newCasesBySpecimenDateAgeDemographics", "metric_name": "New cases by specimen date age demographics", "category": "Cases", "tags": []interface{}{"daily", "event date"}},
+		{"metric": "newCasesBySpecimenDateChange", "metric_name": "New cases by specimen date change", "category": "Cases", "tags": []interface{}{"daily", "event date"}},
+		{"metric": "newCasesBySpecimenDateChangePercentage", "metric_name": "New cases by specimen date change percentage", "category": "Cases", "tags": []interface{}{"daily", "event date"}},
+		{"metric": "newCasesBySpecimenDateDirection", "metric_name": "New cases by specimen date direction", "category": "Cases", "tags": []interface{}{"daily", "event date"}},
+		{"metric": "newCasesBySpecimenDateRollingRate", "metric_name": "New cases by specimen date rolling rate", "category": "Cases", "tags": []interface{}{"daily", "event date", "prevalence rate"}},
+		{"metric": "newCasesBySpecimenDateRollingSum", "metric_name": "New cases by specimen date rolling sum", "category": "Cases", "tags": []interface{}{"daily", "event date"}},
+		{"metric": "previouslyReportedNewCasesBySpecimenDate", "metric_name": "Previously reported new cases by specimen date", "category": "Cases", "tags": []interface{}{"event date"}},
+	}
+
+	url, err := api.Router.Get("metric_search").Queries("search", "casesBySpecimen").URL()
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
+	response := executeRequest(req)
+
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
+
+	type cc map[string]interface{}
+	data := make([]cc, 11)
+	_ = json.Unmarshal(response.Body.Bytes(), &data)
+
+	for _, item := range data {
+		fmt.Println(item["metric"])
+	}
 
 	assert.JsonArrResponseContains(t, expected, response.Body.Bytes())
 
