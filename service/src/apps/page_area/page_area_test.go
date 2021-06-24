@@ -59,7 +59,7 @@ func TestAreaOnlyQuery(t *testing.T) {
 		{"areaCode": "N92000002", "areaType": "nation", "areaName": "Northern Ireland"},
 		{"areaCode": "S92000003", "areaType": "nation", "areaName": "Scotland"},
 		{"areaCode": "W92000004", "areaType": "nation", "areaName": "Wales"},
-		{"areaCode": "E06000041", "areaName": "Wokingham", "areaType": "utla"},
+		{"areaCode": "E10000002", "areaName": "Buckinghamshire", "areaType": "utla"},
 		{"areaCode": "E07000119", "areaName": "Fylde", "areaType": "ltla"},
 		{"areaCode": "E12000004", "areaName": "East Midlands", "areaType": "region"},
 	}
