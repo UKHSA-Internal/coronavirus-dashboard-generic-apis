@@ -5,6 +5,7 @@ import (
 	"generic_apis/apps/code"
 	"generic_apis/apps/healthcheck"
 	"generic_apis/apps/metric_availability"
+	"generic_apis/apps/metric_search"
 	"generic_apis/apps/page_area"
 	"generic_apis/apps/soa"
 )
@@ -39,6 +40,12 @@ var urlPatterns = []routeEntry{
 		`/generic/page_areas/{page:[a-zA-Z]{3,12}}`,
 		[]string{},
 		page_area.Handler,
+	},
+	{
+		"metric_search",
+		`/generic/metrics`,
+		[]string{"search", `[a-zA-Z2860]{2,120}`},
+		metric_search.Handler,
 	},
 	{
 		"page_areas_with_type",
