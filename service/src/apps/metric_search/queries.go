@@ -14,7 +14,7 @@ FROM covid19.metric_reference AS mr
 	LEFT OUTER JOIN covid19.tag         AS tg ON mt.tag_id = tg.id
 WHERE (
 		   mr.metric ~* ('.*' || REGEXP_REPLACE($1, '\s+', '', 'g') || '.*')
-	    OR mr.metric_name ~* ('.*' || $1 || '.*')
+	    OR mr.metric_name ILIKE ('%' || REGEXP_REPLACE('cases rolling rate', '\s+', '%', 'g') || '%')
       )
   AND mr.released IS TRUE
 GROUP BY metric
