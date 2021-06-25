@@ -397,3 +397,34 @@ func TestMetricSearchQuery(t *testing.T) {
 	assert.JsonArrResponseContains(t, expected, response.Body.Bytes())
 
 } // TestFromDataBase
+
+func TestMetricSearchQueryEmptyResponse(t *testing.T) {
+
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
+	api.Initialize()
+	defer api.database.CloseConnection()
+
+	expected := "[]"
+
+	url, err := api.Router.Get("metric_search").Queries("search", "invalidinput").URL()
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
+	response := executeRequest(req)
+
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
+	assert.Equal(t, "empty response", response.Body.String(), expected)
+
+} // TestFromDataBase
