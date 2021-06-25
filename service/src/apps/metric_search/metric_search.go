@@ -34,6 +34,10 @@ func (conf *handler) fromDatabase(params map[string]string) ([]byte, error) {
 		return nil, err
 	}
 
+	if len(results) == 0 {
+		return []byte{'[', ']'}, nil
+	}
+
 	return utils.JSONMarshal(results)
 
 } // FromDatabase
