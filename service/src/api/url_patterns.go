@@ -44,7 +44,7 @@ var urlPatterns = []routeEntry{
 	{
 		"metric_search",
 		`/generic/metrics`,
-		[]string{"search", `[a-zA-Z2860]{2,120}`},
+		[]string{"search", `[a-zA-Z2860\s]{2,120}`},
 		metric_search.Handler,
 	},
 	{
