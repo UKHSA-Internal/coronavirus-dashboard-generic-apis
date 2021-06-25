@@ -12,7 +12,10 @@ FROM covid19.metric_reference AS mr
 	LEFT OUTER JOIN covid19.page 		AS pg ON mr.category = pg.id
 	LEFT OUTER JOIN covid19.metric_tag  AS mt ON mr.metric = mt.metric_id
 	LEFT OUTER JOIN covid19.tag         AS tg ON mt.tag_id = tg.id
-WHERE mr.metric ~* ('.*' || $1 || '.*')
+WHERE (
+		   mr.metric ~* ('.*' || REGEXP_REPLACE($1, '\s+', '', 'g') || '.*')
+	    OR mr.metric_name ~* ('.*' || $1 || '.*')
+      )
   AND mr.released IS TRUE
 GROUP BY metric
 ORDER BY metric`
