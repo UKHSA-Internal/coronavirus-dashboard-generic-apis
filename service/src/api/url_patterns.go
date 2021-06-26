@@ -44,7 +44,25 @@ var urlPatterns = []routeEntry{
 	{
 		"metric_search",
 		`/generic/metrics`,
-		[]string{"search", `[a-zA-Z2860\s]{2,120}`},
+		[]string{"search", `[a-zA-Z2860\s]{2,120}`, "category", `[a-zA-Z]{2,120}`, "tags", `[a-zA-Z0-9,]{2,40}`},
+		metric_search.Handler,
+	},
+	{
+		"metric_search_with_category",
+		`/generic/metrics`,
+		[]string{"search", `[a-zA-Z2860\s]{2,120}`, "category", `[a-zA-Z]{2,120}`},
+		metric_search.Handler,
+	},
+	{
+		"metric_search_with_tags",
+		`/generic/metrics`,
+		[]string{"search", `[a-zA-Z2860\s]{2,120}`, "tags", `[a-zA-Z0-9,]{2,40}`},
+		metric_search.Handler,
+	},
+	{
+		"metric_search_with_category_and_tag",
+		`/generic/metrics`,
+		[]string{"search", `[a-zA-Z2860\s]{2,120}`, "category", `[a-zA-Z]{2,120}`, "tags", `[a-zA-Z0-9,]{2,40}`},
 		metric_search.Handler,
 	},
 	{
