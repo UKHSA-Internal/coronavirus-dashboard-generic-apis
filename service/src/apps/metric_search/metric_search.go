@@ -3,6 +3,7 @@ package metric_search
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"generic_apis/apps/utils"
@@ -16,15 +17,35 @@ type handler struct {
 	traceparent string
 }
 
-func (conf *handler) fromDatabase(params map[string]string) ([]byte, error) {
+func (conf *handler) fromDatabase(params url.Values) ([]byte, error) {
 
 	var (
-		searchToken = fmt.Sprintf(metricTemplate, strings.ToLower(params["search"]))
-		args        = []interface{}{searchToken}
+		// searchToken = fmt.Sprintf(metricTemplate, strings.ToLower(params["search"].(string)))
+		filters string
+		args    []interface{}
+		counter = 0
 	)
 
+	if search := params.Get("search"); search != "" {
+		counter += 1
+		args = append(args, fmt.Sprintf(metricTemplate, strings.ToLower(search)))
+		filters += fmt.Sprintf(searchFilter, counter, counter)
+	}
+
+	if category := params.Get("category"); category != "" {
+		counter += 1
+		args = append(args, strings.ToLower(category))
+		filters += fmt.Sprintf(categoryFilter, counter)
+	}
+
+	if tags := params.Get("tags"); tags != "" {
+		counter += 1
+		args = append(args, strings.Split(strings.ToLower(tags), ","))
+		filters += fmt.Sprintf(tagsFilter, counter)
+	}
+
 	payload := &db.Payload{
-		Query:         query,
+		Query:         fmt.Sprintf(query, filters),
 		Args:          args,
 		OperationData: insight.GetOperationData(conf.traceparent),
 	}
@@ -33,6 +54,7 @@ func (conf *handler) fromDatabase(params map[string]string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(fmt.Sprintf("%v", results))
 
 	if len(results) == 0 {
 		return []byte{'[', ']'}, nil
@@ -58,17 +80,7 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 		}
 		defer conf.db.CloseConnection()
 
-		// pathVars := mux.Vars(r)
-		// fmt.Println(fmt.Sprintf("%v", pathVars))
-
-		searchParam := r.URL.Query().Get("search")
-		if searchParam == "" {
-			panic("invalid search param")
-		}
-
-		params := map[string]string{"search": searchParam}
-
-		response, err := conf.fromDatabase(params)
+		response, err := conf.fromDatabase(r.URL.Query())
 		if err != nil {
 			panic(err)
 		}
