@@ -54,7 +54,6 @@ func (conf *handler) fromDatabase(params url.Values) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(fmt.Sprintf("%v", results))
 
 	if len(results) == 0 {
 		return []byte{'[', ']'}, nil
