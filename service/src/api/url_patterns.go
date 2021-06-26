@@ -54,15 +54,33 @@ var urlPatterns = []routeEntry{
 		metric_search.Handler,
 	},
 	{
+		"metric_search_category_only",
+		`/generic/metrics`,
+		[]string{"category", `[a-zA-Z]{2,120}`},
+		metric_search.Handler,
+	},
+	{
 		"metric_search_with_tags",
 		`/generic/metrics`,
 		[]string{"search", `[a-zA-Z2860\s]{2,120}`, "tags", `[a-zA-Z0-9,]{2,40}`},
 		metric_search.Handler,
 	},
 	{
+		"metric_search_tags_only",
+		`/generic/metrics`,
+		[]string{"tags", `[a-zA-Z0-9,]{2,40}`},
+		metric_search.Handler,
+	},
+	{
 		"metric_search_with_category_and_tag",
 		`/generic/metrics`,
 		[]string{"search", `[a-zA-Z2860\s]{2,120}`, "category", `[a-zA-Z]{2,120}`, "tags", `[a-zA-Z0-9,]{2,40}`},
+		metric_search.Handler,
+	},
+	{
+		"metric_search_by_category_and_tag",
+		`/generic/metrics`,
+		[]string{"category", `[a-zA-Z]{2,120}`, "tags", `[a-zA-Z0-9,]{2,40}`},
 		metric_search.Handler,
 	},
 	{
