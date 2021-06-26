@@ -550,3 +550,111 @@ func TestMetricSearchQueryWithCategoryAndTag(t *testing.T) {
 	assert.JsonArrResponseContains(t, expected, response.Body.Bytes())
 
 } // TestMetricSearchQueryWithCategoryAndTag
+
+func TestMetricSearchQueryByTagOnly(t *testing.T) {
+
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
+	api.Initialize()
+	defer api.database.CloseConnection()
+
+	expected := 9
+
+	url, err := api.Router.Get("metric_search").Queries("tags", "prevalence rate").URL()
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
+	response := executeRequest(req)
+
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
+
+	type cc map[string]interface{}
+	data := make([]cc, 11)
+	_ = json.Unmarshal(response.Body.Bytes(), &data)
+
+	assert.Equal(t, "response length", len(data), expected)
+
+} // TestMetricSearchQueryEmptyResponse
+
+func TestMetricSearchQueryByCategoryOnly(t *testing.T) {
+
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
+	api.Initialize()
+	defer api.database.CloseConnection()
+
+	expected := 14
+
+	url, err := api.Router.Get("metric_search").Queries("category", "healthcare").URL()
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
+	response := executeRequest(req)
+
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
+
+	type cc map[string]interface{}
+	data := make([]cc, 11)
+	_ = json.Unmarshal(response.Body.Bytes(), &data)
+
+	assert.Equal(t, "response length", len(data), expected)
+
+} // TestMetricSearchQueryByCategoryOnly
+
+func TestMetricSearchQueryByCategoryAndTagsOnly(t *testing.T) {
+
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
+	api.Initialize()
+	defer api.database.CloseConnection()
+
+	expected := 1
+
+	url, err := api.Router.Get("metric_search").Queries("category", "healthcare", "tags", "prevalence rate").URL()
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
+	response := executeRequest(req)
+
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
+
+	type cc map[string]interface{}
+	data := make([]cc, 11)
+	_ = json.Unmarshal(response.Body.Bytes(), &data)
+
+	assert.Equal(t, "response length", len(data), expected)
+
+} // TestMetricSearchQueryByCategoryAndTagsOnly
