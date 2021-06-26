@@ -1,6 +1,7 @@
 package metric_search
 
 import (
+	"net/url"
 	"testing"
 
 	"generic_apis/assert"
@@ -9,7 +10,7 @@ import (
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 )
 
-func TestFromDataBase(t *testing.T) {
+func TestFromDataBaseSearch(t *testing.T) {
 
 	insightClient := insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(insightClient, true)
@@ -35,7 +36,7 @@ func TestFromDataBase(t *testing.T) {
 		{"metric": "previouslyReportedNewCasesBySpecimenDate", "metric_name": "Previously reported new cases by specimen date", "category": "Cases", "tags": []interface{}{"event date"}},
 	}
 
-	jsonResponse, err := conf.fromDatabase(map[string]string{"search": "casesBySpecimenDate"})
+	jsonResponse, err := conf.fromDatabase(url.Values{"search": []string{"casesBySpecimenDate"}})
 	if err != nil {
 		t.Error(err.Error())
 	}
