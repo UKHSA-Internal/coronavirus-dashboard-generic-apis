@@ -18,22 +18,6 @@ type handler struct {
 	insight     appinsights.TelemetryClient
 }
 
-func getDateQuery(date, targetTable string) string {
-
-	var dateQuery string
-
-	if len(date) == 0 {
-		// If date param is empty, get the latest available data.
-		dateQuery = fmt.Sprintf(latestDate, targetTable)
-	} else {
-		// If date has been requested, use the query param.
-		dateQuery = definedDate
-	}
-
-	return dateQuery
-
-} // getDateQuery
-
 func (conf *handler) getPreppedQuery(areaType, date string) (string, error) {
 
 	areaType = utils.AreaTypes[strings.ToLower(areaType)]
@@ -49,14 +33,20 @@ func (conf *handler) getPreppedQuery(areaType, date string) (string, error) {
 	}
 
 	targetTable := fmt.Sprintf(queryTable, timestamp, partition)
-	dateQuery := getDateQuery(date, targetTable)
+
+	dateQuery := ""
+	if len(date) != 0 {
+		// If date has been requested, use the query param.
+		dateQuery = definedDate
+	}
+
 	preppedQuery := fmt.Sprintf(query, targetTable, dateQuery)
 
 	return preppedQuery, nil
 
 } // getPreppedQuery
 
-func (conf *handler) fromDatabase(areaType, areaCode, metric, date string) ([]byte, error) {
+func (conf *handler) fromDatabase(areaType, areaCode, metric, date string) (map[string]interface{}, error) {
 
 	preppedQuery, err := conf.getPreppedQuery(areaType, date)
 	if err != nil {
@@ -87,7 +77,7 @@ func (conf *handler) fromDatabase(areaType, areaCode, metric, date string) ([]by
 		}
 	}
 
-	return utils.JSONMarshal(data)
+	return data, nil
 
 } // FromDatabase
 
@@ -97,7 +87,11 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		var err error
+		var (
+			err      error
+			response map[string]interface{}
+			payload  []byte
+		)
 
 		conf.traceparent = r.Header.Get("traceparent")
 
@@ -110,12 +104,19 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 		pathVars := mux.Vars(r)
 		date := r.URL.Query().Get("date")
 
-		response, err := conf.fromDatabase(pathVars["area_type"], pathVars["area_code"], pathVars["metric"], date)
+		response, err = conf.fromDatabase(pathVars["area_type"], pathVars["area_code"], pathVars["metric"], date)
 		if err != nil {
 			panic(err.Error())
 		}
 
-		if _, err = w.Write(response); err != nil {
+		if len(response) == 0 {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		if payload, err = utils.JSONMarshal(response); err != nil {
+			panic(err)
+		} else if _, err = w.Write(payload); err != nil {
 			panic(err)
 		}
 
