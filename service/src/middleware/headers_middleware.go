@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"os"
 )
 
 var headers = map[string]string{
@@ -14,6 +15,7 @@ var headers = map[string]string{
 	"referrer-policy":           "origin-when-cross-origin, strict-origin-when-cross-origin",
 	"content-security-policy":   "default-src 'none'; style-src 'self' 'unsafe-inline'",
 	"x-phe-media-type":          "PHE-COVID19.v1",
+	"phe-server-loc":            os.Getenv("SERVER_LOCATION"),
 }
 
 func HeadersMiddleware(next http.Handler) http.Handler {
