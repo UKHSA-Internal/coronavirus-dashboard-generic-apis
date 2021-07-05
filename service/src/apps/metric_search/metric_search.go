@@ -20,7 +20,6 @@ type handler struct {
 func (conf *handler) fromDatabase(params url.Values) ([]byte, error) {
 
 	var (
-		// searchToken = fmt.Sprintf(metricTemplate, strings.ToLower(params["search"].(string)))
 		filters string
 		args    []interface{}
 		counter = 0
