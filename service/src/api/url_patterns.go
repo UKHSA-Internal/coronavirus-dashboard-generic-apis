@@ -5,6 +5,7 @@ import (
 	"generic_apis/apps/code"
 	"generic_apis/apps/healthcheck"
 	"generic_apis/apps/metric_availability"
+	"generic_apis/apps/metric_props"
 	"generic_apis/apps/metric_search"
 	"generic_apis/apps/page_area"
 	"generic_apis/apps/soa"
@@ -82,6 +83,12 @@ var urlPatterns = []routeEntry{
 		`/generic/metrics`,
 		[]string{"category", `[a-zA-Z]{2,120}`, "tags", `[a-zA-Z0-9,]{2,40}`},
 		metric_search.Handler,
+	},
+	{
+		"metric_props",
+		`/generic/metrics/props`,
+		[]string{`by`},
+		metric_props.Handler,
 	},
 	{
 		"page_areas_with_type",
