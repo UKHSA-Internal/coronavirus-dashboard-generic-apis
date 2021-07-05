@@ -658,3 +658,118 @@ func TestMetricSearchQueryByCategoryAndTagsOnly(t *testing.T) {
 	assert.Equal(t, "response length", len(data), expected)
 
 } // TestMetricSearchQueryByCategoryAndTagsOnly
+
+func TestMetricPropsByCategory(t *testing.T) {
+
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
+	api.Initialize()
+	defer api.database.CloseConnection()
+
+	url, err := api.Router.Get("metric_props").Queries("by", "category").URL()
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
+	response := executeRequest(req)
+
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
+
+	data := make([]map[string]interface{}, 0)
+	if err = json.Unmarshal(response.Body.Bytes(), &data); err != nil {
+		t.Error(err)
+	}
+
+	expectKey := []string{"Vaccinations", "Cases", "Deaths", "Healthcare", "Testing"}
+
+	for _, item := range data {
+		if _, ok := item["category"]; !ok {
+			t.Errorf("response item does not contain 'category' in JSON object %v", item)
+		} else if _, ok = item["payload"]; !ok {
+			t.Errorf("response item does not contain 'payload' in JSON object %v", item)
+		}
+
+		itemCategory := item["category"]
+		found := false
+
+		for _, key := range expectKey {
+			if key == itemCategory {
+				found = true
+			}
+		}
+
+		if !found {
+			t.Errorf("key: '%s' not found in JSON object %v", itemCategory, data)
+		}
+	}
+
+} // TestMetricPropsByCategory
+
+func TestMetricPropsByTag(t *testing.T) {
+
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
+	api.Initialize()
+	defer api.database.CloseConnection()
+
+	url, err := api.Router.Get("metric_props").Queries("by", "tag").URL()
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
+	response := executeRequest(req)
+
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
+
+	data := make([]map[string]interface{}, 0)
+	if err = json.Unmarshal(response.Body.Bytes(), &data); err != nil {
+		t.Error(err)
+	}
+
+	expectKey := []string{
+		"cumulative", "daily", "event date", "incidence rate",
+		"national statistics", "prevalence rate", "reporting date", "weekly",
+	}
+
+	for _, item := range data {
+		if _, ok := item["tag"]; !ok {
+			t.Errorf("response item does not contain 'tag' in JSON object %v", item)
+		} else if _, ok = item["payload"]; !ok {
+			t.Errorf("response item does not contain 'payload' in JSON object %v", item)
+		}
+
+		itemTag := item["tag"]
+		found := false
+
+		for _, key := range expectKey {
+			if key == itemTag {
+				found = true
+			}
+		}
+
+		if !found {
+			t.Errorf("key: '%s' not found in JSON object %v", itemTag, response)
+		}
+	}
+
+} // TestMetricPropsByTag
