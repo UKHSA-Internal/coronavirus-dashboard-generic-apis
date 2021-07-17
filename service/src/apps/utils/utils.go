@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -76,3 +77,8 @@ func JSONMarshal(payload interface{}) ([]byte, error) {
 	return buffer.Bytes(), err
 
 } // JSONMarshal
+
+func ValidateParam(pattern, value string) bool {
+	re := regexp.MustCompile(pattern)
+	return re.MatchString(value)
+} // ValidateParam
