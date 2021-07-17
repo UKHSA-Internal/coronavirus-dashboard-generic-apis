@@ -773,3 +773,103 @@ func TestMetricPropsByTag(t *testing.T) {
 	}
 
 } // TestMetricPropsByTag
+
+func TestChangeLog(t *testing.T) {
+
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
+	api.Initialize()
+	defer api.database.CloseConnection()
+
+	url, err := api.Router.Get("change_logs").URL()
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
+	response := executeRequest(req)
+
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
+
+} // TestChangeLog
+
+func TestDatedChangeLog(t *testing.T) {
+
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
+	api.Initialize()
+	defer api.database.CloseConnection()
+
+	url, err := api.Router.Get("change_logs_single_month").URL("date", "2021-05")
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
+	response := executeRequest(req)
+
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
+
+	data := make([]interface{}, 0)
+	if err = json.Unmarshal(response.Body.Bytes(), &data); err != nil {
+		t.Error(err)
+	}
+
+	expected := 17 // Expected length for May 2021.
+	assert.Equal(t, "response length", len(data), expected)
+
+} // TestDatedChangeLog
+
+func TestDatedChangeLogSearch(t *testing.T) {
+
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
+	api.Initialize()
+	defer api.database.CloseConnection()
+
+	url, err := api.Router.Get("change_logs_single_month").Queries("search", "cases in england").URL("date", "2021-05")
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
+	response := executeRequest(req)
+
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
+
+	data := make([]interface{}, 0)
+	if err = json.Unmarshal(response.Body.Bytes(), &data); err != nil {
+		t.Error(err)
+	}
+
+	expected := 5 // Expected length for May 2021 with search query "cases in England".
+	assert.Equal(t, "response length", len(data), expected)
+
+} // TestDatedChangeLogSearch
