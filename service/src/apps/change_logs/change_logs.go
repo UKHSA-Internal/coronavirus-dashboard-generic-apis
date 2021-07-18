@@ -1,4 +1,4 @@
-package change_log
+package change_logs
 
 import (
 	"fmt"
@@ -22,8 +22,12 @@ type handler struct {
 var paramPatterns = map[string]string{
 	"search": `[a-zA-Z0-9,-]`,
 	"page":   `\d{1,3}`,
+	"title":  `[a-z]{4,120}`,
 	"type":   `[a-z]{5,40}`,
 }
+
+// TODO:
+// 	Add month query
 
 func (conf *handler) fromDatabase(date string, queryParams url.Values) ([]db.ResultType, error) {
 
@@ -67,16 +71,16 @@ func (conf *handler) fromDatabase(date string, queryParams url.Values) ([]db.Res
 			}
 			pageValue -= 1
 			// Page limit is 20 (defined in pagination query).
-			query = strings.Replace(query, "{pagination}", fmt.Sprintf(paginationQuery, pageValue*20), 1)
+			query = strings.Replace(query, PaginationToken, fmt.Sprintf(paginationQuery, pageValue*20), 1)
 		} else {
 			if _, ok := queryParams["search"]; ok {
 				// Search queries use a different base query.
 				pcount += 1
-				query = strings.ReplaceAll(searchQuery, "{token_id}", strconv.Itoa(pcount))
+				query = strings.ReplaceAll(searchQuery, QueryToken, strconv.Itoa(pcount))
 			}
 			pcount += 1
 			params = append(params, value)
-			filters = append(filters, strings.ReplaceAll(queryParamFilters[key], "{token_id}", strconv.Itoa(pcount)))
+			filters = append(filters, strings.ReplaceAll(queryParamFilters[key], QueryToken, strconv.Itoa(pcount)))
 		}
 	}
 
@@ -84,7 +88,7 @@ func (conf *handler) fromDatabase(date string, queryParams url.Values) ([]db.Res
 	if joinedFilters != "" {
 		joinedFilters = fmt.Sprintf(filtersQuery, joinedFilters)
 	}
-	query = strings.Replace(query, "{filters}", joinedFilters, 1)
+	query = strings.Replace(query, FiltersToken, joinedFilters, 1)
 
 	fmt.Println(query)
 	fmt.Println(params)
@@ -119,7 +123,6 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 		if err != nil {
 			panic(err)
 		}
-		defer conf.db.CloseConnection()
 
 		pathVars := mux.Vars(r)
 
@@ -133,11 +136,16 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 			return
 		}
 
-		if encoded, err = utils.JSONMarshal(response); err != nil {
-			panic(err)
-		} else if _, err = w.Write(encoded); err != nil {
+		encoded, err = utils.JSONMarshal(response)
+		if err != nil {
 			panic(err)
 		}
+
+		if _, err = w.Write(encoded); err != nil {
+			panic(err)
+		}
+
+		conf.db.CloseConnection()
 
 	}
 
