@@ -29,10 +29,3 @@ WHERE cl.display_banner IS TRUE
     )
 ORDER BY date DESC;
 `
-
-// var urlParamFilters = map[string]string{
-// 	"page":      `LOWER(p.title) = LOWER(${token_id})`,
-// 	"date":      `${token_id}`,
-// 	"area_name": `{area_name_token}`,
-// 	"area_type": `{area_type_token}`,
-// }
