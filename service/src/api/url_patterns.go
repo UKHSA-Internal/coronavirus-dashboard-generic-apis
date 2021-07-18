@@ -117,6 +117,12 @@ var urlPatterns = []routeEntry{
 		change_logs.Handler,
 	},
 	{
+		"change_logs_dates",
+		`/generic/change_logs/dates`,
+		[]string{},
+		change_logs.DatesHandler,
+	},
+	{
 		"change_logs_single_month",
 		`/generic/change_logs/{date:202\d-[01]\d}`,
 		[]string{},
