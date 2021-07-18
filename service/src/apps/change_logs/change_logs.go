@@ -70,16 +70,16 @@ func (conf *handler) fromDatabase(date string, queryParams url.Values) ([]db.Res
 			}
 			pageValue -= 1
 			// Page limit is 20 (defined in pagination query).
-			query = strings.Replace(query, PaginationToken, fmt.Sprintf(paginationQuery, pageValue*20), 1)
+			query = strings.Replace(query, paginationToken, fmt.Sprintf(paginationQuery, pageValue*20), 1)
 		} else {
 			if _, ok := queryParams["search"]; ok {
 				// Search queries use a different base query.
 				pcount += 1
-				query = strings.ReplaceAll(searchQuery, QueryToken, strconv.Itoa(pcount))
+				query = strings.ReplaceAll(searchQuery, queryToken, strconv.Itoa(pcount))
 			}
 			pcount += 1
 			params = append(params, value)
-			filters = append(filters, strings.ReplaceAll(queryParamFilters[key], QueryToken, strconv.Itoa(pcount)))
+			filters = append(filters, strings.ReplaceAll(queryParamFilters[key], queryToken, strconv.Itoa(pcount)))
 		}
 	}
 
@@ -87,7 +87,7 @@ func (conf *handler) fromDatabase(date string, queryParams url.Values) ([]db.Res
 	if joinedFilters != "" {
 		joinedFilters = fmt.Sprintf(filtersQuery, joinedFilters)
 	}
-	query = strings.Replace(query, FiltersToken, joinedFilters, 1)
+	query = strings.Replace(query, filtersToken, joinedFilters, 1)
 
 	payload := &db.Payload{
 		Query:         query,
