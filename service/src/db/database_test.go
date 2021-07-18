@@ -9,6 +9,8 @@ import (
 
 func TestDatabaseConnection(t *testing.T) {
 
+	t.Parallel()
+
 	insightClient := insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(insightClient, true)
 
@@ -47,6 +49,8 @@ func TestDatabaseConnection(t *testing.T) {
 // } // TestFetchAll
 
 func TestFetchRow(t *testing.T) {
+
+	t.Parallel()
 
 	insightClient := insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(insightClient, true)

@@ -12,6 +12,8 @@ import (
 
 func TestFromDataBaseSearchByTag(t *testing.T) {
 
+	t.Parallel()
+
 	insightClient := insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(insightClient, true)
 
@@ -61,6 +63,8 @@ func TestFromDataBaseSearchByTag(t *testing.T) {
 } // TestFromDataBaseSearchByTag
 
 func TestFromDataBaseSearchByCategory(t *testing.T) {
+
+	t.Parallel()
 
 	insightClient := insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(insightClient, true)

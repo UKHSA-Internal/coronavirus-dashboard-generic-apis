@@ -36,6 +36,8 @@ func executeRequest(req *http.Request) *httptest.ResponseRecorder {
 
 func TestPostcode(t *testing.T) {
 
+	t.Parallel()
+
 	var err error
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
@@ -93,6 +95,8 @@ func TestPostcode(t *testing.T) {
 
 func TestRegion(t *testing.T) {
 
+	t.Parallel()
+
 	var err error
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
@@ -137,6 +141,8 @@ func TestRegion(t *testing.T) {
 } // TestRegion
 
 func TestUtla(t *testing.T) {
+
+	t.Parallel()
 
 	var err error
 	api.Insight = insight.InitialiseInsightClient()
@@ -185,6 +191,8 @@ func TestUtla(t *testing.T) {
 } // TestUtla
 
 func TestMsoa(t *testing.T) {
+
+	t.Parallel()
 
 	var err error
 	api.Insight = insight.InitialiseInsightClient()
@@ -270,6 +278,8 @@ func TestMsoa(t *testing.T) {
 
 func TestPageAreaQuery(t *testing.T) {
 
+	t.Parallel()
+
 	var err error
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
@@ -306,6 +316,8 @@ func TestPageAreaQuery(t *testing.T) {
 } // TestPageAreaQuery
 
 func TestAreaOnlyQuery(t *testing.T) {
+
+	t.Parallel()
 
 	var err error
 	api.Insight = insight.InitialiseInsightClient()
@@ -346,6 +358,8 @@ func TestAreaOnlyQuery(t *testing.T) {
 } // TestAreaOnlyQuery
 
 func TestMetricSearchQuery(t *testing.T) {
+
+	t.Parallel()
 
 	var err error
 	api.Insight = insight.InitialiseInsightClient()
@@ -395,6 +409,8 @@ func TestMetricSearchQuery(t *testing.T) {
 
 func TestMetricSearchQueryEmptyResponse(t *testing.T) {
 
+	t.Parallel()
+
 	var err error
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
@@ -425,6 +441,8 @@ func TestMetricSearchQueryEmptyResponse(t *testing.T) {
 } // TestMetricSearchQueryEmptyResponse
 
 func TestMetricSearchQueryWithCategory(t *testing.T) {
+
+	t.Parallel()
 
 	var err error
 	api.Insight = insight.InitialiseInsightClient()
@@ -474,6 +492,8 @@ func TestMetricSearchQueryWithCategory(t *testing.T) {
 
 func TestMetricSearchQueryWithTags(t *testing.T) {
 
+	t.Parallel()
+
 	var err error
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
@@ -511,6 +531,8 @@ func TestMetricSearchQueryWithTags(t *testing.T) {
 } // TestMetricSearchQueryWithTags
 
 func TestMetricSearchQueryWithCategoryAndTag(t *testing.T) {
+
+	t.Parallel()
 
 	var err error
 	api.Insight = insight.InitialiseInsightClient()
@@ -552,6 +574,8 @@ func TestMetricSearchQueryWithCategoryAndTag(t *testing.T) {
 
 func TestMetricSearchQueryByTagOnly(t *testing.T) {
 
+	t.Parallel()
+
 	var err error
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
@@ -587,6 +611,8 @@ func TestMetricSearchQueryByTagOnly(t *testing.T) {
 } // TestMetricSearchQueryEmptyResponse
 
 func TestMetricSearchQueryByCategoryOnly(t *testing.T) {
+
+	t.Parallel()
 
 	var err error
 	api.Insight = insight.InitialiseInsightClient()
@@ -624,6 +650,8 @@ func TestMetricSearchQueryByCategoryOnly(t *testing.T) {
 
 func TestMetricSearchQueryByCategoryAndTagsOnly(t *testing.T) {
 
+	t.Parallel()
+
 	var err error
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
@@ -659,6 +687,8 @@ func TestMetricSearchQueryByCategoryAndTagsOnly(t *testing.T) {
 } // TestMetricSearchQueryByCategoryAndTagsOnly
 
 func TestMetricPropsByCategory(t *testing.T) {
+
+	t.Parallel()
 
 	var err error
 	api.Insight = insight.InitialiseInsightClient()
@@ -715,6 +745,8 @@ func TestMetricPropsByCategory(t *testing.T) {
 } // TestMetricPropsByCategory
 
 func TestMetricPropsByTag(t *testing.T) {
+
+	t.Parallel()
 
 	var err error
 	api.Insight = insight.InitialiseInsightClient()
@@ -775,6 +807,8 @@ func TestMetricPropsByTag(t *testing.T) {
 
 func TestChangeLog(t *testing.T) {
 
+	t.Parallel()
+
 	var err error
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
@@ -802,6 +836,8 @@ func TestChangeLog(t *testing.T) {
 } // TestChangeLog
 
 func TestDatedChangeLog(t *testing.T) {
+
+	t.Parallel()
 
 	var err error
 	api.Insight = insight.InitialiseInsightClient()
@@ -839,6 +875,8 @@ func TestDatedChangeLog(t *testing.T) {
 
 func TestDatedChangeLogSearch(t *testing.T) {
 
+	t.Parallel()
+
 	var err error
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
@@ -874,6 +912,8 @@ func TestDatedChangeLogSearch(t *testing.T) {
 } // TestDatedChangeLogSearch
 
 func TestLogBanner(t *testing.T) {
+
+	t.Parallel()
 
 	var err error
 	api.Insight = insight.InitialiseInsightClient()

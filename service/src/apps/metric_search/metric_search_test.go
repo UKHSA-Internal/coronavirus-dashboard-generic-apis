@@ -12,6 +12,8 @@ import (
 
 func TestFromDataBaseSearch(t *testing.T) {
 
+	t.Parallel()
+
 	insightClient := insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(insightClient, true)
 

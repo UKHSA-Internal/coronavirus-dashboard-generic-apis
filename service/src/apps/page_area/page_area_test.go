@@ -11,6 +11,8 @@ import (
 
 func TestPageAreaQuery(t *testing.T) {
 
+	t.Parallel()
+
 	insightClient := insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(insightClient, true)
 
@@ -43,6 +45,8 @@ func TestPageAreaQuery(t *testing.T) {
 } // TestFromDataBase
 
 func TestAreaOnlyQuery(t *testing.T) {
+
+	t.Parallel()
 
 	insightClient := insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(insightClient, true)
