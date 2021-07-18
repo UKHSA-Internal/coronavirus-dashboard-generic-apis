@@ -1,9 +1,9 @@
 package change_logs
 
 const (
-	QueryToken      = "{token_id}"
-	PaginationToken = "{#pagination#}"
-	FiltersToken    = "{filters}"
+	queryToken      = "{token_id}"
+	paginationToken = "{#pagination#}"
+	filtersToken    = "{filters}"
 )
 
 const simpleQuery = `
@@ -76,11 +76,11 @@ ORDER BY rank DESC, df.date DESC
 {#pagination#};
 `
 
-// const recordMonths = `
-// SELECT DISTINCT date_trunc('month', cl.date) AS date
-// FROM covid19.change_log AS cl
-// ORDER BY date DESC
-// `
+const recordMonths = `
+SELECT DISTINCT date_trunc('month', cl.date) AS date
+FROM covid19.change_log AS cl
+ORDER BY date DESC
+`
 
 const filtersQuery = `WHERE %s`
 const paginationQuery = "LIMIT 20 OFFSET %d"
