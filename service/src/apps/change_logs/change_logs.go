@@ -31,7 +31,6 @@ var paramPatterns = map[string]string{
 
 func (conf *handler) fromDatabase(date string, queryParams url.Values) ([]db.ResultType, error) {
 
-	fmt.Println(date)
 	var (
 		params  []interface{}
 		filters []string
@@ -90,9 +89,6 @@ func (conf *handler) fromDatabase(date string, queryParams url.Values) ([]db.Res
 	}
 	query = strings.Replace(query, FiltersToken, joinedFilters, 1)
 
-	fmt.Println(query)
-	fmt.Println(params)
-
 	payload := &db.Payload{
 		Query:         query,
 		Args:          params,
@@ -100,8 +96,7 @@ func (conf *handler) fromDatabase(date string, queryParams url.Values) ([]db.Res
 	}
 
 	res, err := conf.db.FetchAll(payload)
-	fmt.Println(res)
-	fmt.Println(err)
+
 	return res, err
 
 } // FromDatabase
