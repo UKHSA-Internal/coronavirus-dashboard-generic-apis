@@ -77,7 +77,7 @@ ORDER BY rank DESC, df.date DESC
 `
 
 const recordMonths = `
-SELECT DISTINCT date_trunc('month', cl.date) AS date
+SELECT DISTINCT date_trunc('month', cl.date)::DATE::TEXT AS date
 FROM covid19.change_log AS cl
 ORDER BY date DESC
 `
