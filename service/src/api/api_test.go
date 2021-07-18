@@ -82,7 +82,6 @@ func TestPostcode(t *testing.T) {
 
 	data := make(map[string]interface{})
 	if err := json.Unmarshal(response.Body.Bytes(), &data); err != nil {
-		fmt.Println(err.Error())
 		t.Error(err.Error())
 	}
 
@@ -873,3 +872,42 @@ func TestDatedChangeLogSearch(t *testing.T) {
 	assert.Equal(t, "response length", len(data), expected)
 
 } // TestDatedChangeLogSearch
+
+func TestLogBanner(t *testing.T) {
+
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
+	api.Initialize()
+	defer api.database.CloseConnection()
+
+	url, err := api.Router.
+		Get("log_banners").
+		URL("date", "2021-05-21", "page", "Cases", "area_type", "overview", "area_name", "United Kingdom")
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
+	response := executeRequest(req)
+
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
+
+	data := make([]interface{}, 0)
+	if err = json.Unmarshal(response.Body.Bytes(), &data); err != nil {
+		t.Error(err)
+	}
+
+	expected := 1 // Expected length for May 2021 with search query "cases in England".
+	assert.Equal(t, "response length", len(data), expected)
+	fmt.Println(response.Body.String())
+
+} // TestLogBanner
