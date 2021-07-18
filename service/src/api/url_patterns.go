@@ -2,9 +2,10 @@ package api
 
 import (
 	"generic_apis/apps/area_by_type"
-	"generic_apis/apps/change_log"
+	"generic_apis/apps/change_logs"
 	"generic_apis/apps/code"
 	"generic_apis/apps/healthcheck"
+	"generic_apis/apps/log_banners"
 	"generic_apis/apps/metric_availability"
 	"generic_apis/apps/metric_props"
 	"generic_apis/apps/metric_search"
@@ -113,12 +114,18 @@ var urlPatterns = []routeEntry{
 		"change_logs",
 		`/generic/change_logs`,
 		[]string{},
-		change_log.Handler,
+		change_logs.Handler,
 	},
 	{
 		"change_logs_single_month",
 		`/generic/change_logs/{date:202\d-[01]\d}`,
 		[]string{},
-		change_log.Handler,
+		change_logs.Handler,
+	},
+	{
+		"log_banners",
+		`/generic/log_banners/{date:202\d-[01]\d-[0123]\d}/{page:[A-Za-z]{5,40}}/{area_type:[a-zA-Z]{2,12}}/{area_name:[A-Za-z0-9,'.\s-()]{5,120}}`,
+		[]string{},
+		log_banners.Handler,
 	},
 } // routes
