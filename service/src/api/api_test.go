@@ -826,13 +826,13 @@ func TestDatedChangeLog(t *testing.T) {
 
 	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
 
-	data := make([]interface{}, 0)
+	data := make(map[string]interface{})
 	if err = json.Unmarshal(response.Body.Bytes(), &data); err != nil {
 		t.Error(err)
 	}
 
 	expected := 17 // Expected length for May 2021.
-	assert.Equal(t, "response length", len(data), expected)
+	assert.Equal(t, "response length", int(data["length"].(float64)), expected)
 
 } // TestDatedChangeLog
 
@@ -862,13 +862,13 @@ func TestDatedChangeLogSearch(t *testing.T) {
 
 	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
 
-	data := make([]interface{}, 0)
+	data := make(map[string]interface{})
 	if err = json.Unmarshal(response.Body.Bytes(), &data); err != nil {
 		t.Error(err)
 	}
 
 	expected := 5 // Expected length for May 2021 with search query "cases in England".
-	assert.Equal(t, "response length", len(data), expected)
+	assert.Equal(t, "response length", int(data["length"].(float64)), expected)
 
 } // TestDatedChangeLogSearch
 
