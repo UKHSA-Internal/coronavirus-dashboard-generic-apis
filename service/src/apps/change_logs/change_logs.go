@@ -26,9 +26,6 @@ var paramPatterns = map[string]string{
 	"type":   `[a-z]{5,40}`,
 }
 
-// TODO:
-// 	Add month query
-
 func (conf *handler) fromDatabase(date string, queryParams url.Values) ([]db.ResultType, error) {
 
 	var (
