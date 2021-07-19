@@ -78,11 +78,11 @@ func (apiClient *Api) Run() {
 
 func (apiClient *Api) Initialize() {
 
-	telemetryMiddleware := middleware.PrepareTelemetryMiddleware(apiClient.Insight)
-
 	apiClient.Router = mux.NewRouter()
-	apiClient.Router.Use(middleware.HeadersMiddleware)
-	apiClient.Router.Use(telemetryMiddleware)
+	apiClient.Router.Use(
+		middleware.HeadersMiddleware,
+		middleware.PrepareTelemetryMiddleware(apiClient.Insight),
+	)
 
 	apiClient.Router.
 		Handle(`/generic/healthcheck`, healthcheck.Handler()).
