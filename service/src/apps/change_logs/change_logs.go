@@ -26,13 +26,15 @@ var paramPatterns = map[string]string{
 	"type":   `[a-z]{5,40}`,
 }
 
-func (conf *handler) fromDatabase(date string, queryParams url.Values) ([]db.ResultType, error) {
+func (conf *handler) fromDatabase(date string, queryParams url.Values) (db.ResultType, error) {
 
 	var (
+		err     error
 		params  []interface{}
 		filters []string
 		query   = simpleQuery
 		pcount  = 0
+		page    = 1
 	)
 
 	if date != "" {
@@ -61,11 +63,11 @@ func (conf *handler) fromDatabase(date string, queryParams url.Values) ([]db.Res
 			if value == "" {
 				value = "1"
 			}
-			pageValue, err := strconv.Atoi(value)
+			page, err = strconv.Atoi(value)
 			if err != nil {
 				return nil, err
 			}
-			pageValue -= 1
+			pageValue := page - 1
 			// Page limit is 20 (defined in pagination query).
 			query = strings.Replace(query, paginationToken, fmt.Sprintf(paginationQuery, pageValue*20), 1)
 		} else {
@@ -92,7 +94,12 @@ func (conf *handler) fromDatabase(date string, queryParams url.Values) ([]db.Res
 		OperationData: insight.GetOperationData(conf.traceparent),
 	}
 
-	res, err := conf.db.FetchAll(payload)
+	res, err := conf.db.FetchRow(payload)
+	if err != nil {
+		return nil, err
+	}
+
+	res["page"] = page
 
 	return res, err
 
