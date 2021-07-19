@@ -9,7 +9,7 @@ const (
 const simpleQuery = `
 WITH
     data AS (
-        SELECT MAX(cl.id::TEXT),
+        SELECT MAX(cl.id::TEXT) AS id,
                cl.date::TEXT,
                cl.heading,
                MAX(cl.body)    AS body,
@@ -61,7 +61,7 @@ WITH
     data AS (
         SELECT *
         FROM (
-            SELECT MAX(cl.id::TEXT),
+            SELECT MAX(cl.id::TEXT) AS id,
                    cl.date::TEXT,
                    cl.high_priority,
                    cl.display_banner,
