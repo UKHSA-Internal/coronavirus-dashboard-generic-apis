@@ -99,7 +99,6 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 		if err != nil {
 			panic(err)
 		}
-		defer conf.db.CloseConnection()
 
 		pathVars := mux.Vars(r)
 		date := r.URL.Query().Get("date")
@@ -119,6 +118,8 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 		} else if _, err = w.Write(payload); err != nil {
 			panic(err)
 		}
+
+		conf.db.CloseConnection()
 
 	}
 

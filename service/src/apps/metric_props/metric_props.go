@@ -61,7 +61,6 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 		if err != nil {
 			panic(err)
 		}
-		defer conf.db.CloseConnection()
 
 		response, err := conf.fromDatabase(r.URL.Query())
 		if err != nil {
@@ -71,6 +70,8 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 		if _, err = w.Write(response); err != nil {
 			panic(err)
 		}
+
+		conf.db.CloseConnection()
 
 	}
 
