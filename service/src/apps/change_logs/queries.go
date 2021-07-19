@@ -86,8 +86,9 @@ const filtersQuery = `WHERE %s`
 const paginationQuery = "LIMIT 20 OFFSET %d"
 
 var queryParamFilters = map[string]string{
-	"search": `rank > 0.01`,
-	"title":  `LOWER(p.title) = LOWER(${token_id})`,
-	"type":   `LOWER(p.tag) = LOWER(${token_id})`,
-	"date":   `date::DATE BETWEEN ${token_id}::DATE AND ${token_id}::DATE + INTERVAL '1 month'`,
+	"search":   `rank > 0.01`,
+	"title":    `LOWER(p.title) = LOWER(${token_id})`,
+	"type":     `LOWER(p.tag) = LOWER(${token_id})`,
+	"date":     `date::DATE BETWEEN ${token_id}::DATE AND ${token_id}::DATE + INTERVAL '1 month'`,
+	"category": `LOWER(t.tag) = LOWER(${token_id})`,
 }
