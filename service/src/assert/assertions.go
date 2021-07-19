@@ -71,3 +71,11 @@ func Equal(t *testing.T, topic string, expected, actual interface{}) {
 	}
 
 } // Equal
+
+func AssertIntGreater(t *testing.T, topic string, expected, actual int) {
+
+	if expected <= actual {
+		t.Errorf("[%v] Expected response code <%v>. Got <%v>\n", topic, expected, actual)
+	}
+
+} // AssertGreater
