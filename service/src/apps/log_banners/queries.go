@@ -1,7 +1,8 @@
 package log_banners
 
 const mainQuery = `
-SELECT cl.date::TEXT,
+SELECT cl.id::TEXT,
+	   cl.date::TEXT,
        cl.high_priority,
        t.tag           AS type,
        cl.heading,
