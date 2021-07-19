@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"generic_apis/apps/healthcheck"
 	"generic_apis/db"
 	"generic_apis/insight"
 	"generic_apis/middleware"
@@ -82,6 +83,10 @@ func (apiClient *Api) Initialize() {
 	apiClient.Router = mux.NewRouter()
 	apiClient.Router.Use(middleware.HeadersMiddleware)
 	apiClient.Router.Use(telemetryMiddleware)
+
+	apiClient.Router.
+		Handle(`/generic/healthcheck`, healthcheck.Handler()).
+		Name("healthcheck")
 
 	for _, route := range urlPatterns {
 		apiClient.Router.
