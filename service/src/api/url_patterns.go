@@ -4,7 +4,6 @@ import (
 	"generic_apis/apps/area_by_type"
 	"generic_apis/apps/change_logs"
 	"generic_apis/apps/code"
-	"generic_apis/apps/healthcheck"
 	"generic_apis/apps/log_banners"
 	"generic_apis/apps/metric_availability"
 	"generic_apis/apps/metric_props"
@@ -14,12 +13,6 @@ import (
 )
 
 var urlPatterns = []routeEntry{
-	{
-		"healthcheck",
-		`/generic/healthcheck`,
-		[]string{},
-		healthcheck.Handler,
-	},
 	{
 		"code",
 		`/generic/code/{area_type:[a-zA-Z]{4,10}}/{area_code:[a-zA-Z0-9+%\s]{3,12}}`,
