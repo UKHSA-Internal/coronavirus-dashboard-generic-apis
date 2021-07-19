@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/caarlos0/env v3.5.0+incompatible
+	github.com/etherlabsio/healthcheck/v2 v2.0.0
 	github.com/gofrs/uuid v4.0.0+incompatible // indirect
 	github.com/google/go-cmp v0.3.1
 	github.com/gorilla/mux v1.8.0
@@ -16,5 +17,4 @@ require (
 	github.com/stretchr/testify v1.7.0 // indirect
 	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b // indirect
 	golang.org/x/text v0.3.6 // indirect
-	unit.nginx.org v0.0.0-20210421130726-5841a506945e
 )
