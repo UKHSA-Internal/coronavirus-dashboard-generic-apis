@@ -26,6 +26,8 @@ var paramPatterns = map[string]string{
 	"type":   `[a-z]{5,40}`,
 }
 
+const pageLimit = 20
+
 func (conf *handler) fromDatabase(date string, queryParams url.Values) (db.ResultType, error) {
 
 	var (
@@ -69,7 +71,7 @@ func (conf *handler) fromDatabase(date string, queryParams url.Values) (db.Resul
 			}
 			pageValue := page - 1
 			// Page limit is 20 (defined in pagination query).
-			query = strings.Replace(query, paginationToken, fmt.Sprintf(paginationQuery, pageValue*20), 1)
+			query = strings.Replace(query, paginationToken, fmt.Sprintf(paginationQuery, pageValue*pageLimit), 1)
 		} else {
 			if _, ok := queryParams["search"]; ok {
 				// Search queries use a different base query.
@@ -100,6 +102,7 @@ func (conf *handler) fromDatabase(date string, queryParams url.Values) (db.Resul
 	}
 
 	res["page"] = page
+	res["length"] = len(res["data"].([]interface{}))
 
 	return res, err
 
