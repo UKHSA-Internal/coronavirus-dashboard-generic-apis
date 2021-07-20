@@ -1041,7 +1041,7 @@ func TestChangeLogDates(t *testing.T) {
 	api.Initialize()
 	defer api.database.CloseConnection()
 
-	url, err := api.Router.Get("change_logs_dates").URL()
+	url, err := api.Router.Get("change_logs_components").URL("component", "dates")
 	if err != nil {
 		t.Error(err)
 	}
@@ -1063,3 +1063,39 @@ func TestChangeLogDates(t *testing.T) {
 	assert.IntGreater(t, "response length", len(data), expected)
 
 } // TestChangeLogDates
+
+func TestChangeLogTypes(t *testing.T) {
+
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
+	api.Initialize()
+	defer api.database.CloseConnection()
+
+	url, err := api.Router.Get("change_logs_components").URL("component", "types")
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
+	response := executeRequest(req)
+
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
+
+	data := make([]interface{}, 0)
+	if err = json.Unmarshal(response.Body.Bytes(), &data); err != nil {
+		t.Error(err)
+	}
+
+	expected := 1
+	assert.IntGreater(t, "response length", len(data), expected)
+
+} // TestChangeLogTypes
