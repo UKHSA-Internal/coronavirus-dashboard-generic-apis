@@ -84,9 +84,13 @@ func TestPostcode(t *testing.T) {
 		t.Error(err.Error())
 	}
 
-	for _, itemToken := range tokens {
-		assert.Equal(t, itemToken.topic, itemToken.expected, data[itemToken.topic])
-	}
+	t.Run("Test level payloads", func(t *testing.T) {
+		t.Parallel()
+
+		for _, itemToken := range tokens {
+			assert.Equal(t, itemToken.topic, itemToken.expected, data[itemToken.topic])
+		}
+	})
 
 } // TestPostcode
 
@@ -130,9 +134,14 @@ func TestRegion(t *testing.T) {
 		t.Error(err)
 	}
 
-	for _, itemToken := range tokens {
-		assert.Equal(t, itemToken.topic, itemToken.expected, data[itemToken.topic])
-	}
+	t.Run("Test level payloads", func(t *testing.T) {
+		t.Parallel()
+
+		for _, itemToken := range tokens {
+			assert.Equal(t, itemToken.topic, itemToken.expected, data[itemToken.topic])
+		}
+	})
+
 } // TestRegion
 
 func TestUtla(t *testing.T) {
@@ -177,9 +186,13 @@ func TestUtla(t *testing.T) {
 		t.Error(err)
 	}
 
-	for _, itemToken := range tokens {
-		assert.Equal(t, itemToken.topic, itemToken.expected, data[itemToken.topic])
-	}
+	t.Run("Test level payloads", func(t *testing.T) {
+		t.Parallel()
+
+		for _, itemToken := range tokens {
+			assert.Equal(t, itemToken.topic, itemToken.expected, data[itemToken.topic])
+		}
+	})
 
 } // TestUtla
 
@@ -231,9 +244,13 @@ func TestMsoa(t *testing.T) {
 		t.Error(err)
 	}
 
-	for _, itemToken := range tokens {
-		assert.Equal(t, itemToken.topic, itemToken.expected, data[itemToken.topic])
-	}
+	t.Run("Test level payloads", func(t *testing.T) {
+		t.Parallel()
+
+		for _, itemToken := range tokens {
+			assert.Equal(t, itemToken.topic, itemToken.expected, data[itemToken.topic])
+		}
+	})
 
 } // TestMsoa
 
@@ -795,10 +812,111 @@ func TestChangeLog(t *testing.T) {
 		t.Error(err)
 	}
 	response := executeRequest(req)
+	data := make(map[string]interface{})
+	if err = json.Unmarshal(response.Body.Bytes(), &data); err != nil {
+		t.Error(err)
+	}
 
 	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
 
+	t.Run("Request tests", func(t *testing.T) {
+		t.Parallel()
+
+		expectedPage := 1
+		assert.Equal(t, "current page", int(data["page"].(float64)), expectedPage)
+
+		expectedLen := int(data["length"].(float64))
+		assert.Equal(t, "payload count", len(data["data"].([]interface{})), expectedLen)
+	})
+
 } // TestChangeLog
+
+func TestPaginatedChangeLog(t *testing.T) {
+
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
+	api.Initialize()
+	defer api.database.CloseConnection()
+
+	url, err := api.Router.Get("change_logs").Queries("page", "2").URL()
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
+	response := executeRequest(req)
+	data := make(map[string]interface{})
+	if err = json.Unmarshal(response.Body.Bytes(), &data); err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
+
+	t.Run("Request tests", func(t *testing.T) {
+		t.Parallel()
+
+		expectedPage := 2
+		assert.Equal(t, "current page", int(data["page"].(float64)), expectedPage)
+
+		expectedLen := len(data["data"].([]interface{}))
+		assert.Equal(t, "payload count", int(data["length"].(float64)), expectedLen)
+	})
+
+} // TestPaginatedChangeLog
+
+func TestChangeLogSearch(t *testing.T) {
+
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
+	api.Initialize()
+	defer api.database.CloseConnection()
+
+	url, err := api.Router.Get("change_logs").Queries("search", "incor").URL()
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
+	response := executeRequest(req)
+	data := make(map[string]interface{})
+	if err = json.Unmarshal(response.Body.Bytes(), &data); err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
+
+	t.Run("Request tests", func(t *testing.T) {
+		t.Parallel()
+
+		expectedPage := 1
+		assert.Equal(t, "current page", int(data["page"].(float64)), expectedPage)
+
+		returnedLen := len(data["data"].([]interface{}))
+		assert.Equal(t, "payload count", int(data["length"].(float64)), returnedLen)
+
+		expectedLenGreaterThan := 2
+		assert.IntGreater(t, "payload count", int(data["length"].(float64)), expectedLenGreaterThan)
+	})
+
+} // TestChangeLogSearch
 
 func TestDatedChangeLog(t *testing.T) {
 
@@ -942,6 +1060,6 @@ func TestChangeLogDates(t *testing.T) {
 	}
 
 	expected := 1
-	assert.AssertIntGreater(t, "response length", len(data), expected)
+	assert.IntGreater(t, "response length", len(data), expected)
 
 } // TestChangeLogDates
