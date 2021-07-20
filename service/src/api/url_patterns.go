@@ -111,7 +111,7 @@ var urlPatterns = []routeEntry{
 	},
 	{
 		"change_logs_components",
-		`/generic/change_logs/{component:dates|types}`,
+		`/generic/change_logs/{component:dates|types|titles}`,
 		[]string{},
 		change_logs.Handler,
 	},
