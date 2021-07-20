@@ -110,10 +110,10 @@ var urlPatterns = []routeEntry{
 		change_logs.Handler,
 	},
 	{
-		"change_logs_dates",
-		`/generic/change_logs/dates`,
+		"change_logs_components",
+		`/generic/change_logs/{component:dates|types}`,
 		[]string{},
-		change_logs.DatesHandler,
+		change_logs.Handler,
 	},
 	{
 		"change_logs_single_month",
