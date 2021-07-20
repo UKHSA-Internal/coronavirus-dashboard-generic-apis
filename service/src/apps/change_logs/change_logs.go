@@ -33,7 +33,7 @@ func (conf *handler) fromDatabase(date string, queryParams url.Values) (db.Resul
 	var (
 		err     error
 		params  []interface{}
-		filters []string
+		filters = []string{releaseFilter}
 		query   = simpleQuery
 		pcount  = 0
 		page    = 1
@@ -140,7 +140,6 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 		}
 
 		if err != nil {
-			fmt.Println(err)
 			http.Error(w, "failed to retrieve data", http.StatusBadRequest)
 			return
 		}
