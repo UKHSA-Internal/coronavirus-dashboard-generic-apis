@@ -58,6 +58,13 @@ FROM payload;
 
 const searchQuery = `
 WITH
+	search_token AS (
+		SELECT regexp_replace(
+			plainto_tsquery('english'::REGCONFIG, ${token_id})::TEXT,
+			'[''](.*?)([''])', '\1:*',
+			'g'
+		) AS t
+	),
     data AS (
         SELECT *
         FROM (
@@ -88,8 +95,14 @@ WITH
                    cl.heading,
                    MAX(cl.body)    AS body,
                    ROUND(
-                       ts_rank(to_tsvector('english'::REGCONFIG, MAX(cl.body)), plainto_tsquery('english', ${token_id}))::NUMERIC +
-                       ts_rank(to_tsvector('english'::REGCONFIG, cl.heading),  plainto_tsquery('english', ${token_id}))::NUMERIC * 2,
+                       ts_rank(
+                           to_tsvector('english'::REGCONFIG, MAX(cl.body)),
+						   (SELECT t::TSQUERY FROM search_token)
+                       )::NUMERIC +
+                       ts_rank(
+                           to_tsvector('english'::REGCONFIG, cl.heading),
+						   (SELECT t::TSQUERY FROM search_token)
+					   )::NUMERIC * 2,
                        5
                    )::FLOAT        AS rank
             FROM covid19.change_log AS cl
@@ -98,8 +111,8 @@ WITH
               LEFT JOIN covid19.metric_reference     AS mr ON mr.metric = cltm.metric_id
               LEFT JOIN covid19.change_log_to_page   AS cltp ON cltp.log_id = cl.id
               LEFT JOIN covid19.page                 AS p ON p.id = cltp.page_id
-            WHERE to_tsvector('english'::REGCONFIG, cl.body) @@ plainto_tsquery('english', ${token_id})
-               OR to_tsvector('english'::REGCONFIG, cl.heading) @@ plainto_tsquery('english', ${token_id})
+            WHERE to_tsvector('english'::REGCONFIG, cl.body) @@ (SELECT t::TSQUERY FROM search_token)
+               OR to_tsvector('english'::REGCONFIG, cl.heading) @@ (SELECT t::TSQUERY FROM search_token)
             GROUP BY cl.heading, cl.date, t.tag, cl.high_priority, cl.display_banner
         ) AS df
         {filters}
@@ -126,7 +139,7 @@ const filtersQuery = `WHERE %s`
 const paginationQuery = "LIMIT 20 OFFSET %d"
 
 var queryParamFilters = map[string]string{
-	"search": `rank > 0.01`,
+	"search": `rank > 0`,
 	"title":  `LOWER(p.title) = LOWER(${token_id})`,
 	"type":   `LOWER(p.tag) = LOWER(${token_id})`,
 	"date":   `date::DATE BETWEEN ${token_id}::DATE AND ${token_id}::DATE + INTERVAL '1 month'`,
