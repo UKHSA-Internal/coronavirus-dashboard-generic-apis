@@ -140,6 +140,11 @@ FROM covid19.tag AS t
 WHERE t.association = 'CHANGE LOGS'
 ORDER BY tag DESC
 `
+const recordTitles = `
+SELECT title
+FROM covid19.page AS p
+ORDER BY title DESC
+`
 
 const filtersQuery = `WHERE %s`
 const paginationQuery = "LIMIT 20 OFFSET %d"
@@ -152,6 +157,12 @@ var queryParamFilters = map[string]string{
 	"search": `(to_tsvector('english'::REGCONFIG, cl.body) @@ (SELECT t::TSQUERY FROM search_token) ` +
 		`OR to_tsvector('english'::REGCONFIG, cl.heading) @@ (SELECT t::TSQUERY FROM search_token))`,
 	"title": `LOWER(p.title) = LOWER(${token_id})`,
-	"type":  `LOWER(p.tag) = LOWER(${token_id})`,
+	"type":  `LOWER(t.tag) = LOWER(${token_id})`,
 	"date":  `date::DATE BETWEEN ${token_id}::DATE AND ${token_id}::DATE + INTERVAL '1 month'`,
+}
+
+var componentQueries = map[string]string{
+	"titles": recordTitles,
+	"types":  recordTypes,
+	"dates":  recordMonths,
 }
