@@ -135,6 +135,13 @@ FROM covid19.change_log AS cl
 ORDER BY date DESC
 `
 
+const recordTypes = `
+SELECT tag
+FROM covid19.tag AS t
+WHERE t.association = 'CHANGE LOGS'
+ORDER BY tag DESC
+`
+
 const filtersQuery = `WHERE %s`
 const paginationQuery = "LIMIT 20 OFFSET %d"
 
