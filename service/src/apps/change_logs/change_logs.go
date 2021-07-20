@@ -20,10 +20,10 @@ type handler struct {
 }
 
 var paramPatterns = map[string]string{
-	"search": `[a-zA-Z0-9,-]`,
+	"search": `[a-zA-Z0-9,-']`,
 	"page":   `\d{1,3}`,
-	"title":  `[a-z]{4,120}`,
-	"type":   `[a-z]{5,40}`,
+	"title":  `[a-zA-Z:-\s]{4,120}`,
+	"type":   `[a-zA-Z\s]{5,40}`,
 }
 
 const pageLimit = 20
@@ -131,10 +131,8 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 
 		pathVars := mux.Vars(r)
 
-		if componentName, ok = pathVars["component"]; ok && componentName == "dates" {
-			response, err = conf.getDatesFromDatabase()
-		} else if ok {
-			response, err = conf.getTypesFromDatabase()
+		if componentName, ok = pathVars["component"]; ok {
+			response, err = conf.getComponentsFromDatabase(componentName)
 		} else {
 			response, err = conf.fromDatabase(pathVars["date"], r.URL.Query())
 		}
