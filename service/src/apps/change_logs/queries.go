@@ -111,11 +111,10 @@ WITH
               LEFT JOIN covid19.metric_reference     AS mr ON mr.metric = cltm.metric_id
               LEFT JOIN covid19.change_log_to_page   AS cltp ON cltp.log_id = cl.id
               LEFT JOIN covid19.page                 AS p ON p.id = cltp.page_id
-            WHERE to_tsvector('english'::REGCONFIG, cl.body) @@ (SELECT t::TSQUERY FROM search_token)
-               OR to_tsvector('english'::REGCONFIG, cl.heading) @@ (SELECT t::TSQUERY FROM search_token)
+            {filters}
             GROUP BY cl.heading, cl.date, t.tag, cl.high_priority, cl.display_banner
         ) AS df
-        {filters}
+        WHERE rank > 0
         ORDER BY rank DESC, df.date DESC
     ),
     payload AS (
@@ -144,10 +143,15 @@ ORDER BY tag DESC
 
 const filtersQuery = `WHERE %s`
 const paginationQuery = "LIMIT 20 OFFSET %d"
+const releaseFilter = `date <= (` +
+	`SELECT MAX(timestamp)::DATE ` +
+	`FROM covid19.release_reference AS rr ` +
+	`WHERE rr.released IS TRUE)`
 
 var queryParamFilters = map[string]string{
-	"search": `rank > 0`,
-	"title":  `LOWER(p.title) = LOWER(${token_id})`,
-	"type":   `LOWER(p.tag) = LOWER(${token_id})`,
-	"date":   `date::DATE BETWEEN ${token_id}::DATE AND ${token_id}::DATE + INTERVAL '1 month'`,
+	"search": `(to_tsvector('english'::REGCONFIG, cl.body) @@ (SELECT t::TSQUERY FROM search_token) ` +
+		`OR to_tsvector('english'::REGCONFIG, cl.heading) @@ (SELECT t::TSQUERY FROM search_token))`,
+	"title": `LOWER(p.title) = LOWER(${token_id})`,
+	"type":  `LOWER(p.tag) = LOWER(${token_id})`,
+	"date":  `date::DATE BETWEEN ${token_id}::DATE AND ${token_id}::DATE + INTERVAL '1 month'`,
 }
