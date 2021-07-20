@@ -8,7 +8,7 @@ import (
 func (conf *handler) getTypesFromDatabase() ([]db.ResultType, error) {
 
 	payload := &db.Payload{
-		Query:         recordMonths,
+		Query:         recordTypes,
 		Args:          []interface{}{},
 		OperationData: insight.GetOperationData(conf.traceparent),
 	}
