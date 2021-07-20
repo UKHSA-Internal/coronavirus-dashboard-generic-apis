@@ -5,10 +5,10 @@ import (
 	"generic_apis/insight"
 )
 
-func (conf *handler) getDatesFromDatabase() ([]db.ResultType, error) {
+func (conf *handler) getComponentsFromDatabase(component string) ([]db.ResultType, error) {
 
 	payload := &db.Payload{
-		Query:         recordMonths,
+		Query:         componentQueries[component],
 		Args:          []interface{}{},
 		OperationData: insight.GetOperationData(conf.traceparent),
 	}
