@@ -115,8 +115,11 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		var (
-			err     error
-			encoded []byte
+			ok            bool
+			err           error
+			response      interface{}
+			encoded       []byte
+			componentName string
 		)
 
 		conf.traceparent = r.Header.Get("traceparent")
@@ -128,12 +131,22 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 
 		pathVars := mux.Vars(r)
 
-		response, err := conf.fromDatabase(pathVars["date"], r.URL.Query())
-		if err != nil {
-			http.Error(w, "failed to retrieve data", http.StatusBadRequest)
+		if componentName, ok = pathVars["component"]; ok && componentName == "dates" {
+			response, err = conf.getDatesFromDatabase()
+		} else if ok {
+			response, err = conf.getTypesFromDatabase()
+		} else {
+			response, err = conf.fromDatabase(pathVars["date"], r.URL.Query())
 		}
 
-		if len(response) == 0 {
+		if err != nil {
+			fmt.Println(err)
+			http.Error(w, "failed to retrieve data", http.StatusBadRequest)
+			return
+		}
+
+		// Return 204 if payload if empty for the main queries.
+		if _, ok = pathVars["component"]; !ok && len(response.(db.ResultType)) == 0 {
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}

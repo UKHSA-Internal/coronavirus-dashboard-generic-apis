@@ -5,7 +5,7 @@ import (
 	"generic_apis/insight"
 )
 
-func (conf *handler) getDatesFromDatabase() ([]db.ResultType, error) {
+func (conf *handler) getTypesFromDatabase() ([]db.ResultType, error) {
 
 	payload := &db.Payload{
 		Query:         recordMonths,
