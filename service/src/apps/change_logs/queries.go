@@ -1,11 +1,68 @@
 package change_logs
 
 const (
-	queryToken      = "{token_id}"
+	queryToken = "{token_id}"
+
 	paginationToken = "{#pagination#}"
-	filtersToken    = "{filters}"
+
+	filtersToken = "{filters}"
 )
 
+// Component queries
+const (
+	recordMonths = `SELECT DISTINCT date_trunc('month', cl.date)::DATE::TEXT AS date ` +
+		`FROM covid19.change_log AS cl ` +
+		`ORDER BY date DESC`
+
+	recordTypes = `SELECT tag ` +
+		`FROM covid19.tag AS t ` +
+		`WHERE t.association = 'CHANGE LOGS' ` +
+		`ORDER BY tag DESC;`
+
+	recordTitles = `SELECT title` +
+		`FROM covid19.page AS p ` +
+		`ORDER BY title DESC;`
+)
+
+// filter queries parts
+const (
+	filtersQuery = `WHERE %s`
+
+	paginationQuery = "LIMIT 20 OFFSET %d"
+
+	releaseFilter = `date <= (` +
+		`SELECT MAX(timestamp)::DATE ` +
+		`FROM covid19.release_reference AS rr ` +
+		`WHERE rr.released IS TRUE)`
+)
+
+// filter parts
+const (
+	searchFilter = `(to_tsvector('english'::REGCONFIG, cl.body) @@ (SELECT t::TSQUERY FROM search_token) ` +
+		`OR to_tsvector('english'::REGCONFIG, cl.heading) @@ (SELECT t::TSQUERY FROM search_token))`
+
+	titleFilter = `LOWER(p.title) = LOWER(${token_id})`
+
+	typeFilter = `LOWER(t.tag) = LOWER(${token_id})`
+
+	dateFilter = `date::DATE BETWEEN ${token_id}::DATE AND ${token_id}::DATE + INTERVAL '1 month'`
+)
+
+var queryParamFilters = map[string]string{
+	"search": searchFilter,
+	"title":  titleFilter,
+	"type":   typeFilter,
+	"date":   dateFilter,
+}
+
+var componentQueries = map[string]string{
+	"titles": recordTitles,
+	"types":  recordTypes,
+	"dates":  recordMonths,
+}
+
+// Query for getting all logs up to and
+// including the latest release date.
 const simpleQuery = `
 WITH
     data AS (
@@ -56,6 +113,9 @@ SELECT JSONB_AGG(payload.*) AS data,
 FROM payload;
 `
 
+// Query for getting the same data as `simpleQuery`
+// with tokenised text search.
+// Tokenisation is performed as a part of the query.
 const searchQuery = `
 WITH
 	search_token AS (
@@ -127,42 +187,3 @@ SELECT JSONB_AGG(payload.*) AS data,
        (SELECT CEIL(COUNT(*) / 20.0) FROM data)::INT AS total_pages
 FROM payload;
 `
-
-const recordMonths = `
-SELECT DISTINCT date_trunc('month', cl.date)::DATE::TEXT AS date
-FROM covid19.change_log AS cl
-ORDER BY date DESC
-`
-
-const recordTypes = `
-SELECT tag
-FROM covid19.tag AS t
-WHERE t.association = 'CHANGE LOGS'
-ORDER BY tag DESC
-`
-const recordTitles = `
-SELECT title
-FROM covid19.page AS p
-ORDER BY title DESC
-`
-
-const filtersQuery = `WHERE %s`
-const paginationQuery = "LIMIT 20 OFFSET %d"
-const releaseFilter = `date <= (` +
-	`SELECT MAX(timestamp)::DATE ` +
-	`FROM covid19.release_reference AS rr ` +
-	`WHERE rr.released IS TRUE)`
-
-var queryParamFilters = map[string]string{
-	"search": `(to_tsvector('english'::REGCONFIG, cl.body) @@ (SELECT t::TSQUERY FROM search_token) ` +
-		`OR to_tsvector('english'::REGCONFIG, cl.heading) @@ (SELECT t::TSQUERY FROM search_token))`,
-	"title": `LOWER(p.title) = LOWER(${token_id})`,
-	"type":  `LOWER(t.tag) = LOWER(${token_id})`,
-	"date":  `date::DATE BETWEEN ${token_id}::DATE AND ${token_id}::DATE + INTERVAL '1 month'`,
-}
-
-var componentQueries = map[string]string{
-	"titles": recordTitles,
-	"types":  recordTypes,
-	"dates":  recordMonths,
-}
