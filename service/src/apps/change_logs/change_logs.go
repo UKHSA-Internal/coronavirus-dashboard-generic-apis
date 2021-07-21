@@ -20,7 +20,7 @@ type handler struct {
 }
 
 var paramPatterns = map[string]string{
-	"search": `[a-zA-Z0-9,-']`,
+	"search": `[a-zA-Z0-9,-'\s]{4,40}`,
 	"page":   `\d{1,3}`,
 	"title":  `[a-zA-Z:-\s]{4,120}`,
 	"type":   `[a-zA-Z\s]{5,40}`,
@@ -69,9 +69,14 @@ func (conf *handler) fromDatabase(date string, queryParams url.Values) (db.Resul
 			if err != nil {
 				return nil, err
 			}
-			pageValue := page - 1
+
 			// Page limit is 20 (defined in pagination query).
-			query = strings.Replace(query, paginationToken, fmt.Sprintf(paginationQuery, pageValue*pageLimit), 1)
+			query = strings.Replace(
+				query,
+				paginationToken,
+				fmt.Sprintf(paginationQuery, (page-1)*pageLimit),
+				1,
+			)
 		} else {
 			if _, ok := queryParams["search"]; ok {
 				// Search queries use a different base query.
