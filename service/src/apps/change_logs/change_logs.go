@@ -20,7 +20,7 @@ type handler struct {
 }
 
 var paramPatterns = map[string]string{
-	"search": `[a-zA-Z0-9,-'\s]{4,40}`,
+	"search": `[a-zA-Z0-9,'\s-]{4,40}`,
 	"page":   `\d{1,3}`,
 	"title":  `[a-zA-Z:-\s]{4,120}`,
 	"type":   `[a-zA-Z\s]{5,40}`,
@@ -67,14 +67,16 @@ func (conf *handler) fromDatabase(date string, queryParams url.Values) (db.Resul
 			}
 			page, err = strconv.Atoi(value)
 			if err != nil {
-				return nil, err
+				panic(err)
 			}
+
+			offset := (page - 1) * pageLimit
 
 			// Page limit is 20 (defined in pagination query).
 			query = strings.Replace(
 				query,
 				paginationToken,
-				fmt.Sprintf(paginationQuery, (page-1)*pageLimit),
+				fmt.Sprintf(paginationQuery, offset),
 				1,
 			)
 		} else {
@@ -94,7 +96,6 @@ func (conf *handler) fromDatabase(date string, queryParams url.Values) (db.Resul
 		joinedFilters = fmt.Sprintf(filtersQuery, joinedFilters)
 	}
 	query = strings.Replace(query, filtersToken, joinedFilters, 1)
-
 	payload := &db.Payload{
 		Query:         query,
 		Args:          params,
@@ -103,13 +104,13 @@ func (conf *handler) fromDatabase(date string, queryParams url.Values) (db.Resul
 
 	res, err := conf.db.FetchRow(payload)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to retrieve data")
 	}
 
 	res["page"] = page
 	res["length"] = len(res["data"].([]interface{}))
 
-	return res, err
+	return res, nil
 
 } // FromDatabase
 
@@ -143,7 +144,7 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 		}
 
 		if err != nil {
-			http.Error(w, "failed to retrieve data", http.StatusBadRequest)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
