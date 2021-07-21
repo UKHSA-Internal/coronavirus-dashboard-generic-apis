@@ -111,7 +111,7 @@ var urlPatterns = []routeEntry{
 	},
 	{
 		"change_logs_components",
-		`/generic/change_logs/{component:dates|types|titles}`,
+		`/generic/change_logs/components/{component:dates|types|titles}`,
 		[]string{},
 		change_logs.Handler,
 	},
@@ -123,7 +123,7 @@ var urlPatterns = []routeEntry{
 	},
 	{
 		"log_banners",
-		`/generic/log_banners/{date:202\d-[01]\d-[0123]\d}/{page:[A-Za-z\s:\-']{5,40}}/{area_type:[a-zA-Z]{2,12}}/{area_name:[A-Za-z0-9,'.\s\-()]{5,120}}`,
+		`/generic/log_banners/{date:202\d-[01]\d-[0123]\d}/{page:[A-Za-z\s:\-']{5,40}}/{area_type:[a-zA-Z]{2,12}}/{area_name:[A-Za-z0-9,'.\s-()]{5,120}}`,
 		[]string{},
 		log_banners.Handler,
 	},
