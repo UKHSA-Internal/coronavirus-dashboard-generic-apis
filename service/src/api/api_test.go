@@ -967,7 +967,13 @@ func TestDatedChangeLogSearch(t *testing.T) {
 	api.Initialize()
 	defer api.database.CloseConnection()
 
-	url, err := api.Router.Get("change_logs_single_month").Queries("search", "cases in england").URL("date", "2021-05")
+	monthParam := "2021-05"
+	monthParamLen := len(monthParam)
+
+	url, err := api.Router.
+		Get("change_logs_single_month").
+		Queries("search", "cases in england").
+		URL("date", monthParam)
 	if err != nil {
 		t.Error(err)
 	}
@@ -987,6 +993,17 @@ func TestDatedChangeLogSearch(t *testing.T) {
 
 	expected := 5 // Expected length for May 2021 with search query "cases in England".
 	assert.Equal(t, "response length", int(data["length"].(float64)), expected)
+
+	// Asserting that the data of each record is consistent
+	// with that which is requested.
+	for _, record := range data["data"].([]interface{}) {
+		assert.Equal(
+			t,
+			"date match",
+			monthParam,
+			record.(map[string]interface{})["date"].(string)[:monthParamLen],
+		)
+	}
 
 } // TestDatedChangeLogSearch
 
