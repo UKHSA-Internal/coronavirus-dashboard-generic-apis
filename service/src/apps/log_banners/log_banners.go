@@ -39,8 +39,11 @@ func (conf *handler) fromDatabase(urlParams *map[string]string) ([]db.ResultType
 	}
 
 	res, err := conf.db.FetchAll(payload)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve data")
+	}
 
-	return res, err
+	return res, nil
 
 } // FromDatabase
 
@@ -66,7 +69,7 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 
 		response, err := conf.fromDatabase(&pathVars)
 		if err != nil {
-			http.Error(w, "failed to retrieve data", http.StatusBadRequest)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 		}
 
 		if len(response) == 0 {
