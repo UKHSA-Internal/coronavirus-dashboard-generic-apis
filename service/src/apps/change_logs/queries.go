@@ -12,14 +12,14 @@ const (
 const (
 	recordMonths = `SELECT DISTINCT date_trunc('month', cl.date)::DATE::TEXT AS date ` +
 		`FROM covid19.change_log AS cl ` +
-		`ORDER BY date DESC`
+		`ORDER BY date DESC;`
 
 	recordTypes = `SELECT tag ` +
 		`FROM covid19.tag AS t ` +
 		`WHERE t.association = 'CHANGE LOGS' ` +
 		`ORDER BY tag DESC;`
 
-	recordTitles = `SELECT title` +
+	recordTitles = `SELECT title ` +
 		`FROM covid19.page AS p ` +
 		`ORDER BY title DESC;`
 )
@@ -28,7 +28,7 @@ const (
 const (
 	filtersQuery = `WHERE %s`
 
-	paginationQuery = "LIMIT 20 OFFSET %d"
+	paginationQuery = `LIMIT 20 OFFSET %d`
 
 	releaseFilter = `date <= (` +
 		`SELECT MAX(timestamp)::DATE ` +
