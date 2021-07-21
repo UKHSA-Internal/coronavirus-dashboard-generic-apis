@@ -108,7 +108,12 @@ func (conf *handler) fromDatabase(date string, queryParams url.Values) (db.Resul
 	}
 
 	res["page"] = page
-	res["length"] = len(res["data"].([]interface{}))
+
+	if res["data"] != nil {
+		res["length"] = len(res["data"].([]interface{}))
+	} else {
+		res["data"] = []interface{}{}
+	}
 
 	return res, nil
 
@@ -121,11 +126,11 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		var (
-			ok            bool
-			err           error
-			response      interface{}
-			encoded       []byte
-			componentName string
+			isComponentQuery bool
+			err              error
+			response         interface{}
+			encoded          []byte
+			componentName    string
 		)
 
 		conf.traceparent = r.Header.Get("traceparent")
@@ -136,8 +141,9 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 		}
 
 		pathVars := mux.Vars(r)
+		componentName, isComponentQuery = pathVars["component"]
 
-		if componentName, ok = pathVars["component"]; ok {
+		if isComponentQuery {
 			response, err = conf.getComponentsFromDatabase(componentName)
 		} else {
 			response, err = conf.fromDatabase(pathVars["date"], r.URL.Query())
@@ -148,8 +154,16 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 			return
 		}
 
-		// Return 204 if payload if empty for the main queries.
-		if _, ok = pathVars["component"]; !ok && len(response.(db.ResultType)) == 0 {
+		// Return 204 if payload if empty.
+		if !isComponentQuery {
+			lenKeys := len(response.(db.ResultType))
+			lenData := len(response.(db.ResultType)["data"].([]interface{}))
+
+			if lenKeys == 0 || lenData == 0 {
+				w.WriteHeader(http.StatusNoContent)
+				return
+			}
+		} else if len(response.([]db.ResultType)) == 0 {
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
