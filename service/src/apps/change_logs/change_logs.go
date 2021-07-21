@@ -22,7 +22,7 @@ type handler struct {
 var paramPatterns = map[string]string{
 	"search": `[a-zA-Z0-9,'\s-]{4,40}`,
 	"page":   `\d{1,3}`,
-	"title":  `[a-zA-Z:-\s]{4,120}`,
+	"title":  `[a-zA-Z:\s-]{4,120}`,
 	"type":   `[a-zA-Z\s]{5,40}`,
 }
 
