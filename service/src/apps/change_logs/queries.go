@@ -84,14 +84,11 @@ WITH
                END             AS page,
                CASE
                    WHEN MAX(mr.metric) NOTNULL
-                       THEN JSONB_AGG(
-                           JSONB_BUILD_OBJECT(
-                               'metric', mr.metric,
-                               'metric_name', mr.metric_name
-                           )
-                       )
-                   ELSE '[]'::JSONB
-               END             AS metrics
+                       THEN ARRAY_AGG(DISTINCT (
+                           JSONB_BUILD_OBJECT('metric', mr.metric, 'metric_name', mr.metric_name)
+                       ))
+                   ELSE '{}'::JSONB[]
+               END AS metrics
         FROM covid19.change_log AS cl
           LEFT JOIN covid19.change_log_to_metric  AS cltm ON cltm.log_id = cl.id
           LEFT JOIN covid19.tag                   AS t ON t.id = cl.type_id
@@ -144,14 +141,11 @@ WITH
                    END             AS page,
                    CASE
                        WHEN MAX(mr.metric) NOTNULL
-                           THEN JSONB_AGG(
-                               JSONB_BUILD_OBJECT(
-                                   'metric', mr.metric,
-                                   'metric_name', mr.metric_name
-                               )
-                           )
-                       ELSE '[]'::JSONB
-                   END             AS metrics,
+                           THEN ARRAY_AGG(DISTINCT (
+                               JSONB_BUILD_OBJECT('metric', mr.metric, 'metric_name', mr.metric_name)
+                           ))
+                       ELSE '{}'::JSONB[]
+                   END AS metrics,
                    cl.heading,
                    MAX(cl.body)    AS body,
                    ROUND(
