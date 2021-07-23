@@ -46,6 +46,8 @@ const (
 	typeFilter = `LOWER(t.tag) = LOWER(${token_id})`
 
 	dateFilter = `date::DATE BETWEEN ${token_id}::DATE AND ${token_id}::DATE + INTERVAL '1 month'`
+
+	metricFilter = `(mr.metric ISNULL OR (mr.released IS TRUE AND (mr.deprecated ISNULL OR mr.deprecated <= cl.date)))`
 )
 
 var queryParamFilters = map[string]string{
