@@ -73,8 +73,10 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 		}
 
 		if len(response) == 0 {
-			w.WriteHeader(http.StatusNoContent)
-			return
+			if _, err = w.Write([]byte("[]")); err != nil {
+				return
+			}
+			panic(err)
 		}
 
 		encoded, err = utils.JSONMarshal(response)
