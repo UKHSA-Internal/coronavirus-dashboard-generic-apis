@@ -33,7 +33,7 @@ func (conf *handler) fromDatabase(date string, queryParams url.Values) (db.Resul
 	var (
 		err     error
 		params  []interface{}
-		filters = []string{releaseFilter}
+		filters = []string{releaseFilter, metricFilter}
 		query   = simpleQuery
 		pcount  = 0
 		page    = 1
