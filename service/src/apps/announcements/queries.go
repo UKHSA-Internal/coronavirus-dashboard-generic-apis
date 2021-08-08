@@ -111,3 +111,30 @@ WHERE
   AND an.expire > (NOW() - INTERVAL '3 months')
 ORDER BY an.launch DESC, an.expire DESC;
 `
+
+const itemQuery = `
+WITH
+    latest_release AS (
+		SELECT MAX(rr.timestamp)::DATE
+		FROM covid19.release_reference AS rr
+		WHERE rr.released IS TRUE
+	)
+SELECT id::TEXT AS guid,
+       launch::DATE::TEXT,
+       expire::DATE::TEXT,
+	   COALESCE(date, launch::DATE) AS date,
+       (
+         (
+                an.remove_with_release IS TRUE
+            AND an.expire::DATE < (SELECT * FROM latest_release)
+         )
+         OR (
+                an.remove_with_release IS FALSE
+            AND an.expire < NOW()
+         )
+       ) AS has_expired,
+       body
+FROM covid19.announcement AS an
+WHERE id::TEXT = $1
+ORDER BY an.launch DESC, an.expire DESC;
+`

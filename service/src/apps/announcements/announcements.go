@@ -8,6 +8,7 @@ import (
 	"generic_apis/apps/utils"
 	"generic_apis/db"
 	"generic_apis/insight"
+	"github.com/gorilla/mux"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 )
 
@@ -16,15 +17,18 @@ type handler struct {
 	traceparent string
 }
 
-func (conf *handler) fromDatabase(latest bool) ([]db.ResultType, error) {
+func (conf *handler) fromDatabase(latest bool, id string) ([]db.ResultType, error) {
 
 	var (
 		params []interface{}
 		query  = allDataQuery
 	)
 
-	if latest {
+	if latest && id == "" {
 		query = latestDataQuery
+	} else if id != "" {
+		query = itemQuery
+		params = []interface{}{id}
 	}
 
 	payload := &db.Payload{
@@ -61,20 +65,31 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 		}
 
 		isLatest := strings.Contains(r.URL.Path, "/latest")
+		id, hasId := mux.Vars(r)["id"]
 
-		response, err := conf.fromDatabase(isLatest)
+		response, err := conf.fromDatabase(isLatest, id)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 
-		if len(response) == 0 {
-			if _, err = w.Write([]byte("[]")); err != nil {
+		switch len(response) {
+		case 0:
+			if hasId {
+				if _, err = w.Write([]byte("[]")); err != nil {
+					return
+				}
+				panic(err)
+			} else {
+				http.NotFound(w, r)
 				return
 			}
-			panic(err)
+		case 1:
+			encoded, err = utils.JSONMarshal(response[0])
+			break
+		default:
+			encoded, err = utils.JSONMarshal(response)
 		}
 
-		encoded, err = utils.JSONMarshal(response)
 		if err != nil {
 			panic(err)
 		}
