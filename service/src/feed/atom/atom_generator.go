@@ -60,22 +60,22 @@ type Feed struct {
 
 const XhtmlWrapper = `<div xmlns="http://www.w3.org/1999/xhtml">%s</div>`
 
-func (feed *Feed) GenerateFeed(payload *[]feed.Payload, timestamp *time.Time) ([]byte, error) {
+func (feed *Feed) GenerateFeed(components *feed.Components) ([]byte, error) {
 
 	feed.Title = "UK Coronavirus Dashboard - Atom feed"
 	feed.Xmlns = "http://www.w3.org/2005/Atom"
-	feed.Category = &Category{Term: "Announcements"}
-	feed.Link = &Link{Rel: "self", Href: "https://api.coronavirus.data.gov.uk/generic/announcement/atom.xml"}
+	feed.Category = &Category{Term: components.Category}
+	feed.Link = &Link{Rel: "self", Href: "https://api.coronavirus.data.gov.uk" + components.Endpoint}
 	feed.Id = "https://coronavirus.data.gov.uk/"
 	feed.Rights = "2021 - Public Health England. Open Government License."
 	feed.Generator = &Generator{
-		Uri:       "https://api.coronavirus.data.gov.uk/generic/announcement/atom.xml",
+		Uri:       "https://api.coronavirus.data.gov.uk" + components.Endpoint,
 		Version:   1,
 		Generator: "UK Coronavirus Dashboard - Generic API Service",
 	}
-	feed.Updated = timestamp.Format("2006-01-02T15:04:05Z")
+	feed.Updated = components.Timestamp.Format("2006-01-02T15:04:05Z")
 
-	atomPayload := make([]Payload, len(*payload))
+	atomPayload := make([]Payload, len(*components.Payload))
 
 	mdOpts := html.RendererOptions{
 		Flags: html.UseXHTML |
@@ -85,7 +85,7 @@ func (feed *Feed) GenerateFeed(payload *[]feed.Payload, timestamp *time.Time) ([
 	}
 	mdRenderer := html.NewRenderer(mdOpts)
 
-	for index, item := range *payload {
+	for index, item := range *components.Payload {
 		md := []byte(item.Description)
 		atomPayload[index].Content = &Content{
 			Type:    "xhtml",

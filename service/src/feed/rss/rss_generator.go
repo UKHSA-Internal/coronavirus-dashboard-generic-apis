@@ -3,7 +3,6 @@ package rss
 import (
 	"encoding/xml"
 	"fmt"
-	"time"
 
 	"generic_apis/feed"
 )
@@ -37,26 +36,30 @@ const XmlHeader = xml.Header +
 %s
 </rss>`
 
-func (channel *Channel) GenerateFeed(payload *[]feed.Payload, timestamp *time.Time) ([]byte, error) {
+func (channel *Channel) GenerateFeed(components *feed.Components) ([]byte, error) {
 
-	channel.Title = "UK Coronavirus Dashboard - RSS channel"
+	channel.Title = "UK Coronavirus Dashboard - RSS feed"
 
-	channel.Description = "RSS feed of announcements released in relation to the UK Coronavirus Dashboard."
-	channel.Category = "Announcements"
+	channel.Description = fmt.Sprintf(
+		`RSS feed of '%s' released in relation to the UK Coronavirus Dashboard.`,
+		components.Category,
+	)
+	channel.Category = components.Category
 	channel.Link = "https://coronavirus.data.gov.uk/"
 	channel.Copyright = "2021 - Public Health England. Open Government License."
 	channel.ManagingEditor = "coronavirus-tracker@phe.gov.uk (Coronavirus Dashboard Team)"
 	channel.Ttl = 300
 	channel.Language = "en-gb"
 	channel.Generator = "UK Coronavirus Dashboard - Generic API Service"
-	channel.LastBuildDate = timestamp.Format("02 Jan 2006 15:04 -0700")
-	channel.PubDate = timestamp.Format("02 Jan 2006 15:04 -0700")
+	timestamp := components.Timestamp.Format("02 Jan 2006 15:04 -0700")
+	channel.LastBuildDate = timestamp
+	channel.PubDate = timestamp
 	channel.SelfLink = &SelfLink{
-		Href: "https://api.coronavirus.data.gov.uk/generic/announcements/rss.xml",
+		Href: "https://api.coronavirus.data.gov.uk" + components.Endpoint,
 		Rel:  "self",
 		Type: "application/rss+xml",
 	}
-	channel.Items = payload
+	channel.Items = components.Payload
 
 	encoded, err := xml.MarshalIndent(channel, "  ", "  ")
 	if err != nil {
