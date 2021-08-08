@@ -3,7 +3,6 @@ package announcements
 import (
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"generic_apis/db"
@@ -11,6 +10,7 @@ import (
 	"generic_apis/feed/atom"
 	"generic_apis/feed/rss"
 	"generic_apis/insight"
+	"github.com/gorilla/mux"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 )
 
@@ -100,7 +100,7 @@ func FeedHandler(insight appinsights.TelemetryClient) func(w http.ResponseWriter
 			Payload:   response.payload,
 		}
 
-		if strings.Contains(r.URL.Path, "rss") {
+		if mux.Vars(r)["type"] == "rss" {
 			feedData := &rss.Channel{}
 			encoded, err = feedData.GenerateFeed(feedComponents)
 		} else {
