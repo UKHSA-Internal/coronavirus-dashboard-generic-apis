@@ -19,6 +19,9 @@ type dbResponse struct {
 	timestamp time.Time
 }
 
+const feedCategory = "Announcements"
+const apiEndpoint = "https://api.coronavirus.data.gov.uk/generic/announcements/"
+
 func (conf *handler) fromDatabaseFeed() (*dbResponse, error) {
 
 	var (
@@ -94,10 +97,11 @@ func FeedHandler(insight appinsights.TelemetryClient) func(w http.ResponseWriter
 		}
 
 		feedComponents := &feed.Components{
-			Endpoint:  r.URL.Path,
-			Timestamp: &response.timestamp,
-			Category:  "Announcements",
-			Payload:   response.payload,
+			Endpoint:    r.URL.Path,
+			Timestamp:   &response.timestamp,
+			Payload:     response.payload,
+			Category:    feedCategory,
+			ApiEndpoint: apiEndpoint,
 		}
 
 		if mux.Vars(r)["type"] == "rss" {
