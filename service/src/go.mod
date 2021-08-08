@@ -6,6 +6,7 @@ require (
 	github.com/caarlos0/env v3.5.0+incompatible
 	github.com/etherlabsio/healthcheck/v2 v2.0.0
 	github.com/gofrs/uuid v4.0.0+incompatible // indirect
+	github.com/gomarkdown/markdown v0.0.0-20210514010506-3b9f47219fe7
 	github.com/google/go-cmp v0.3.1
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgconn v1.8.1
@@ -17,5 +18,4 @@ require (
 	github.com/stretchr/testify v1.7.0 // indirect
 	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b // indirect
 	golang.org/x/text v0.3.6 // indirect
-	unit.nginx.org v0.0.0-20210706112210-c5adf9088690
 )
