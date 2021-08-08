@@ -18,8 +18,9 @@ type Payload struct {
 }
 
 type Components struct {
-	Payload   *[]Payload
-	Timestamp *time.Time
-	Category  string
-	Endpoint  string
+	Payload     *[]Payload
+	Timestamp   *time.Time
+	Category    string
+	Endpoint    string
+	ApiEndpoint string
 }
