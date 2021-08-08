@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -1152,7 +1151,7 @@ func TestChangeLogTitles(t *testing.T) {
 	expected := 1
 	assert.IntGreater(t, "response length", len(data), expected)
 
-} // TestChangeLogTypes
+} // TestChangeLogTitles
 
 func TestAnnouncements(t *testing.T) {
 
@@ -1184,9 +1183,50 @@ func TestAnnouncements(t *testing.T) {
 	if err = json.Unmarshal(response.Body.Bytes(), &data); err != nil {
 		t.Error(err)
 	}
-	fmt.Println(response.Body.String())
 
 	expected := 10
 	assert.IntGreater(t, "response length", len(data), expected)
 
-} // TestChangeLogTypes
+} // TestAnnouncements
+
+func TestAnnouncementItem(t *testing.T) {
+
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
+	api.Initialize()
+	defer api.database.CloseConnection()
+
+	url, err := api.Router.
+		Get("announcement_item").
+		URL("id", "e6817475-dd68-4153-859c-91bc209421e6")
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
+	response := executeRequest(req)
+
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
+
+	expected := map[string]interface{}{
+		"body": "On Thursday 5 August, case, hospital admission and death rates per 100,000 people for the UK, " +
+			"nations, regions and local authorities will be updated to use the mid-2020 population estimates.",
+		"date":        "2021-08-03T00:00:00Z",
+		"expire":      "2021-08-05",
+		"guid":        "e6817475-dd68-4153-859c-91bc209421e6",
+		"has_expired": true,
+		"launch":      "2021-08-03",
+	}
+
+	assert.JsonObjResponseMatchExpected(t, expected, response.Body.Bytes())
+
+} // TestAnnouncementItem
