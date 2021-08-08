@@ -40,7 +40,7 @@ type Payload struct {
 	Title   string   `xml:"title"`
 	Content *Content `xml:"content"`
 	Updated string   `xml:"updated"`
-	Link    *Link    `xml:"link"`
+	Link    *[]Link  `xml:"link"`
 	Id      string   `xml:"id"`
 	Author  string   `xml:"author>name"`
 }
@@ -94,7 +94,10 @@ func (feed *Feed) GenerateFeed(components *feed.Components) ([]byte, error) {
 
 		lastUpdate, _ := time.Parse("Mon, 02 Jan 2006 15:04:05 -0700", item.PubDate)
 		atomPayload[index].Updated = lastUpdate.Format("2006-01-02T15:04:05Z")
-		atomPayload[index].Link = &Link{Rel: "alternate", Href: item.Link}
+		atomPayload[index].Link = &[]Link{
+			{Rel: "self", Href: item.Link},
+			{Rel: "alternate", Href: components.ApiEndpoint + item.Guid.Guid},
+		}
 		atomPayload[index].Id = "urn:uuid:" + item.Guid.Guid
 		atomPayload[index].Title = item.Title
 		atomPayload[index].Author = "UK Coronavirus Dashboard Team"
