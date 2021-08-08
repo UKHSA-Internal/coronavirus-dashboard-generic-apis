@@ -3,6 +3,7 @@ package announcements
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"generic_apis/db"
@@ -61,7 +62,7 @@ func (conf *handler) fromDatabaseFeed() (*dbResponse, error) {
 
 } // fromDatabaseFeed
 
-func RssHandler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r *http.Request) {
+func FeedHandler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r *http.Request) {
 
 	conf := &handler{}
 
@@ -92,8 +93,21 @@ func RssHandler(insight appinsights.TelemetryClient) func(w http.ResponseWriter,
 			panic(err)
 		}
 
-		rssFeed := &rss.Channel{}
-		encoded, err = rssFeed.GenerateFeed(response.payload, &response.timestamp)
+		feedComponents := &feed.Components{
+			Endpoint:  r.URL.Path,
+			Timestamp: &response.timestamp,
+			Category:  "Announcements",
+			Payload:   response.payload,
+		}
+
+		if strings.Contains(r.URL.Path, "rss") {
+			feedData := &rss.Channel{}
+			encoded, err = feedData.GenerateFeed(feedComponents)
+		} else {
+			feedData := &atom.Feed{}
+			encoded, err = feedData.GenerateFeed(feedComponents)
+		}
+
 		if err != nil {
 			panic(err)
 		}
@@ -105,50 +119,4 @@ func RssHandler(insight appinsights.TelemetryClient) func(w http.ResponseWriter,
 		conf.db.CloseConnection()
 	}
 
-} // RssHandler
-
-func AtomHandler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r *http.Request) {
-
-	conf := &handler{}
-
-	return func(w http.ResponseWriter, r *http.Request) {
-
-		var (
-			err     error
-			encoded []byte
-		)
-
-		conf.traceparent = r.Header.Get("traceparent")
-
-		conf.db, err = db.Connect(insight)
-		if err != nil {
-			panic(err)
-		}
-
-		response, err := conf.fromDatabaseFeed()
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		if len(*response.payload) == 0 {
-			if _, err = w.Write([]byte("[]")); err != nil {
-				return
-			}
-			panic(err)
-		}
-
-		atomFeed := &atom.Feed{}
-		encoded, err = atomFeed.GenerateFeed(response.payload, &response.timestamp)
-		if err != nil {
-			panic(err)
-		}
-
-		if _, err = w.Write(encoded); err != nil {
-			panic(err)
-		}
-
-		conf.db.CloseConnection()
-	}
-
-} // AtomHandler
+} // FeedHandler
