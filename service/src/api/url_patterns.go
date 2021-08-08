@@ -135,16 +135,10 @@ var urlPatterns = []routeEntry{
 		announcements.Handler,
 	},
 	{
-		"announcements_rss",
-		`/generic/announcements/rss.xml`,
+		"announcements_feed",
+		`/generic/announcements/{type:rss|atom}.xml`,
 		[]string{},
-		announcements.RssHandler,
-	},
-	{
-		"announcements_rss",
-		`/generic/announcements/atom.xml`,
-		[]string{},
-		announcements.AtomHandler,
+		announcements.FeedHandler,
 	},
 	{
 		"latest_announcement",
