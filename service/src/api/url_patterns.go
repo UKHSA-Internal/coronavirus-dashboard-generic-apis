@@ -1,6 +1,7 @@
 package api
 
 import (
+	"generic_apis/apps/announcements"
 	"generic_apis/apps/area_by_type"
 	"generic_apis/apps/change_logs"
 	"generic_apis/apps/code"
@@ -126,5 +127,29 @@ var urlPatterns = []routeEntry{
 		`/generic/log_banners/{date:202\d-[01]\d-[0123]\d}/{page:[A-Za-z\s:\-']{5,40}}/{area_type:[a-zA-Z]{2,12}}/{area_name:[A-Za-z0-9,'.\s()-]{5,120}}`,
 		[]string{},
 		log_banners.Handler,
+	},
+	{
+		"announcements",
+		`/generic/announcements`,
+		[]string{},
+		announcements.Handler,
+	},
+	{
+		"announcements_rss",
+		`/generic/announcements/rss.xml`,
+		[]string{},
+		announcements.RssHandler,
+	},
+	{
+		"announcements_rss",
+		`/generic/announcements/atom.xml`,
+		[]string{},
+		announcements.AtomHandler,
+	},
+	{
+		"latest_announcement",
+		`/generic/announcements/latest`,
+		[]string{},
+		announcements.Handler,
 	},
 } // routes
