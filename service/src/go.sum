@@ -487,3 +487,5 @@ honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc/go.mod h1:rf3lG4BRIbNafJWh
 honnef.co/go/tools v0.0.1-2019.2.3/go.mod h1:a3bituU0lyd329TUQxRnasdCoJDkEUEAqEt0JzvZhAg=
 sigs.k8s.io/yaml v1.1.0/go.mod h1:UJmg0vDUVViEyp3mgSv9WPwZCDxu4rQW1olrI1uml+o=
 sourcegraph.com/sourcegraph/appdash v0.0.0-20190731080439-ebfcffb1b5c0/go.mod h1:hI742Nqp5OhwiqlzhgfbWU4mW4yO10fP+LoT9WOswdU=
+unit.nginx.org v0.0.0-20210809071500-ee35fc1dca33 h1:auTrLegpiDoM7XYkqotFvFAlQFt56P0VJjFrjZ/V0G4=
+unit.nginx.org v0.0.0-20210809071500-ee35fc1dca33/go.mod h1:Dq/lsyXCM2pQytOmLlsRuRIh/09HRBI/wIA7/ag2GKw=
