@@ -59,7 +59,7 @@ type Feed struct {
 }
 
 const header = xml.Header +
-	`<?xml-stylesheet type="text/xsl" href="https://coronavirus.data.gov.uk/public/assets/xsl/atom.xsl"?>` +
+	`<?xml-stylesheet type="text/xsl" href="https://api.coronavirus.data.gov.uk/generic/xsl/atom.xsl"?>` +
 	"\n"
 
 const xhtmlWrapper = `<div xmlns="http://www.w3.org/1999/xhtml">%s</div>`
