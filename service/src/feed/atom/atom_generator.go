@@ -58,7 +58,11 @@ type Feed struct {
 	Items     *[]Payload `xml:"entry"`
 }
 
-const XhtmlWrapper = `<div xmlns="http://www.w3.org/1999/xhtml">%s</div>`
+const header = xml.Header +
+	`<?xml-stylesheet type="text/xsl" href="https://coronavirus.data.gov.uk/public/assets/xsl/atom.xsl"?>` +
+	"\n"
+
+const xhtmlWrapper = `<div xmlns="http://www.w3.org/1999/xhtml">%s</div>`
 
 func (feed *Feed) GenerateFeed(components *feed.Components) ([]byte, error) {
 
@@ -73,7 +77,7 @@ func (feed *Feed) GenerateFeed(components *feed.Components) ([]byte, error) {
 		Version:   1,
 		Generator: "UK Coronavirus Dashboard - Generic API Service",
 	}
-	feed.Updated = components.Timestamp.Format("2006-01-02T15:04:05Z")
+	feed.Updated = components.Timestamp.Format("2006-01-02T15:04:05-0700")
 
 	atomPayload := make([]Payload, len(*components.Payload))
 
@@ -89,11 +93,11 @@ func (feed *Feed) GenerateFeed(components *feed.Components) ([]byte, error) {
 		md := []byte(item.Description)
 		atomPayload[index].Content = &Content{
 			Type:    "xhtml",
-			Content: fmt.Sprintf(XhtmlWrapper, markdown.ToHTML(md, nil, mdRenderer)),
+			Content: fmt.Sprintf(xhtmlWrapper, markdown.ToHTML(md, nil, mdRenderer)),
 		}
 
 		lastUpdate, _ := time.Parse("Mon, 02 Jan 2006 15:04:05 -0700", item.PubDate)
-		atomPayload[index].Updated = lastUpdate.Format("2006-01-02T15:04:05Z")
+		atomPayload[index].Updated = lastUpdate.Format("2006-01-02T15:04:05-0700")
 		atomPayload[index].Link = &[]Link{
 			{Rel: "self", Href: item.Link},
 			{Rel: "alternate", Href: components.ApiEndpoint + item.Guid.Guid},
@@ -109,6 +113,6 @@ func (feed *Feed) GenerateFeed(components *feed.Components) ([]byte, error) {
 		return nil, err
 	}
 
-	return []byte(xml.Header + string(encoded)), nil
+	return []byte(header + string(encoded)), nil
 
 } // generateFeed
