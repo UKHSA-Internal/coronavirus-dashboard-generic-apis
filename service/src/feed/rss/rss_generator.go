@@ -32,7 +32,8 @@ type Channel struct {
 }
 
 const XmlHeader = xml.Header +
-	`<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	`<?xml-stylesheet type="text/xsl" href="https://api.coronavirus.data.gov.uk/generic/xsl/rss.xsl"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 %s
 </rss>`
 
