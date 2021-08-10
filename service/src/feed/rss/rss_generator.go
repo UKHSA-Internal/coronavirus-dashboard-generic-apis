@@ -3,6 +3,7 @@ package rss
 import (
 	"encoding/xml"
 	"fmt"
+	"time"
 
 	"generic_apis/feed"
 )
@@ -46,15 +47,14 @@ func (channel *Channel) GenerateFeed(components *feed.Components) ([]byte, error
 		components.Category,
 	)
 	channel.Category = components.Category
-	channel.Link = "https://coronavirus.data.gov.uk/"
+	channel.Link = "https://coronavirus.data.gov.uk/details/announcements"
 	channel.Copyright = "2021 - Public Health England. Open Government License."
 	channel.ManagingEditor = "coronavirus-tracker@phe.gov.uk (Coronavirus Dashboard Team)"
 	channel.Ttl = 300
 	channel.Language = "en-gb"
 	channel.Generator = "UK Coronavirus Dashboard - Generic API Service"
-	timestamp := components.Timestamp.Format("02 Jan 2006 15:04 -0700")
-	channel.LastBuildDate = timestamp
-	channel.PubDate = timestamp
+	channel.LastBuildDate = time.Now().Format("02 Jan 2006 15:04 -0700")
+	channel.PubDate = components.Timestamp.Format("02 Jan 2006 15:04 -0700")
 	channel.SelfLink = &SelfLink{
 		Href: "https://api.coronavirus.data.gov.uk" + components.Endpoint,
 		Rel:  "self",

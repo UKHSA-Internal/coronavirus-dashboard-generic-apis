@@ -18,8 +18,11 @@ type Generator struct {
 }
 
 type Link struct {
-	Rel  string `xml:"rel,attr"`
-	Href string `xml:"href,attr"`
+	Rel      string `xml:"rel,attr,omitempty"`
+	Type     string `xml:"type,attr,omitempty"`
+	Hreflang string `xml:"hreflang,attr,omitempty"`
+	Title    string `xml:"title,attr,omitempty"`
+	Href     string `xml:"href,attr"`
 }
 
 type Category struct {
@@ -50,8 +53,10 @@ type Feed struct {
 	XMLName   xml.Name   `xml:"feed"`
 	Xmlns     string     `xml:"xmlns,attr"`
 	Title     string     `xml:"title"`
+	Icon      string     `xml:"icon"`
+	Logo      string     `xml:"logo"`
 	Category  *Category  `xml:"category,omitempty"`
-	Link      *Link      `xml:"link"`
+	Link      *[]Link    `xml:"link"`
 	Rights    string     `xml:"rights,omitempty"`
 	Updated   string     `xml:"updated"`
 	Id        string     `xml:"id"`
@@ -70,15 +75,27 @@ func (feed *Feed) GenerateFeed(components *feed.Components) ([]byte, error) {
 	feed.Title = "UK Coronavirus Dashboard - Atom feed"
 	feed.Xmlns = "http://www.w3.org/2005/Atom"
 	feed.Category = &Category{Term: components.Category}
-	feed.Link = &Link{Rel: "self", Href: "https://api.coronavirus.data.gov.uk" + components.Endpoint}
-	feed.Id = "https://coronavirus.data.gov.uk/"
+	feed.Icon = "https://coronavirus.data.gov.uk/favicon.ico"
+	feed.Logo = "https://coronavirus.data.gov.uk/favicon.png"
+	feed.Link = &[]Link{
+		{
+			Rel:  "self",
+			Href: "https://api.coronavirus.data.gov.uk" + components.Endpoint,
+		},
+		{
+			Rel:  "alternate",
+			Type: "text/html",
+			Href: components.WebsiteEndpoint,
+		},
+	}
+	feed.Id = components.WebsiteEndpoint
 	feed.Rights = "2021 - Public Health England. Open Government License."
 	feed.Generator = &Generator{
 		Uri:       "https://api.coronavirus.data.gov.uk" + components.Endpoint,
 		Version:   1,
 		Generator: "UK Coronavirus Dashboard - Generic API Service",
 	}
-	feed.Updated = components.Timestamp.Format("2006-01-02T15:04:05-0700")
+	feed.Updated = components.Timestamp.Format("2006-01-02T15:04:05-07:00")
 
 	atomPayload := make([]Payload, len(*components.Payload))
 
@@ -97,15 +114,27 @@ func (feed *Feed) GenerateFeed(components *feed.Components) ([]byte, error) {
 			Content: strings.ReplaceAll(
 				fmt.Sprintf(xhtmlWrapper, markdown.ToHTML(md, nil, mdRenderer)),
 				`href="/`,
-				`href=https://coronavirus.data.gov.uk/`,
+				`href="https://coronavirus.data.gov.uk/`,
 			),
 		}
 
 		lastUpdate, _ := time.Parse("Mon, 02 Jan 2006 15:04:05 -0700", item.PubDate)
-		atomPayload[index].Updated = lastUpdate.Format("2006-01-02T15:04:05-0700")
+		atomPayload[index].Updated = lastUpdate.Format("2006-01-02T15:04:05-07:00")
 		atomPayload[index].Link = &[]Link{
-			{Rel: "self", Href: item.Link},
-			{Rel: "alternate", Href: components.ApiEndpoint + item.Guid.Guid},
+			{
+				Rel:      "alternate",
+				Type:     "text/html",
+				Href:     item.Link,
+				Hreflang: "en-gb",
+				Title:    "View record on the website",
+			},
+			{
+				Rel:      "alternate",
+				Type:     "application/json",
+				Hreflang: "en-gb",
+				Href:     components.ApiEndpoint + item.Guid.Guid,
+				Title:    "View JSON payload via the API",
+			},
 		}
 		atomPayload[index].Id = "urn:uuid:" + item.Guid.Guid
 		atomPayload[index].Title = item.Title
