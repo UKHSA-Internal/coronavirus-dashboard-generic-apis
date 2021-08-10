@@ -3,6 +3,7 @@ package atom
 import (
 	"encoding/xml"
 	"fmt"
+	"strings"
 	"time"
 
 	"generic_apis/feed"
@@ -92,8 +93,12 @@ func (feed *Feed) GenerateFeed(components *feed.Components) ([]byte, error) {
 	for index, item := range *components.Payload {
 		md := []byte(item.Description)
 		atomPayload[index].Content = &Content{
-			Type:    "xhtml",
-			Content: fmt.Sprintf(xhtmlWrapper, markdown.ToHTML(md, nil, mdRenderer)),
+			Type: "xhtml",
+			Content: strings.ReplaceAll(
+				fmt.Sprintf(xhtmlWrapper, markdown.ToHTML(md, nil, mdRenderer)),
+				`href="/`,
+				`href=https://coronavirus.data.gov.uk/`,
+			),
 		}
 
 		lastUpdate, _ := time.Parse("Mon, 02 Jan 2006 15:04:05 -0700", item.PubDate)
