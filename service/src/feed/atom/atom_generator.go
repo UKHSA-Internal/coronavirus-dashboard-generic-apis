@@ -4,7 +4,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"strings"
-	"time"
 
 	"generic_apis/feed"
 	"github.com/gomarkdown/markdown"
@@ -118,8 +117,7 @@ func (feed *Feed) GenerateFeed(components *feed.Components) ([]byte, error) {
 			),
 		}
 
-		lastUpdate, _ := time.Parse("Mon, 02 Jan 2006 15:04:05 -0700", item.PubDate)
-		atomPayload[index].Updated = lastUpdate.Format("2006-01-02T15:04:05-07:00")
+		atomPayload[index].Updated = item.Date.Format("2006-01-02T15:04:05-07:00")
 		atomPayload[index].Link = &[]Link{
 			{
 				Rel:      "alternate",
