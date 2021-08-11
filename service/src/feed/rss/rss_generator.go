@@ -17,6 +17,7 @@ type Payload struct {
 	Link        string     `xml:"link"`
 	Guid        *feed.Guid `xml:"guid"`
 	Date        string     `xml:"dc:date"`
+	Subject     string     `xml:"dc:subject,omitempty"`
 }
 
 type Content struct {
@@ -142,6 +143,7 @@ func (channel *Channel) GenerateFeed(components *feed.Components) ([]byte, error
 		rssPayload[index].Title = item.Title
 		rssPayload[index].Link = item.Link
 		rssPayload[index].Guid = item.Guid
+		rssPayload[index].Subject = item.Category
 		rssPayload[index].Date = item.Date.Format("2006-01-02T15:04:05-07:00")
 	}
 
