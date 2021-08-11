@@ -44,7 +44,7 @@ func (conf *handler) fromDatabaseFeed() (*dbResponse, error) {
 	var data = make([]feed.Payload, len(res))
 
 	for index, item := range res {
-		data[index].PubDate = item["pubDate"].(time.Time).Format("Mon, 02 Jan 2006 15:04:05 -0700")
+		data[index].Date = item["pubDate"].(time.Time)
 		data[index].Guid = &feed.Guid{Guid: item["guid"].(string), IsPermaLink: "false"}
 		data[index].Title = fmt.Sprintf(
 			"Announcement - %s",

@@ -10,11 +10,11 @@ type Guid struct {
 }
 
 type Payload struct {
-	Title       string `xml:"title"`
-	Description string `xml:"description"`
-	PubDate     string `xml:"pubDate"`
-	Link        string `xml:"link"`
-	Guid        *Guid  `xml:"guid"`
+	Title       string    `xml:"title"`
+	Description string    `xml:"description"`
+	Link        string    `xml:"link"`
+	Guid        *Guid     `xml:"guid"`
+	Date        time.Time `xml:"dc:date"`
 }
 
 type Components struct {
