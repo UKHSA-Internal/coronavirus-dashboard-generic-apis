@@ -111,6 +111,12 @@ var urlPatterns = []routeEntry{
 		change_logs.Handler,
 	},
 	{
+		"change_log_item",
+		`/generic/change_logs/log/{id:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}}`,
+		[]string{},
+		change_logs.Handler,
+	},
+	{
 		"change_logs_components",
 		`/generic/change_logs/components/{component:dates|types|titles}`,
 		[]string{},
