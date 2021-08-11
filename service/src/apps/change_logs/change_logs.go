@@ -28,7 +28,7 @@ var paramPatterns = map[string]string{
 
 const pageLimit = 20
 
-func (conf *handler) fromDatabase(date string, queryParams url.Values) (db.ResultType, error) {
+func (conf *handler) fromDatabase(date, id string, queryParams url.Values) (db.ResultType, error) {
 
 	var (
 		err     error
@@ -41,7 +41,7 @@ func (conf *handler) fromDatabase(date string, queryParams url.Values) (db.Resul
 
 	if date != "" {
 		pcount += 1
-		filters = append(filters, strings.ReplaceAll(queryParamFilters["date"], "{token_id}", strconv.Itoa(pcount)))
+		filters = append(filters, strings.ReplaceAll(queryParamFilters["date"], queryToken, strconv.Itoa(pcount)))
 		date += "-01"
 		params = append(params, date)
 	}
@@ -49,6 +49,15 @@ func (conf *handler) fromDatabase(date string, queryParams url.Values) (db.Resul
 	if _, ok := queryParams["page"]; !ok {
 		// Set default page
 		queryParams["page"] = []string{"1"}
+	}
+
+	if id != "" {
+		pcount += 1
+		filters = []string{
+			strings.ReplaceAll(queryParamFilters["record"], queryToken, strconv.Itoa(pcount)),
+		}
+		query = recordQuery
+		params = append(params, id)
 	}
 
 	for key, pattern := range paramPatterns {
@@ -96,6 +105,7 @@ func (conf *handler) fromDatabase(date string, queryParams url.Values) (db.Resul
 		joinedFilters = fmt.Sprintf(filtersQuery, joinedFilters)
 	}
 	query = strings.Replace(query, filtersToken, joinedFilters, 1)
+
 	payload := &db.Payload{
 		Query:         query,
 		Args:          params,
@@ -146,7 +156,7 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 		if isComponentQuery {
 			response, err = conf.getComponentsFromDatabase(componentName)
 		} else {
-			response, err = conf.fromDatabase(pathVars["date"], r.URL.Query())
+			response, err = conf.fromDatabase(pathVars["date"], pathVars["id"], r.URL.Query())
 		}
 
 		if err != nil {
@@ -154,7 +164,7 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 			return
 		}
 
-		// Return 204 if payload if empty.
+		// Return 204 if payload is empty.
 		if !isComponentQuery {
 			lenKeys := len(response.(db.ResultType))
 			lenData := len(response.(db.ResultType)["data"].([]interface{}))
@@ -162,6 +172,8 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 			if lenKeys == 0 || lenData == 0 {
 				w.WriteHeader(http.StatusNoContent)
 				return
+			} else if _, isIdQuery := pathVars["id"]; isIdQuery && lenData == 1 {
+				response = response.(db.ResultType)["data"].([]interface{})[0]
 			}
 		} else if len(response.([]db.ResultType)) == 0 {
 			w.WriteHeader(http.StatusNoContent)
@@ -181,4 +193,4 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 
 	}
 
-} // queryByCode
+} // Handler

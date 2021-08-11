@@ -48,6 +48,8 @@ const (
 	dateFilter = `date::DATE BETWEEN ${token_id}::DATE AND ${token_id}::DATE + INTERVAL '1 month'`
 
 	metricFilter = `(mr.metric ISNULL OR (mr.released IS TRUE AND (mr.deprecated ISNULL OR mr.deprecated <= cl.date)))`
+
+	recordFilter = `cl.id = ${token_id}`
 )
 
 var queryParamFilters = map[string]string{
@@ -55,6 +57,7 @@ var queryParamFilters = map[string]string{
 	"title":  titleFilter,
 	"type":   typeFilter,
 	"date":   dateFilter,
+	"record": recordFilter,
 }
 
 var componentQueries = map[string]string{
@@ -182,4 +185,44 @@ SELECT JSONB_AGG(payload.*) AS data,
        (SELECT COUNT(*) FROM data)::INT AS "total_length",
        (SELECT CEIL(COUNT(*) / 20.0) FROM data)::INT AS total_pages
 FROM payload;
+`
+
+const recordQuery = `
+WITH
+    data AS (
+        SELECT MAX(cl.id::TEXT) AS id,
+               cl.date::TEXT,
+               cl.heading,
+               MAX(cl.body)    AS body,
+               MAX(cl.details) AS details,
+               cl.high_priority,
+               cl.display_banner,
+               t.tag 		   AS type,
+               CASE
+                   WHEN MAX(p.title) NOTNULL
+                       THEN JSONB_BUILD_OBJECT(
+                            'title', MAX(p.title),
+                            'uri', MAX(p.uri)
+                       )
+                   ELSE '[]'::JSONB
+               END             AS page,
+               CASE
+                   WHEN MAX(mr.metric) NOTNULL
+                       THEN ARRAY_AGG(DISTINCT (
+                           JSONB_BUILD_OBJECT('metric', mr.metric, 'metric_name', mr.metric_name)
+                       ))
+                   ELSE '{}'::JSONB[]
+               END AS metrics
+        FROM covid19.change_log AS cl
+          LEFT JOIN covid19.change_log_to_metric  AS cltm ON cltm.log_id = cl.id
+          LEFT JOIN covid19.tag                   AS t ON t.id = cl.type_id
+          LEFT JOIN covid19.metric_reference      AS mr   ON mr.metric = cltm.metric_id
+          LEFT JOIN covid19.change_log_to_page    AS cltp ON cltp.log_id = cl.id
+          LEFT JOIN covid19.page                  AS p    ON p.id = cltp.page_id
+		{filters}
+        GROUP BY cl.date, cl.heading, t.tag, cl.high_priority, cl.display_banner
+        ORDER BY cl.date DESC
+    )
+SELECT JSONB_AGG(data.*) AS data
+FROM data;
 `
