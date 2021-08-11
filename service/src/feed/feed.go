@@ -15,6 +15,7 @@ type Payload struct {
 	Link        string    `xml:"link"`
 	Guid        *Guid     `xml:"guid"`
 	Date        time.Time `xml:"dc:date"`
+	Category    string    `xml:"category,omitempty"`
 }
 
 type Components struct {
