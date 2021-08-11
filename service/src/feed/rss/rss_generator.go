@@ -3,7 +3,6 @@ package rss
 import (
 	"encoding/xml"
 	"fmt"
-	"time"
 
 	"generic_apis/feed"
 )
@@ -14,12 +13,22 @@ type SelfLink struct {
 	Type string `xml:"type,attr"`
 }
 
+type Image struct {
+	Url         string `xml:"url"`
+	Title       string `xml:"title"`
+	Link        string `xml:"link"`
+	Width       string `xml:"width,omitempty"`
+	Height      string `xml:"height,omitempty"`
+	Description string `xml:"description,omitempty"`
+}
+
 type Channel struct {
 	XMLName        xml.Name        `xml:"channel"`
 	Title          string          `xml:"title"`
 	Category       string          `xml:"category,omitempty"`
 	Description    string          `xml:"description"`
 	Link           string          `xml:"link"`
+	Image          *Image          `xml:"image"`
 	Copyright      string          `xml:"copyright,omitempty"`
 	LastBuildDate  string          `xml:"lastBuildDate,omitempty"`
 	PubDate        string          `xml:"pubDate,omitempty"`
@@ -50,10 +59,15 @@ func (channel *Channel) GenerateFeed(components *feed.Components) ([]byte, error
 	channel.Link = "https://coronavirus.data.gov.uk/details/announcements"
 	channel.Copyright = "2021 - Public Health England. Open Government License."
 	channel.ManagingEditor = "coronavirus-tracker@phe.gov.uk (Coronavirus Dashboard Team)"
+	channel.Image = &Image{
+		Url:   "https://coronavirus.data.gov.uk/favicon.png",
+		Title: "UK Coronavirus Dashboard - RSS feed",
+		Link:  "https://coronavirus.data.gov.uk/details/announcements",
+	}
 	channel.Ttl = 300
 	channel.Language = "en-gb"
 	channel.Generator = "UK Coronavirus Dashboard - Generic API Service"
-	channel.LastBuildDate = time.Now().Format("02 Jan 2006 15:04 -0700")
+	channel.LastBuildDate = components.Timestamp.Format("02 Jan 2006 15:04 -0700")
 	channel.PubDate = components.Timestamp.Format("02 Jan 2006 15:04 -0700")
 	channel.SelfLink = &SelfLink{
 		Href: "https://api.coronavirus.data.gov.uk" + components.Endpoint,
