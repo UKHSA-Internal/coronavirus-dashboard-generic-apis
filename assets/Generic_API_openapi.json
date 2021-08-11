@@ -1,0 +1,1422 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "Generic API",
+        "description": "APIs that power the map, navigation, hierarchy, and relations.",
+        "version": "1.0"
+    },
+    "servers": [
+        {
+            "url": "https://api.coronavirus.data.gov.uk/generic"
+        }
+    ],
+    "paths": {
+        "/healthcheck": {
+            "get": {
+                "summary": "Health check",
+                "operationId": "healthcheck-get",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/code/{area_type}/{area_code}": {
+            "get": {
+                "summary": "Code",
+                "description": "Given the an area type / area code combination, produces the ancestors of the area - i.e. larger, more general areas of which the requested area is a member.",
+                "operationId": "code-get",
+                "parameters": [
+                    {
+                        "name": "area_type",
+                        "in": "path",
+                        "description": "Type of the area whose ancestors are being requested.",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "nation",
+                                "region",
+                                "utla",
+                                "ltla",
+                                "msoa",
+                                "postcode",
+                                "nhsRegion",
+                                "nhsTrust"
+                            ],
+                            "type": "string",
+                            "default": "postcode"
+                        }
+                    },
+                    {
+                        "name": "area_code",
+                        "in": "path",
+                        "description": "Code of the area whose ancestors are being requested.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "application/json"
+                            ],
+                            "type": "string",
+                            "default": "application/json"
+                        }
+                    },
+                    {
+                        "name": "Accept-Encoding",
+                        "in": "header",
+                        "schema": {
+                            "enum": [
+                                "deflate",
+                                "gzip",
+                                "br"
+                            ],
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns ancestors of the area code.",
+                        "headers": {
+                            "Content-Type": {
+                                "required": true,
+                                "schema": {
+                                    "enum": [
+                                        "application/vnd.PHE-COVID19.v1+json; charset=utf-8"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "content-type": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "server": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Strict-Transport-Securit": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-frame-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-content-type-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-xss-protection": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "referrer-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-security-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-phe-media-type": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Code"
+                                },
+                                "example": {
+                                    "ltla": "E09000033",
+                                    "ltlaName": "Westminster",
+                                    "msoa": "E02000979",
+                                    "msoaName": "Central Westminster",
+                                    "nation": "E92000001",
+                                    "nationName": "England",
+                                    "nhsRegion": "E40000003",
+                                    "nhsRegionName": "London",
+                                    "nhsTrust": "RJ1",
+                                    "nhsTrustName": "Guy's and St Thomas' NHS Foundation Trust",
+                                    "postcode": "SW1A 0AA",
+                                    "region": "E12000007",
+                                    "regionName": "London",
+                                    "trimmedPostcode": "SW1A0AA",
+                                    "utla": "E09000033",
+                                    "utlaName": "Westminster"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "404": {
+                        "description": "Not found. Likely due to an invalid area type and / or area code."
+                    },
+                    "429": {
+                        "description": "Too many requests - request has been throttled.",
+                        "headers": {
+                            "retry-after": {
+                                "description": "Time in seconds to wait before resubmitting the request.",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/soa/{area_type}/{area_code}/{metric}": {
+            "get": {
+                "summary": "SOA",
+                "description": "Given an area type / area code combination, produces the latest available record for a Super Output Area (SOA).",
+                "operationId": "soa",
+                "parameters": [
+                    {
+                        "name": "area_type",
+                        "in": "path",
+                        "description": "Type of the area for which the latest data is requested.",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "msoa",
+                                "lsoa"
+                            ],
+                            "type": "string",
+                            "default": "msoa"
+                        }
+                    },
+                    {
+                        "name": "area_code",
+                        "in": "path",
+                        "description": "Code of the area for which the latest data is requested.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "metric",
+                        "in": "path",
+                        "description": "Name of the metric for which the latest data is requested.",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "newCasesBySpecimenDate"
+                            ],
+                            "type": "string",
+                            "default": "newCasesBySpecimenDate"
+                        }
+                    },
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "description": "Record date. If not defined, the latest available record will be returned.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "application/json"
+                            ],
+                            "type": "string",
+                            "default": "application/json"
+                        }
+                    },
+                    {
+                        "name": "Accept-Encoding",
+                        "in": "header",
+                        "schema": {
+                            "enum": [
+                                "deflate",
+                                "gzip",
+                                "br"
+                            ],
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the latest available record for the given Super Output Area (SOA).",
+                        "headers": {
+                            "Content-Type": {
+                                "required": true,
+                                "schema": {
+                                    "enum": [
+                                        "application/vnd.PHE-COVID19.v1+json; charset=utf-8"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "content-type": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "server": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Strict-Transport-Securit": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-frame-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-content-type-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-xss-protection": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "referrer-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-security-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-phe-media-type": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Not found. Likely due to an invalid area type and / or area code."
+                    },
+                    "404": {
+                        "description": ""
+                    },
+                    "429": {
+                        "description": "Too many requests - request has been throttled.",
+                        "headers": {
+                            "retry-after": {
+                                "description": "Time in seconds to wait before resubmitting the request.",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/area/{area_type}": {
+            "get": {
+                "summary": "Area",
+                "description": "Provides an array of areas of an area type.",
+                "operationId": "area-get",
+                "parameters": [
+                    {
+                        "name": "area_type",
+                        "in": "path",
+                        "description": "Type of the area whose children are being requested.",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "nation",
+                                "region",
+                                "utla",
+                                "ltla",
+                                "msoa",
+                                "nhsRegion",
+                                "nhsTrust"
+                            ],
+                            "type": "string",
+                            "default": "msoa"
+                        }
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "application/json"
+                            ],
+                            "type": "string",
+                            "default": "application/json"
+                        }
+                    },
+                    {
+                        "name": "Accept-Encoding",
+                        "in": "header",
+                        "schema": {
+                            "enum": [
+                                "deflate",
+                                "gzip",
+                                "br"
+                            ],
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns all areas for the given area type",
+                        "headers": {
+                            "Content-Type": {
+                                "required": true,
+                                "schema": {
+                                    "enum": [
+                                        "application/vnd.PHE-COVID19.v1+json; charset=utf-8"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "content-type": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "server": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Strict-Transport-Securit": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-frame-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-content-type-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-xss-protection": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "referrer-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-security-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-phe-media-type": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Area"
+                                },
+                                "example": [
+                                    {
+                                        "areaCode": "E92000001",
+                                        "areaName": "England"
+                                    },
+                                    {
+                                        "areaCode": "N92000002",
+                                        "areaName": "Northern Ireland"
+                                    },
+                                    {
+                                        "areaCode": "S92000003",
+                                        "areaName": "Scotland"
+                                    },
+                                    {
+                                        "areaCode": "W92000004",
+                                        "areaName": "Wales"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "404": {
+                        "description": "Not found. Likely due to an invalid area type."
+                    },
+                    "429": {
+                        "description": "Too many requests - request has been throttled.",
+                        "headers": {
+                            "retry-after": {
+                                "description": "Time in seconds to wait before resubmitting the request.",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/page_areas/{page}": {
+            "get": {
+                "summary": "Page areas",
+                "description": "Given a category (website page), returns all available areas.",
+                "operationId": "page-areas-get",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "path",
+                        "description": "Category of the page whose areas are being requested.",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "cases",
+                                "testing",
+                                "deaths",
+                                "vaccinations",
+                                "healthcare"
+                            ],
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "application/json"
+                            ],
+                            "type": "string",
+                            "default": "application/json"
+                        }
+                    },
+                    {
+                        "name": "Accept-Encoding",
+                        "in": "header",
+                        "schema": {
+                            "enum": [
+                                "deflate",
+                                "gzip",
+                                "br"
+                            ],
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the areas for the specified category (page).",
+                        "headers": {
+                            "Content-Type": {
+                                "required": true,
+                                "schema": {
+                                    "enum": [
+                                        "application/vnd.PHE-COVID19.v1+json; charset=utf-8"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "content-type": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "server": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Strict-Transport-Securit": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-frame-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-content-type-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-xss-protection": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "referrer-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-security-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-phe-media-type": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Not found. Likely due to an invalid category (page name)."
+                    },
+                    "404": {
+                        "description": ""
+                    },
+                    "429": {
+                        "description": "Too many requests - request has been throttled.",
+                        "headers": {
+                            "retry-after": {
+                                "description": "Time in seconds to wait before resubmitting the request.",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/page_areas/{page}/{area_type}": {
+            "get": {
+                "summary": "Page areas with type",
+                "description": "Given a category (page name) / area type combination, returns all areas available for that category under the given area type.",
+                "operationId": "page-areas-with-type",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "path",
+                        "description": "Category of the page whose areas are being requested.",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "cases",
+                                "testing",
+                                "deaths",
+                                "vaccinations",
+                                "healthcare"
+                            ],
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "area_type",
+                        "in": "path",
+                        "description": "Type of the area by which to filter the areas associated with the given category.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "application/json"
+                            ],
+                            "type": "string",
+                            "default": "application/json"
+                        }
+                    },
+                    {
+                        "name": "Accept-Encoding",
+                        "in": "header",
+                        "schema": {
+                            "enum": [
+                                "deflate",
+                                "gzip",
+                                "br"
+                            ],
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns all areas for the specified category / area type combination.",
+                        "headers": {
+                            "Content-Type": {
+                                "required": true,
+                                "schema": {
+                                    "enum": [
+                                        "application/vnd.PHE-COVID19.v1+json; charset=utf-8"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "content-type": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "server": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Strict-Transport-Securit": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-frame-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-content-type-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-xss-protection": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "referrer-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-security-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-phe-media-type": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "404": {
+                        "description": "Not found. Likely due to an invalid category and / or area type."
+                    },
+                    "429": {
+                        "description": "Too many requests - request has been throttled.",
+                        "headers": {
+                            "retry-after": {
+                                "description": "Time in seconds to wait before resubmitting the request.",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/metric_availability/{area_type}/{area_code}": {
+            "get": {
+                "summary": "Metric availability by area",
+                "operationId": "metric-availability-by-area",
+                "parameters": [
+                    {
+                        "name": "area_type",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    },
+                    {
+                        "name": "area_code",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    },
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/metric_availability/{area_type}": {
+            "get": {
+                "summary": "Metric availability by area type",
+                "operationId": "metric-availability-by-area-type",
+                "parameters": [
+                    {
+                        "name": "area_type",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    },
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/metrics": {
+            "get": {
+                "summary": "Metric search",
+                "operationId": "metric-search",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Metric name of part thereof.",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/metrics/props": {
+            "get": {
+                "summary": "Metric props",
+                "operationId": "60e2eed72316b6b4fc3b16bf",
+                "parameters": [
+                    {
+                        "name": "by",
+                        "in": "query",
+                        "description": "Property based on which to aggregate the metircs",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "",
+                                ""
+                            ],
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/change_logs": {
+            "get": {
+                
+                "summary": "Change logs",
+                "description": "Returns change logs, results are paginated to 20 results per page.",
+                "operationId": "change-logs",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description":"Search the contents of the change logs for matching strings.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "title",
+                        "in": "query",
+                        "description":"Returns the change logs for the specified category (page).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description":"Returns the change logs of the specified type.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "description": "To retrurn by date, use change_logs/{YYYY-MM} instead.",
+                        "schema": {
+                            "type": "date"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Returns page of results. There are 20 results per page and page count starts at 1.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }  
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/log_banners/{date}/{page}/{area_type}/{area_name}": {
+            "get": {
+                "summary": "Log banners",
+                "description": "Returns log banners.",
+                "operationId": "log-banners",
+                "parameters": [
+                    {
+                        "name": "date",
+                        "in": "path",
+                        "description": "The date of the banners to be returned. Formatted as YYYY-MM-DD",
+                        "required": true,
+                        "schema": {
+                            "type": "date",
+                            "example": "2021-08-05"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "path",
+                        "description": "Returns the banners for the specified category (page).",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "Daily Summary"
+                        }
+                    },
+                    {
+                        "name": "area_type",
+                        "in": "path",
+                        "description": "Type of the area by which to filter the areas associated with the given category.",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "overview",
+                                "nation",
+                                "region",
+                                "utla",
+                                "ltla",
+                                "msoa",
+                                "nhsRegion",
+                                "nhsTrust"
+                            ],
+                            "type": "string",
+                            "example": "overview"
+                        }
+                    },
+                    {
+                        "name": "area_name",
+                        "in": "path",
+                        "description": "Name of the area within the given area type",
+                        "required": true,
+                        "schema": {
+                            "type": "string" ,
+                            "example": "United Kingdom"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/change_logs/{date}": {
+            "get": {
+                "summary": "Change logs: dated",
+                "description": "Returns change logs for specified month.",
+                "operationId": "60f56748b0cd58c54c65bbbc",
+                "parameters": [
+                    {
+                        "name": "date",
+                        "in": "path",
+                        "description": "Month and year formatted as \"yyyy-mm\"",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "title",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "schema": {
+                            "type": "date"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/change_logs/log/{id}": {
+            "get": {
+                "summary": "Change logs: Record",
+                "description": "Returns a specific log by its UUID",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "UUID 4",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }  
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/change_logs/components/{component}": {
+            "get": {
+                "summary": "Change logs components",
+                "operationId": "60f5678913d5ce28b7fbadcd",
+                "parameters": [
+                    {
+                        "name": "component",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/announcements": {
+            "get": {
+                "summary": "Announcements",
+                "operationId": "announcements",
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/announcements/latest": {
+            "get": {
+                "summary": "Announcement - Lastest",
+                "operationId": "announcement-lastest",
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/announcements/{type}.xml": {
+            "get": {
+                "summary": "Announcements - feed",
+                "operationId": "announcements-feed",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "path",
+                        "description": "One of \"atom\" or \"rss\"",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "atom",
+                                "rss"
+                            ],
+                            "type": "string",
+                            "default": "atom"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/announcements/{id}": {
+            "get": {
+                "summary": "Announcement - Record",
+                "operationId": "announcement-record",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "UUID 4",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/xsl/{name}.xsl": {
+            "get": {
+                "summary": "XSLT",
+                "operationId": "xslt",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Area": {
+                "type": "array",
+                "items": {
+                    "required": [
+                        "areaCode",
+                        "areaName"
+                    ],
+                    "type": "object",
+                    "properties": {
+                        "areaCode": {
+                            "type": "string"
+                        },
+                        "areaName": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "Code": {
+                "type": "object",
+                "properties": {
+                    "ltla": {
+                        "type": "string"
+                    },
+                    "ltlaName": {
+                        "type": "string"
+                    },
+                    "msoa": {
+                        "type": "string"
+                    },
+                    "msoaName": {
+                        "type": "string"
+                    },
+                    "nation": {
+                        "type": "string"
+                    },
+                    "nationName": {
+                        "type": "string"
+                    },
+                    "nhsRegion": {
+                        "type": "string"
+                    },
+                    "nhsRegionName": {
+                        "type": "string"
+                    },
+                    "nhsTrust": {
+                        "type": "string"
+                    },
+                    "nhsTrustName": {
+                        "type": "string"
+                    },
+                    "postcode": {
+                        "type": "string"
+                    },
+                    "region": {
+                        "type": "string"
+                    },
+                    "regionName": {
+                        "type": "string"
+                    },
+                    "trimmedPostcode": {
+                        "type": "string"
+                    },
+                    "utla": {
+                        "type": "string"
+                    },
+                    "utlaName": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Page areas": {
+                "type": "array",
+                "items": {
+                    "required": [
+                        "areaCode",
+                        "areaName",
+                        "areaType"
+                    ],
+                    "type": "object",
+                    "properties": {
+                        "areaCode": {
+                            "type": "string"
+                        },
+                        "areaName": {
+                            "type": "string"
+                        },
+                        "areaType": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "Page areas with type": {
+                "type": "array",
+                "items": {
+                    "required": [
+                        "areaCode",
+                        "areaName",
+                        "areaType"
+                    ],
+                    "type": "object",
+                    "properties": {
+                        "areaCode": {
+                            "type": "string"
+                        },
+                        "areaName": {
+                            "type": "string"
+                        },
+                        "areaType": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "SOA": {
+                "type": "object",
+                "properties": {
+                    "areaCode": {
+                        "type": "string"
+                    },
+                    "areaName": {
+                        "type": "string"
+                    },
+                    "areaType": {
+                        "type": "string"
+                    },
+                    "date": {
+                        "type": "string"
+                    },
+                    "metric": {
+                        "type": "string"
+                    },
+                    "payload": {
+                        "type": "object"
+                    }
+                },
+                "example": {
+                    "areaCode": "string",
+                    "areaName": "string",
+                    "areaType": "string",
+                    "date": "string",
+                    "metric": "string",
+                    "payload": {}
+                }
+            }
+        },
+        "securitySchemes": {
+            "apiKeyHeader": {
+                "type": "apiKey",
+                "name": "Ocp-Apim-Subscription-Key",
+                "in": "header"
+            },
+            "apiKeyQuery": {
+                "type": "apiKey",
+                "name": "subscription-key",
+                "in": "query"
+            }
+        }
+    },
+    "security": [
+        {
+            "apiKeyHeader": []
+        },
+        {
+            "apiKeyQuery": []
+        }
+    ]
+}
