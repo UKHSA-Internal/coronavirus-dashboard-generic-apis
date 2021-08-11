@@ -108,7 +108,6 @@ WHERE
             AND an.launch <= NOW()
         )
     )
-  AND an.expire > (NOW() - INTERVAL '3 months')
 ORDER BY an.launch DESC, an.expire DESC;
 `
 
