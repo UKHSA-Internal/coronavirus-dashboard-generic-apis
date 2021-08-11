@@ -1153,6 +1153,45 @@ func TestChangeLogTitles(t *testing.T) {
 
 } // TestChangeLogTitles
 
+func TestChangeLogItem(t *testing.T) {
+
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
+	api.Initialize()
+	defer api.database.CloseConnection()
+
+	url, err := api.Router.
+		Get("change_log_item").
+		URL("id", "3e80c9b6-ebc5-4669-9e94-80f894e6fd38")
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
+	response := executeRequest(req)
+
+	data := map[string]interface{}{}
+	if err = json.Unmarshal(response.Body.Bytes(), &data); err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
+
+	expected := "3e80c9b6-ebc5-4669-9e94-80f894e6fd38"
+
+	assert.Equal(t, "IDs match", expected, data["id"].(string))
+
+} // TestChangeLogItem
+
 func TestAnnouncements(t *testing.T) {
 
 	var err error
