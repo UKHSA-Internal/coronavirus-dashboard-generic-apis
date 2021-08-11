@@ -226,3 +226,14 @@ WITH
 SELECT JSONB_AGG(data.*) AS data
 FROM data;
 `
+
+const feedQuery = `
+SELECT cl.id::TEXT          AS guid,
+       cl.timestamp_created AS date,
+       cl.heading           AS title,
+       cl.body              AS description,
+       UPPER(t.tag)         AS category
+FROM covid19.change_log AS cl
+  LEFT JOIN covid19.tag AS t ON t.id = cl.type_id
+ORDER BY cl.date DESC;
+`
