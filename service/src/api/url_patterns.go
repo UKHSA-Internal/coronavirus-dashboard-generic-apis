@@ -123,6 +123,12 @@ var urlPatterns = []routeEntry{
 		change_logs.Handler,
 	},
 	{
+		"change_logs_feed",
+		`/generic/change_logs/{type:rss|atom}.xml`,
+		[]string{},
+		change_logs.FeedHandler,
+	},
+	{
 		"change_logs_single_month",
 		`/generic/change_logs/{date:202\d-[01]\d}`,
 		[]string{},
