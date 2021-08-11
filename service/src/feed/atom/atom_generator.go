@@ -25,7 +25,7 @@ type Link struct {
 }
 
 type Category struct {
-	Term string `xml:"term,attr"`
+	Term string `xml:"term,attr,omitempty"`
 }
 
 type Content struct {
@@ -40,12 +40,13 @@ type Source struct {
 }
 
 type Payload struct {
-	Title   string   `xml:"title"`
-	Content *Content `xml:"content"`
-	Updated string   `xml:"updated"`
-	Link    *[]Link  `xml:"link"`
-	Id      string   `xml:"id"`
-	Author  string   `xml:"author>name"`
+	Title    string    `xml:"title"`
+	Content  *Content  `xml:"content"`
+	Updated  string    `xml:"updated"`
+	Link     *[]Link   `xml:"link"`
+	Id       string    `xml:"id"`
+	Author   string    `xml:"author>name"`
+	Category *Category `xml:"category,omitempty"`
 }
 
 type Feed struct {
@@ -137,6 +138,9 @@ func (feed *Feed) GenerateFeed(components *feed.Components) ([]byte, error) {
 		atomPayload[index].Id = "urn:uuid:" + item.Guid.Guid
 		atomPayload[index].Title = item.Title
 		atomPayload[index].Author = "UK Coronavirus Dashboard Team"
+		if item.Category != "" {
+			atomPayload[index].Category = &Category{Term: item.Category}
+		}
 	}
 	feed.Items = &atomPayload
 
