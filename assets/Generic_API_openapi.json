@@ -3,7 +3,11 @@
     "info": {
         "title": "Generic API",
         "description": "APIs that power the map, navigation, hierarchy, and relations.",
-        "version": "1.0"
+        "version": "1.0",
+        "licence": {
+            "name": "Open Government Licence v3.0.",
+            "url": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+        }
     },
     "servers": [
         {
@@ -948,7 +952,8 @@
                         "in": "query",
                         "description":"Search the contents of the change logs for matching strings.",
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "example": "population"
                         }
                     },
                     {
@@ -956,7 +961,8 @@
                         "in": "query",
                         "description":"Returns the change logs for the specified category (page).",
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "example":"Daily Summary"
                         }
                     },
                     {
@@ -964,7 +970,8 @@
                         "in": "query",
                         "description":"Returns the change logs of the specified type.",
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "example": "update"
                         }
                     },
                     {
@@ -980,7 +987,8 @@
                         "in": "query",
                         "description": "Returns page of results. There are 20 results per page and page count starts at 1.",
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }  
                 ],
@@ -1040,7 +1048,7 @@
                     {
                         "name": "area_name",
                         "in": "path",
-                        "description": "Name of the area within the given area type",
+                        "description": "Name of the area within the given area type.",
                         "required": true,
                         "schema": {
                             "type": "string" ,
@@ -1067,28 +1075,35 @@
                         "description": "Month and year formatted as \"yyyy-mm\"",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "example": "2021-08"
                         }
                     },
                     {
                         "name": "search",
                         "in": "query",
+                        "description":"Search the contents of the change logs for matching strings.",
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "example": "population"
                         }
                     },
                     {
                         "name": "title",
                         "in": "query",
+                        "description":"Returns the change logs for the specified category (page).",
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "example": "Daily Summary"
                         }
                     },
                     {
                         "name": "type",
                         "in": "query",
+                        "description":"Returns the change logs of the specified type.",
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "example": "update"
                         }
                     },
                     {
@@ -1101,8 +1116,10 @@
                     {
                         "name": "page",
                         "in": "query",
+                        "description":"Returns page of results. There are 20 results per page and page count starts at 1.",
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "example": 1
                         }
                     }
                 ],
@@ -1116,7 +1133,8 @@
         "/change_logs/log/{id}": {
             "get": {
                 "summary": "Change logs: Record",
-                "description": "Returns a specific log by its UUID",
+                "operationId": "changelogs-record",
+                "description": "Returns a specific log by its UUID.",
                 "parameters": [
                     {
                         "name": "id",
@@ -1124,7 +1142,8 @@
                         "description": "UUID 4",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "example": "d4a1dd7a-d070-4515-a106-7c9e7c9576e1"
                         }
                     }  
                 ],
@@ -1160,6 +1179,7 @@
             "get": {
                 "summary": "Announcements",
                 "operationId": "announcements",
+                "description": "Returns all announcements.",
                 "responses": {
                     "200": {
                         "description": null
@@ -1182,6 +1202,7 @@
             "get": {
                 "summary": "Announcements - feed",
                 "operationId": "announcements-feed",
+                "description": "Returns either an atom or rss feed of announcements.",
                 "parameters": [
                     {
                         "name": "type",
@@ -1209,6 +1230,7 @@
             "get": {
                 "summary": "Announcement - Record",
                 "operationId": "announcement-record",
+                "description": "Return announcement by UUID.",
                 "parameters": [
                     {
                         "name": "id",
@@ -1216,7 +1238,8 @@
                         "description": "UUID 4",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "example": "e6817475-dd68-4153-859c-91bc209421e6"
                         }
                     }
                 ],
