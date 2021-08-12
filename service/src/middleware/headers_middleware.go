@@ -29,8 +29,10 @@ func HeadersMiddleware(next http.Handler) http.Handler {
 			w.Header().Set(key, value)
 		}
 
-		if strings.Contains(r.URL.Path, "atom") || strings.Contains(r.URL.Path, "rss") {
-			w.Header().Set("content-type", "application/xml")
+		if strings.Contains(r.URL.Path, "rss") {
+			w.Header().Set("content-type", "application/rss+xml")
+		} else if strings.Contains(r.URL.Path, "atom") {
+			w.Header().Set("content-type", "application/atom+xml")
 		}
 
 		next.ServeHTTP(w, r)
