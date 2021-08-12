@@ -11,13 +11,16 @@ import (
 )
 
 type Payload struct {
-	Title       string     `xml:"title"`
-	Description string     `xml:"description"`
-	Content     *Content   `xml:"content:encoded"`
-	Link        string     `xml:"link"`
-	Guid        *feed.Guid `xml:"guid"`
-	Date        string     `xml:"dc:date"`
-	Subject     string     `xml:"dc:subject,omitempty"`
+	Title          string     `xml:"title"`
+	Description    string     `xml:"description"`
+	Content        *Content   `xml:"content:encoded"`
+	Link           string     `xml:"link"`
+	Guid           *feed.Guid `xml:"guid"`
+	Date           string     `xml:"dc:date"`
+	Subject        string     `xml:"dc:subject,omitempty"`
+	GoogleOwner    string     `xml:"googleplay:owner"`
+	GoogleAuthor   string     `xml:"googleplay:author"`
+	GoogleCategory string     `xml:"googleplay:category"`
 }
 
 type Content struct {
@@ -44,12 +47,15 @@ type AdminAttrs struct {
 }
 
 type Channel struct {
-	XMLName     xml.Name `xml:"channel"`
-	Title       string   `xml:"title"`
-	Category    string   `xml:"category,omitempty"`
-	Description string   `xml:"description"`
-	Link        string   `xml:"link"`
-	Image       *Image   `xml:"image"`
+	XMLName xml.Name `xml:"channel"`
+
+	Title          string `xml:"title"`
+	Category       string `xml:"category,omitempty"`
+	Description    string `xml:"description"`
+	GoogleCategory string `xml:"googleplay:category,omitempty"`
+
+	Link  string `xml:"link"`
+	Image *Image `xml:"image"`
 
 	Rights string `xml:"dc:rights,omitempty"`
 
@@ -63,6 +69,10 @@ type Channel struct {
 	WebMaster   string      `xml:"webMaster,omitempty"`
 	Creator     string      `xml:"dc:creator,omitempty"`
 	ErrorReport *AdminAttrs `xml:"admin:errorReportsTo"`
+
+	GoogleOwner  string `xml:"googleplay:owner"`
+	GoogleAuthor string `xml:"googleplay:author"`
+	GoogleImage  string `xml:"googleplay:image"`
 
 	Language  string     `xml:"dc:language,omitempty"`
 	Generator string     `xml:"generator,omitempty"`
@@ -78,7 +88,9 @@ const XmlHeader = xml.Header +
      xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
      xmlns:admin="http://webns.net/mvcb/"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-     xmlns:content="http://purl.org/rss/1.0/modules/content/">
+     xmlns:content="http://purl.org/rss/1.0/modules/content/"
+     xmlns:googleplay="http://www.google.com/schemas/play-podcasts/1.0"
+     xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
 %s
 </rss>`
 
@@ -93,6 +105,8 @@ func (channel *Channel) GenerateFeed(components *feed.Components) ([]byte, error
 		components.Category,
 	)
 	channel.Category = components.Category
+	channel.GoogleCategory = components.Category
+
 	channel.Link = "https://coronavirus.data.gov.uk/details/announcements"
 	channel.Rights = "2021 - Public Health England. Open Government License."
 	channel.Image = &Image{
@@ -116,6 +130,9 @@ func (channel *Channel) GenerateFeed(components *feed.Components) ([]byte, error
 		Type: "application/rss+xml",
 	}
 	channel.Creator = "coronavirus-tracker@phe.gov.uk"
+	channel.GoogleOwner = "coronavirus-tracker@phe.gov.uk"
+	channel.GoogleAuthor = "UK Coronavirus Dashboard"
+	channel.GoogleImage = channel.Image.Link
 	channel.ErrorReport = &AdminAttrs{Resource: channel.Creator}
 
 	rssPayload := make([]Payload, len(*components.Payload))
@@ -143,8 +160,11 @@ func (channel *Channel) GenerateFeed(components *feed.Components) ([]byte, error
 		rssPayload[index].Title = item.Title
 		rssPayload[index].Link = item.Link
 		rssPayload[index].Guid = item.Guid
+		rssPayload[index].GoogleOwner = channel.GoogleOwner
+		rssPayload[index].GoogleAuthor = channel.GoogleAuthor
 		if item.Category != "" {
 			rssPayload[index].Subject = item.Category
+			rssPayload[index].GoogleCategory = item.Category
 		}
 		rssPayload[index].Date = item.Date.Format("2006-01-02T15:04:05-07:00")
 	}
