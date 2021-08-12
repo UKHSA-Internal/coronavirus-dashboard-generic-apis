@@ -21,7 +21,7 @@ type dbResponse struct {
 
 const feedCategory = "Service logs"
 const apiEndpoint = "https://api.coronavirus.data.gov.uk/generic/change_logs/"
-const websiteEndpoint = "https://coronavirus.data.gov.uk/details/whatsnew/"
+const websiteEndpoint = "https://coronavirus.data.gov.uk/details/whats-new/"
 
 func (conf *handler) fromDatabaseFeed() (*dbResponse, error) {
 
