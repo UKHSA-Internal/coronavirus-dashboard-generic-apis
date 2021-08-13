@@ -127,7 +127,7 @@ func (conf *handler) fromDatabase(date, id string, queryParams url.Values) (db.R
 
 	return res, nil
 
-} // FromDatabase
+} // fromDatabase
 
 func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r *http.Request) {
 

@@ -55,12 +55,12 @@ func (conf *handler) fromDatabase(params url.Values) ([]byte, error) {
 	}
 
 	if len(results) == 0 {
-		return []byte{'[', ']'}, nil
+		return []byte("[]"), nil
 	}
 
 	return utils.JSONMarshal(results)
 
-} // FromDatabase
+} // fromDatabase
 
 func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r *http.Request) {
 
@@ -90,4 +90,4 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 
 	}
 
-} // queryByCode
+} // Handler

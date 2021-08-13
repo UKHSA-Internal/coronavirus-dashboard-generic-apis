@@ -45,7 +45,7 @@ func (conf *handler) fromDatabase(urlParams *map[string]string) ([]db.ResultType
 
 	return res, nil
 
-} // FromDatabase
+} // fromDatabase
 
 func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r *http.Request) {
 
@@ -91,4 +91,4 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 		conf.db.CloseConnection()
 	}
 
-} // queryByCode
+} // Handler

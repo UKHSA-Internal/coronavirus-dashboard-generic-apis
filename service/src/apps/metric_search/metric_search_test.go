@@ -45,4 +45,4 @@ func TestFromDataBaseSearch(t *testing.T) {
 
 	assert.JsonArrResponseMatchExpected(t, expected, jsonResponse)
 
-} // TestFromDataBase
+} // TestFromDataBaseSearch
