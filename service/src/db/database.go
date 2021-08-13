@@ -7,6 +7,8 @@ import (
 
 	"generic_apis/insight"
 	"github.com/caarlos0/env"
+	"github.com/jackc/pgconn"
+	"github.com/jackc/pgconn/stmtcache"
 	"github.com/jackc/pgx/v4"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 )
@@ -53,7 +55,9 @@ func Connect(insight appinsights.TelemetryClient) (*Config, error) {
 	}
 
 	// Support for PGBouncer
-	conf.dbConfig.BuildStatementCache = nil
+	conf.dbConfig.BuildStatementCache = func(conn *pgconn.PgConn) stmtcache.Cache {
+		return stmtcache.New(conn, stmtcache.ModeDescribe, 1)
+	}
 	conf.dbConfig.PreferSimpleProtocol = true
 	conf.dbConfig.ConnectTimeout = 10 * time.Second
 
