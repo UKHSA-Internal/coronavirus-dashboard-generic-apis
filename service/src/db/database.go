@@ -49,7 +49,7 @@ func Connect(insight appinsights.TelemetryClient) (*Config, error) {
 		panic(err)
 	}
 
-	conf.dbConfig, err = pgx.ParseConfig(conf.DatabaseConnectionString + "?client_encoding=utf8")
+	conf.dbConfig, err = pgx.ParseConfig(conf.DatabaseConnectionString)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,6 @@ func Connect(insight appinsights.TelemetryClient) (*Config, error) {
 	conf.dbConfig.BuildStatementCache = func(conn *pgconn.PgConn) stmtcache.Cache {
 		return stmtcache.New(conn, stmtcache.ModeDescribe, 1)
 	}
-	conf.dbConfig.PreferSimpleProtocol = true
 	conf.dbConfig.ConnectTimeout = 10 * time.Second
 
 	conf.Database, err = pgx.ConnectConfig(context.Background(), conf.dbConfig)
