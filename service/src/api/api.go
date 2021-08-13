@@ -2,36 +2,16 @@ package api
 
 import (
 	"fmt"
-	"net/http"
 	"time"
 
-	"generic_apis/apps/healthcheck"
-	"generic_apis/db"
+	"generic_apis/base"
 	"generic_apis/insight"
-	"generic_apis/middleware"
 	"github.com/caarlos0/env"
-	"github.com/gorilla/mux"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 	unit "unit.nginx.org/go"
 )
 
-type (
-	Api struct {
-		Router   *mux.Router
-		database *db.Config
-		Insight  appinsights.TelemetryClient
-		Port     string `env:"WEBSITE_PORT"`
-	}
-
-	routeEntry struct {
-		name        string
-		path        string
-		queryParams []string
-		handler     func(appinsights.TelemetryClient) func(http.ResponseWriter, *http.Request)
-	}
-)
-
-func (apiClient *Api) Run() {
+func Run(apiClient *base.Api) {
 
 	var err error
 
@@ -44,7 +24,7 @@ func (apiClient *Api) Run() {
 	// Insight initialisation
 	apiClient.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(apiClient.Insight, true)
-
+	apiClient.Routes = UrlPatterns
 	apiClient.Initialize()
 
 	// Uncomment for local testing
@@ -75,25 +55,3 @@ func (apiClient *Api) Run() {
 	}
 
 } // Run
-
-func (apiClient *Api) Initialize() {
-
-	apiClient.Router = mux.NewRouter()
-	apiClient.Router.Use(
-		middleware.HeadersMiddleware,
-		middleware.PrepareTelemetryMiddleware(apiClient.Insight),
-	)
-
-	apiClient.Router.
-		Handle(`/generic/healthcheck`, healthcheck.Handler()).
-		Name("healthcheck")
-
-	for _, route := range urlPatterns {
-		apiClient.Router.
-			HandleFunc(route.path, route.handler(apiClient.Insight)).
-			Queries().
-			Name(route.name).
-			Methods(http.MethodGet)
-	}
-
-} // initializeRoutes
