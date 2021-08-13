@@ -11,9 +11,10 @@ import (
 	"generic_apis/apps/metric_search"
 	"generic_apis/apps/page_area"
 	"generic_apis/apps/soa"
+	"generic_apis/apps/utils"
 )
 
-var urlPatterns = []routeEntry{
+var UrlPatterns = &[]utils.RouteEntry{
 	{
 		"code",
 		`/generic/code/{area_type:[a-zA-Z]{4,10}}/{area_code:[a-zA-Z0-9+%\s]{3,12}}`,
