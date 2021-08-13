@@ -2,11 +2,13 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"generic_apis/assert"
+	"generic_apis/base"
 	"generic_apis/db"
 	"generic_apis/insight"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
@@ -22,7 +24,9 @@ type (
 	testTokens []testToken
 )
 
-var api = &Api{}
+var api = &base.Api{
+	Routes: UrlPatterns,
+}
 
 func executeRequest(req *http.Request) *httptest.ResponseRecorder {
 
@@ -39,12 +43,12 @@ func TestPostcode(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	tokens := testTokens{
 		{"postcode", "SW1A 0AA", false},
@@ -77,6 +81,8 @@ func TestPostcode(t *testing.T) {
 
 	response := executeRequest(req)
 
+	fmt.Println(response.Body.String())
+
 	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
 
 	data := make(map[string]interface{})
@@ -100,12 +106,12 @@ func TestRegion(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	tokens := testTokens{
 		{"region", "E12000007", false},
@@ -150,12 +156,12 @@ func TestUtla(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	tokens := testTokens{
 		{"utla", "E09000033", false},
@@ -202,12 +208,12 @@ func TestMsoa(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	tokens := testTokens{
 		{"msoa", "E02000979", false},
@@ -260,12 +266,12 @@ func TestMsoa(t *testing.T) {
 // 	api.Insight = insight.InitialiseInsightClient()
 // 	defer appinsights.TrackPanic(api.Insight, true)
 //
-// 	api.database, err = db.Connect(api.Insight)
+// 	api.Database, err = db.Connect(api.Insight)
 // 	if err != nil {
 // 		panic(err)
 // 	}
 // 	api.Initialize()
-// 	defer api.database.CloseConnection()
+// 	defer api.Database.CloseConnection()
 //
 // 	url, err := api.Router.Get("area").URL("area_type", "nation")
 // 	if err != nil {
@@ -290,12 +296,12 @@ func TestPageAreaQuery(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	expected := []map[string]interface{}{
 		{"areaCode": "E92000001", "areaType": "nation", "areaName": "England"},
@@ -327,12 +333,12 @@ func TestAreaOnlyQuery(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	expected := []map[string]interface{}{
 		{"areaCode": "E92000001", "areaType": "nation", "areaName": "England"},
@@ -367,12 +373,12 @@ func TestMetricSearchQuery(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	expected := []map[string]interface{}{
 		{"metric": "changeInNewCasesBySpecimenDate", "metric_name": "Change in new cases by specimen date", "category": "Cases", "tags": []interface{}{"event date"}},
@@ -415,12 +421,12 @@ func TestMetricSearchQueryEmptyResponse(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	expected := "[]"
 
@@ -446,12 +452,12 @@ func TestMetricSearchQueryWithCategory(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	expected := []map[string]interface{}{
 		{"metric": "changeInNewCasesBySpecimenDate", "metric_name": "Change in new cases by specimen date", "category": "Cases", "tags": []interface{}{"event date"}},
@@ -494,12 +500,12 @@ func TestMetricSearchQueryWithTags(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	expected := []map[string]interface{}{
 		{"metric": "cumCasesBySpecimenDateRate", "metric_name": "Cumulative cases by specimen date rate", "category": "Cases", "tags": []interface{}{"cumulative", "event date", "incidence rate"}},
@@ -532,12 +538,12 @@ func TestMetricSearchQueryWithCategoryAndTag(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	expected := []map[string]interface{}{
 		{"metric": "cumCasesBySpecimenDate", "metric_name": "Cumulative cases by specimen date", "category": "Cases", "tags": []interface{}{"cumulative", "event date"}},
@@ -572,12 +578,12 @@ func TestMetricSearchQueryByTagOnly(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	expected := 9
 
@@ -608,12 +614,12 @@ func TestMetricSearchQueryByCategoryOnly(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	expected := 14
 
@@ -644,12 +650,12 @@ func TestMetricSearchQueryByCategoryAndTagsOnly(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	expected := 1
 
@@ -680,12 +686,12 @@ func TestMetricPropsByCategory(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	url, err := api.Router.Get("metric_props").Queries("by", "category").URL()
 	if err != nil {
@@ -736,12 +742,12 @@ func TestMetricPropsByTag(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	url, err := api.Router.Get("metric_props").Queries("by", "tag").URL()
 	if err != nil {
@@ -795,12 +801,12 @@ func TestChangeLog(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	url, err := api.Router.Get("change_logs").URL()
 	if err != nil {
@@ -837,12 +843,12 @@ func TestPaginatedChangeLog(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	url, err := api.Router.Get("change_logs").Queries("page", "2").URL()
 	if err != nil {
@@ -879,12 +885,12 @@ func TestChangeLogSearch(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	url, err := api.Router.Get("change_logs").Queries("search", "incor").URL()
 	if err != nil {
@@ -924,12 +930,12 @@ func TestDatedChangeLog(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	url, err := api.Router.Get("change_logs_single_month").URL("date", "2021-05")
 	if err != nil {
@@ -960,12 +966,12 @@ func TestDatedChangeLogSearch(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	monthParam := "2021-05"
 	monthParamLen := len(monthParam)
@@ -1013,12 +1019,12 @@ func TestLogBanner(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	url, err := api.Router.
 		Get("log_banners").
@@ -1051,12 +1057,12 @@ func TestChangeLogDates(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	url, err := api.Router.Get("change_logs_components").URL("component", "dates")
 	if err != nil {
@@ -1087,12 +1093,12 @@ func TestChangeLogTypes(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	url, err := api.Router.Get("change_logs_components").URL("component", "types")
 	if err != nil {
@@ -1123,12 +1129,12 @@ func TestChangeLogTitles(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	url, err := api.Router.Get("change_logs_components").URL("component", "titles")
 	if err != nil {
@@ -1159,12 +1165,12 @@ func TestChangeLogItem(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	url, err := api.Router.
 		Get("change_log_item").
@@ -1198,12 +1204,12 @@ func TestAnnouncements(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	url, err := api.Router.Get("announcements").URL()
 	if err != nil {
@@ -1234,12 +1240,12 @@ func TestAnnouncementItem(t *testing.T) {
 	api.Insight = insight.InitialiseInsightClient()
 	defer appinsights.TrackPanic(api.Insight, true)
 
-	api.database, err = db.Connect(api.Insight)
+	api.Database, err = db.Connect(api.Insight)
 	if err != nil {
 		panic(err)
 	}
 	api.Initialize()
-	defer api.database.CloseConnection()
+	defer api.Database.CloseConnection()
 
 	url, err := api.Router.
 		Get("announcement_item").
