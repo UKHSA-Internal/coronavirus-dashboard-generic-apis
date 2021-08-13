@@ -2,11 +2,12 @@ package main
 
 import (
 	"generic_apis/api"
+	"generic_apis/base"
 )
 
 func main() {
 
-	service := &api.Api{}
-	service.Run()
+	service := &base.Api{}
+	api.Run(service)
 
 } // main
