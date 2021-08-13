@@ -15,7 +15,7 @@ type handler struct {
 	traceparent string
 }
 
-func (conf *handler) fromDatabase(params url.Values) ([]byte, error) {
+func (conf *handler) fromDatabase(params url.Values) ([]db.ResultType, error) {
 
 	var (
 		preppedQuery string
@@ -34,18 +34,9 @@ func (conf *handler) fromDatabase(params url.Values) ([]byte, error) {
 		OperationData: insight.GetOperationData(conf.traceparent),
 	}
 
-	results, err := conf.db.FetchAll(payload)
-	if err != nil {
-		return nil, err
-	}
+	return conf.db.FetchAll(payload)
 
-	if len(results) == 0 {
-		return []byte{'[', ']'}, nil
-	}
-
-	return utils.JSONMarshal(results)
-
-} // FromDatabase
+} // fromDatabase
 
 func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r *http.Request) {
 
@@ -53,7 +44,11 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		var err error
+		var (
+			err         error
+			response    []db.ResultType
+			jsonPayload []byte
+		)
 
 		conf.traceparent = r.Header.Get("traceparent")
 
@@ -62,12 +57,22 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 			panic(err)
 		}
 
-		response, err := conf.fromDatabase(r.URL.Query())
+		response, err = conf.fromDatabase(r.URL.Query())
 		if err != nil {
 			panic(err)
 		}
 
-		if _, err = w.Write(response); err != nil {
+		if len(response) == 0 {
+			http.NotFound(w, r)
+			return
+		}
+
+		jsonPayload, err = utils.JSONMarshal(response)
+		if err != nil {
+			panic(err)
+		}
+
+		if _, err = w.Write(jsonPayload); err != nil {
 			panic(err)
 		}
 
@@ -75,4 +80,4 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 
 	}
 
-} // queryByCode
+} // Handler

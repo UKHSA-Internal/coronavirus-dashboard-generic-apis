@@ -17,7 +17,7 @@ type handler struct {
 	traceparent string
 }
 
-func (conf *handler) fromDatabase(areaType, code string) ([]byte, error) {
+func (conf *handler) fromDatabase(areaType, code string) (map[string]string, error) {
 
 	var (
 		ok     bool
@@ -62,9 +62,9 @@ func (conf *handler) fromDatabase(areaType, code string) ([]byte, error) {
 		data["trimmedPostcode"] = strings.ReplaceAll(postcode, " ", "")
 	}
 
-	return utils.JSONMarshal(data)
+	return data, nil
 
-} // FromDatabase
+} // fromDatabase
 
 func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r *http.Request) {
 
@@ -72,7 +72,11 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		var err error
+		var (
+			err         error
+			response    map[string]string
+			jsonPayload []byte
+		)
 
 		conf.traceparent = r.Header.Get("traceparent")
 
@@ -83,12 +87,23 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 
 		pathVars := mux.Vars(r)
 
-		response, err := conf.fromDatabase(pathVars["area_type"], pathVars["area_code"])
+		response, err = conf.fromDatabase(pathVars["area_type"], pathVars["area_code"])
 		if err != nil {
 			http.Error(w, "failed to retrieve data", http.StatusBadRequest)
+			return
 		}
 
-		if _, err = w.Write(response); err != nil {
+		if len(response) == 0 {
+			http.NotFound(w, r)
+			return
+		}
+
+		jsonPayload, err = utils.JSONMarshal(response)
+		if err != nil {
+			panic(err)
+		}
+
+		if _, err = w.Write(jsonPayload); err != nil {
 			panic(err)
 		}
 
@@ -96,4 +111,4 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 
 	}
 
-} // queryByCode
+} // Handler
