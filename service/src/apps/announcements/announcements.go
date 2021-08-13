@@ -44,7 +44,7 @@ func (conf *handler) fromDatabase(latest bool, id string) ([]db.ResultType, erro
 
 	return res, nil
 
-} // FromDatabase
+} // fromDatabase
 
 func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r *http.Request) {
 
