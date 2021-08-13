@@ -7,8 +7,6 @@ import (
 
 	"generic_apis/insight"
 	"github.com/caarlos0/env"
-	"github.com/jackc/pgconn"
-	"github.com/jackc/pgconn/stmtcache"
 	"github.com/jackc/pgx/v4"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 )
@@ -49,16 +47,14 @@ func Connect(insight appinsights.TelemetryClient) (*Config, error) {
 		panic(err)
 	}
 
-	conf.dbConfig, err = pgx.ParseConfig(conf.DatabaseConnectionString)
+	conf.dbConfig, err = pgx.ParseConfig(conf.DatabaseConnectionString + "?client_encoding=utf8")
 	if err != nil {
 		return nil, err
 	}
 
 	// Support for PGBouncer
-	conf.dbConfig.BuildStatementCache = func(conn *pgconn.PgConn) stmtcache.Cache {
-		return stmtcache.New(conn, stmtcache.ModeDescribe, 1024)
-	}
-
+	conf.dbConfig.BuildStatementCache = nil
+	conf.dbConfig.PreferSimpleProtocol = true
 	conf.dbConfig.ConnectTimeout = 10 * time.Second
 
 	conf.Database, err = pgx.ConnectConfig(context.Background(), conf.dbConfig)
