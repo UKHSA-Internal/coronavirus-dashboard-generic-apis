@@ -1,5 +1,18 @@
 package utils
 
+import (
+	"net/http"
+
+	"github.com/microsoft/ApplicationInsights-Go/appinsights"
+)
+
+type RouteEntry struct {
+	Name        string
+	Path        string
+	QueryParams []string
+	Handler     func(appinsights.TelemetryClient) func(http.ResponseWriter, *http.Request)
+}
+
 var (
 	AreaTypes = map[string]string{
 		"postcode":  "postcode",
