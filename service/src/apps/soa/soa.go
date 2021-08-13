@@ -79,7 +79,7 @@ func (conf *handler) fromDatabase(areaType, areaCode, metric, date string) (map[
 
 	return data, nil
 
-} // FromDatabase
+} // fromDatabase
 
 func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r *http.Request) {
 
@@ -123,4 +123,4 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 
 	}
 
-} // queryByCode
+} // Handler
