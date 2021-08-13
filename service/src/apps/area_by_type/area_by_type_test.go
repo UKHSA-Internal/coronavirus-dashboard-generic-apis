@@ -3,6 +3,7 @@ package area_by_type
 import (
 	"testing"
 
+	"generic_apis/apps/utils"
 	"generic_apis/assert"
 	"generic_apis/db"
 	"generic_apis/insight"
@@ -30,9 +31,16 @@ func TestFromDataBase(t *testing.T) {
 		{"areaCode": "W92000004", "areaName": "Wales"},
 	}
 
-	jsonResponse, err := conf.fromDatabase("nation")
+	response, err := conf.fromDatabase("nation")
 	if err != nil {
 		t.Error(err)
+	}
+	if err != nil {
+		t.Error(err.Error())
+	}
+	jsonResponse, err := utils.JSONMarshal(response)
+	if err != nil {
+		t.Error(err.Error())
 	}
 
 	assert.JsonArrResponseMatchExpected(t, expected, jsonResponse)

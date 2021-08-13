@@ -3,6 +3,7 @@ package code
 import (
 	"testing"
 
+	"generic_apis/apps/utils"
 	"generic_apis/assert"
 	"generic_apis/db"
 	"generic_apis/insight"
@@ -42,7 +43,11 @@ func TestFromDataBase(t *testing.T) {
 		"utlaName":        "Westminster",
 	}
 
-	jsonResponse, err := conf.fromDatabase("postcode", "SW1A 0AA")
+	response, err := conf.fromDatabase("postcode", "SW1A 0AA")
+	if err != nil {
+		t.Error(err.Error())
+	}
+	jsonResponse, err := utils.JSONMarshal(response)
 	if err != nil {
 		t.Error(err.Error())
 	}

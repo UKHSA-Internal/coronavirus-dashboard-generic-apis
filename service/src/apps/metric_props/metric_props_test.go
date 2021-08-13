@@ -1,7 +1,6 @@
 package metric_props
 
 import (
-	"encoding/json"
 	"net/url"
 	"testing"
 
@@ -24,14 +23,9 @@ func TestFromDataBaseSearchByTag(t *testing.T) {
 	defer database.CloseConnection()
 	conf := &handler{database, ""}
 
-	jsonResponse, err := conf.fromDatabase(url.Values{"by": []string{"tag"}})
+	response, err := conf.fromDatabase(url.Values{"by": []string{"tag"}})
 	if err != nil {
 		t.Error(err.Error())
-	}
-
-	response := make([]map[string]interface{}, 0)
-	if err = json.Unmarshal(jsonResponse, &response); err != nil {
-		t.Error(err)
 	}
 
 	expectKey := []string{
@@ -76,14 +70,9 @@ func TestFromDataBaseSearchByCategory(t *testing.T) {
 	defer database.CloseConnection()
 	conf := &handler{database, ""}
 
-	jsonResponse, err := conf.fromDatabase(url.Values{"by": []string{"category"}})
+	response, err := conf.fromDatabase(url.Values{"by": []string{"category"}})
 	if err != nil {
 		t.Error(err.Error())
-	}
-
-	response := make([]map[string]interface{}, 0)
-	if err = json.Unmarshal(jsonResponse, &response); err != nil {
-		t.Error(err)
 	}
 
 	expectKey := []string{"Vaccinations", "Cases", "Deaths", "Healthcare", "Testing"}

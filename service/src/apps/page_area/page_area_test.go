@@ -3,6 +3,7 @@ package page_area
 import (
 	"testing"
 
+	"generic_apis/apps/utils"
 	"generic_apis/assert"
 	"generic_apis/db"
 	"generic_apis/insight"
@@ -35,9 +36,16 @@ func TestPageAreaQuery(t *testing.T) {
 		"area_type": "nation",
 	}
 
-	jsonResponse, err := conf.fromDatabase(params)
+	response, err := conf.fromDatabase(params)
 	if err != nil {
 		t.Error(err)
+	}
+	if err != nil {
+		t.Error(err.Error())
+	}
+	jsonResponse, err := utils.JSONMarshal(response)
+	if err != nil {
+		t.Error(err.Error())
 	}
 
 	assert.JsonArrResponseMatchExpected(t, expected, jsonResponse)
@@ -72,9 +80,16 @@ func TestAreaOnlyQuery(t *testing.T) {
 		"page": "Deaths",
 	}
 
-	jsonResponse, err := conf.fromDatabase(params)
+	response, err := conf.fromDatabase(params)
 	if err != nil {
 		t.Error(err)
+	}
+	if err != nil {
+		t.Error(err.Error())
+	}
+	jsonResponse, err := utils.JSONMarshal(response)
+	if err != nil {
+		t.Error(err.Error())
 	}
 
 	assert.JsonArrResponseContains(t, expected, jsonResponse)
