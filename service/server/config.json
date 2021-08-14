@@ -7,6 +7,14 @@
   "routes": [
     {
       "match": {
+        "uri": "~\\.json$"
+      },
+      "action": {
+        "share": "/opt/app/assets/"
+      }
+    },
+    {
+      "match": {
         "uri": "/generic/*",
         "method": [
           "GET"
