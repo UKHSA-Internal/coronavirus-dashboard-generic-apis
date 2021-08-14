@@ -2,16 +2,22 @@
     "openapi": "3.0.1",
     "info": {
         "title": "Generic API",
-        "description": "APIs that power the map, navigation, hierarchy, and relations.",
+        "description": "APIs that power the map, navigation, hierarchy, area relations, announcements, logs, syndication feeds.",
         "version": "1.0",
-        "licence": {
+        "contact": {
+            "name": "UK Coronavirus Dashboard",
+            "url": "https://coronavirus.data.gov.uk/",
+            "email": "coronavirus-tracker@phe.gov.uk"
+        },
+        "license": {
             "name": "Open Government Licence v3.0.",
             "url": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
         }
     },
     "servers": [
         {
-            "url": "https://api.coronavirus.data.gov.uk/generic"
+            "url": "https://api.coronavirus.data.gov.uk/generic",
+            "description": "Production server"
         }
     ],
     "paths": {
@@ -111,7 +117,7 @@
                                     "type": "string"
                                 }
                             },
-                            "Strict-Transport-Securit": {
+                            "Strict-Transport-Security": {
                                 "required": true,
                                 "schema": {
                                     "type": "string"
@@ -304,7 +310,7 @@
                                     "type": "string"
                                 }
                             },
-                            "Strict-Transport-Securit": {
+                            "Strict-Transport-Security": {
                                 "required": true,
                                 "schema": {
                                     "type": "string"
@@ -447,7 +453,7 @@
                                     "type": "string"
                                 }
                             },
-                            "Strict-Transport-Securit": {
+                            "Strict-Transport-Security": {
                                 "required": true,
                                 "schema": {
                                     "type": "string"
@@ -612,7 +618,7 @@
                                     "type": "string"
                                 }
                             },
-                            "Strict-Transport-Securit": {
+                            "Strict-Transport-Security": {
                                 "required": true,
                                 "schema": {
                                     "type": "string"
@@ -761,7 +767,7 @@
                                     "type": "string"
                                 }
                             },
-                            "Strict-Transport-Securit": {
+                            "Strict-Transport-Security": {
                                 "required": true,
                                 "schema": {
                                     "type": "string"
@@ -839,7 +845,17 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": ""
+                            "type": "string",
+                            "enum": [
+                                "nation",
+                                "region",
+                                "utla",
+                                "ltla",
+                                "msoa",
+                                "postcode",
+                                "nhsRegion",
+                                "nhsTrust"
+                            ]
                         }
                     },
                     {
@@ -847,20 +863,21 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": ""
+                            "type": "string"
                         }
                     },
                     {
                         "name": "date",
+                        "description": "Date in YYYY-MM-DD format",
                         "in": "query",
                         "schema": {
-                            "type": ""
+                            "type": "string"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": ""
                     }
                 }
             }
@@ -875,20 +892,31 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": ""
+                            "type": "string",
+                            "enum": [
+                                "nation",
+                                "region",
+                                "utla",
+                                "ltla",
+                                "msoa",
+                                "postcode",
+                                "nhsRegion",
+                                "nhsTrust"
+                            ]
                         }
                     },
                     {
                         "name": "date",
+                        "description": "Date in YYYY-MM-DD format",
                         "in": "query",
                         "schema": {
-                            "type": ""
+                            "type": "string"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": ""
                     }
                 }
             }
@@ -901,15 +929,15 @@
                     {
                         "name": "search",
                         "in": "query",
-                        "description": "Metric name of part thereof.",
+                        "description": "Metric name or part thereof.",
                         "schema": {
-                            "type": ""
+                            "type": "string"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": ""
                     }
                 }
             }
@@ -922,27 +950,26 @@
                     {
                         "name": "by",
                         "in": "query",
-                        "description": "Property based on which to aggregate the metircs",
+                        "description": "Property based on which to aggregate the metrics",
                         "required": true,
                         "schema": {
                             "enum": [
-                                "",
-                                ""
+                                "category",
+                                "tag"
                             ],
-                            "type": ""
+                            "type": "string"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": ""
                     }
                 }
             }
         },
         "/change_logs": {
             "get": {
-                
                 "summary": "Change logs",
                 "description": "Returns change logs, results are paginated to 20 results per page.",
                 "operationId": "change-logs",
@@ -975,14 +1002,6 @@
                         }
                     },
                     {
-                        "name": "date",
-                        "in": "query",
-                        "description": "To retrurn by date, use change_logs/{YYYY-MM} instead.",
-                        "schema": {
-                            "type": "date"
-                        }
-                    },
-                    {
                         "name": "page",
                         "in": "query",
                         "description": "Returns page of results. There are 20 results per page and page count starts at 1.",
@@ -994,7 +1013,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": ""
                     }
                 }
             }
@@ -1011,7 +1030,7 @@
                         "description": "The date of the banners to be returned. Formatted as YYYY-MM-DD",
                         "required": true,
                         "schema": {
-                            "type": "date",
+                            "type": "string",
                             "example": "2021-08-05"
                         }
                     },
@@ -1058,7 +1077,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": ""
                     }
                 }
             }
@@ -1072,7 +1091,7 @@
                     {
                         "name": "date",
                         "in": "path",
-                        "description": "Month and year formatted as \"yyyy-mm\"",
+                        "description": "Month and year formatted as YYYY-MM",
                         "required": true,
                         "schema": {
                             "type": "string",
@@ -1107,13 +1126,6 @@
                         }
                     },
                     {
-                        "name": "date",
-                        "in": "query",
-                        "schema": {
-                            "type": "date"
-                        }
-                    },
-                    {
                         "name": "page",
                         "in": "query",
                         "description":"Returns page of results. There are 20 results per page and page count starts at 1.",
@@ -1125,7 +1137,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": ""
                     }
                 }
             }
@@ -1139,7 +1151,7 @@
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "UUID 4",
+                        "description": "Record ID (UUID 4)",
                         "required": true,
                         "schema": {
                             "type": "string",
@@ -1149,7 +1161,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": ""
                     }
                 }
             }
@@ -1170,7 +1182,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": ""
                     }
                 }
             }
@@ -1182,7 +1194,7 @@
                 "description": "Returns all announcements.",
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": ""
                     }
                 }
             }
@@ -1193,7 +1205,7 @@
                 "operationId": "announcement-lastest",
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": ""
                     }
                 }
             }
@@ -1221,7 +1233,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": ""
                     }
                 }
             }
@@ -1235,7 +1247,7 @@
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "UUID 4",
+                        "description": "Record ID (UUID 4)",
                         "required": true,
                         "schema": {
                             "type": "string",
@@ -1245,7 +1257,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": ""
                     }
                 }
             }
@@ -1260,13 +1272,17 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": ""
+                            "type": "string",
+                            "enum": [
+                                "atom",
+                                "rss"
+                            ]
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": ""
                     }
                 }
             }
