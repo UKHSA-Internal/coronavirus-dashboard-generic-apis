@@ -14,7 +14,8 @@ FROM nginx/unit:1.23.0-minimal
 
 COPY service/server/*.json      /docker-entrypoint.d/
 
-COPY --from=compiler /opt/build ./opt/app
+COPY --from=compiler /opt/build  /opt/app
+COPY ./assets                    /opt/app/assets/generic
 
 RUN chmod +x /opt/app/generic_api
 
