@@ -8,7 +8,7 @@ import (
 
 var headers = map[string]string{
 	"content-type":              "application/vnd.PHE-COVID19.v1+json; charset=utf-8",
-	"server":                    "PHE API Service (Unix)",
+	"server":                    "PHE API Service v.1 (Unix) - Go",
 	"Strict-Transport-Security": "max-age=31536000; includeSubdomains; preload",
 	"x-frame-options":           "deny",
 	"x-content-type-options":    "nosniff",
