@@ -4,7 +4,7 @@
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/publichealthengland/coronavirus-dashboard-generic-apis.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/publichealthengland/coronavirus-dashboard-generic-apis/alerts/)
 
 APIs that power
-the [map](https://coronavirus.data.gov.uk/details/interactive-map/cases), navigation, hierarchy, relations, banners, and the [What's New](https://coronavirus.data.gov.uk/details/whats-new) page.
+the [map](https://coronavirus.data.gov.uk/details/interactive-map/cases), navigation, hierarchy, relations, banners, syndication feeds, [What's New](https://coronavirus.data.gov.uk/details/whats-new) page, and [Announcements](https://coronavirus.data.gov.uk/details/announcements) page.
 
  
 ## Other repositories
