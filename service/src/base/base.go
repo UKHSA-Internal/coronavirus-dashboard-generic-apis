@@ -23,6 +23,7 @@ func (apiClient *Api) Initialize() {
 
 	apiClient.Router = mux.NewRouter()
 	apiClient.Router.Use(
+		middleware.LogRequest,
 		middleware.HeadersMiddleware,
 		middleware.PrepareTelemetryMiddleware(apiClient.Insight),
 	)
