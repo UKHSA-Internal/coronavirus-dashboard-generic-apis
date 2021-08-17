@@ -3,6 +3,7 @@ package middleware
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -25,12 +26,14 @@ func PrepareTelemetryMiddleware(insightClient appinsights.TelemetryClient) func(
 
 			defer func() {
 
-				r := recover()
+				log.SetFlags(log.LstdFlags)
 
-				if r != nil {
+				rec := recover()
+
+				if rec != nil {
 					var err error
 
-					switch t := r.(type) {
+					switch t := rec.(type) {
 					case string:
 						err = errors.New(t)
 					case error:
@@ -46,12 +49,14 @@ func PrepareTelemetryMiddleware(insightClient appinsights.TelemetryClient) func(
 					insightClient.TrackException(exception)
 
 					status = http.StatusInternalServerError
+					log.Println(err)
 					http.Error(w, "Internal server error", status)
 
 					if isDev {
 						panic(err)
 					}
 
+					return
 				}
 
 			}()
