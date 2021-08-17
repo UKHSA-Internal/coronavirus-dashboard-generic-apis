@@ -22,7 +22,7 @@ var headers = map[string]string{
 
 func HeadersMiddleware(next http.Handler) http.Handler {
 
-	middleware := func(w http.ResponseWriter, r *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		w.Header()
 		for key, value := range headers {
@@ -36,8 +36,6 @@ func HeadersMiddleware(next http.Handler) http.Handler {
 		}
 
 		next.ServeHTTP(w, r)
-	}
-
-	return http.HandlerFunc(middleware)
+	})
 
 } // LoggingMiddleware
