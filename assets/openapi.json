@@ -27,7 +27,10 @@
                 "operationId": "healthcheck-get",
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "OK"
+                    },
+                    "500": {
+                        "description": "Server error"
                     }
                 }
             }
@@ -96,7 +99,7 @@
                     "200": {
                         "description": "Returns ancestors of the area code.",
                         "headers": {
-                            "Content-Type": {
+                            "content-type": {
                                 "required": true,
                                 "schema": {
                                     "enum": [
@@ -105,20 +108,16 @@
                                     "type": "string"
                                 }
                             },
-                            "content-type": {
-                                "required": true,
-                                "schema": {
-                                    "type": "string"
-                                }
-                            },
                             "server": {
                                 "required": true,
+                                "description": "Server application name and version.",
                                 "schema": {
                                     "type": "string"
                                 }
                             },
                             "Strict-Transport-Security": {
                                 "required": true,
+                                "description": "",
                                 "schema": {
                                     "type": "string"
                                 }
@@ -158,6 +157,27 @@
                                 "schema": {
                                     "type": "string"
                                 }
+                            },
+                            "phe-server-loc": {
+                                "required": false,
+                                "description": "Identifier for the specific server responding to the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Request-Context": {
+                                "required": true,
+                                "description": "Correlation ID of the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-website-request": {
+                                "required": true,
+                                "description": "Identifier to determine whether the request originates from the website.",
+                                "schema": {
+                                    "type": "number"
+                                }
                             }
                         },
                         "content": {
@@ -187,7 +207,7 @@
                         }
                     },
                     "400": {
-                        "description": ""
+                        "description": "Bad request. Reason provided in response body where possible."
                     },
                     "404": {
                         "description": "Not found. Likely due to an invalid area type and / or area code."
@@ -205,7 +225,7 @@
                         }
                     },
                     "500": {
-                        "description": ""
+                        "description": "Server error"
                     }
                 }
             }
@@ -289,7 +309,7 @@
                     "200": {
                         "description": "Returns the latest available record for the given Super Output Area (SOA).",
                         "headers": {
-                            "Content-Type": {
+                            "content-type": {
                                 "required": true,
                                 "schema": {
                                     "enum": [
@@ -298,20 +318,16 @@
                                     "type": "string"
                                 }
                             },
-                            "content-type": {
-                                "required": true,
-                                "schema": {
-                                    "type": "string"
-                                }
-                            },
                             "server": {
                                 "required": true,
+                                "description": "Server application name and version.",
                                 "schema": {
                                     "type": "string"
                                 }
                             },
                             "Strict-Transport-Security": {
                                 "required": true,
+                                "description": "",
                                 "schema": {
                                     "type": "string"
                                 }
@@ -351,14 +367,35 @@
                                 "schema": {
                                     "type": "string"
                                 }
+                            },
+                            "phe-server-loc": {
+                                "required": false,
+                                "description": "Identifier for the specific server responding to the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Request-Context": {
+                                "required": true,
+                                "description": "Correlation ID of the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-website-request": {
+                                "required": true,
+                                "description": "Identifier to determine whether the request originates from the website.",
+                                "schema": {
+                                    "type": "number"
+                                }
                             }
                         }
                     },
                     "400": {
-                        "description": "Not found. Likely due to an invalid area type and / or area code."
+                        "description": "Bad request. Reason provided in response body where possible."
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not found. Likely due to an invalid area type and / or area code."
                     },
                     "429": {
                         "description": "Too many requests - request has been throttled.",
@@ -373,7 +410,7 @@
                         }
                     },
                     "500": {
-                        "description": ""
+                        "description": "Server error"
                     }
                 }
             }
@@ -432,7 +469,7 @@
                     "200": {
                         "description": "Returns all areas for the given area type",
                         "headers": {
-                            "Content-Type": {
+                            "content-type": {
                                 "required": true,
                                 "schema": {
                                     "enum": [
@@ -441,20 +478,16 @@
                                     "type": "string"
                                 }
                             },
-                            "content-type": {
-                                "required": true,
-                                "schema": {
-                                    "type": "string"
-                                }
-                            },
                             "server": {
                                 "required": true,
+                                "description": "Server application name and version.",
                                 "schema": {
                                     "type": "string"
                                 }
                             },
                             "Strict-Transport-Security": {
                                 "required": true,
+                                "description": "",
                                 "schema": {
                                     "type": "string"
                                 }
@@ -494,6 +527,27 @@
                                 "schema": {
                                     "type": "string"
                                 }
+                            },
+                            "phe-server-loc": {
+                                "required": false,
+                                "description": "Identifier for the specific server responding to the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Request-Context": {
+                                "required": true,
+                                "description": "Correlation ID of the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-website-request": {
+                                "required": true,
+                                "description": "Identifier to determine whether the request originates from the website.",
+                                "schema": {
+                                    "type": "number"
+                                }
                             }
                         },
                         "content": {
@@ -523,7 +577,7 @@
                         }
                     },
                     "400": {
-                        "description": ""
+                        "description": "Bad request. Reason provided in response body where possible."
                     },
                     "404": {
                         "description": "Not found. Likely due to an invalid area type."
@@ -541,7 +595,7 @@
                         }
                     },
                     "500": {
-                        "description": ""
+                        "description": "Server error"
                     }
                 }
             }
@@ -597,7 +651,7 @@
                     "200": {
                         "description": "Returns the areas for the specified category (page).",
                         "headers": {
-                            "Content-Type": {
+                            "content-type": {
                                 "required": true,
                                 "schema": {
                                     "enum": [
@@ -606,20 +660,16 @@
                                     "type": "string"
                                 }
                             },
-                            "content-type": {
-                                "required": true,
-                                "schema": {
-                                    "type": "string"
-                                }
-                            },
                             "server": {
                                 "required": true,
+                                "description": "Server application name and version.",
                                 "schema": {
                                     "type": "string"
                                 }
                             },
                             "Strict-Transport-Security": {
                                 "required": true,
+                                "description": "",
                                 "schema": {
                                     "type": "string"
                                 }
@@ -659,14 +709,35 @@
                                 "schema": {
                                     "type": "string"
                                 }
+                            },
+                            "phe-server-loc": {
+                                "required": false,
+                                "description": "Identifier for the specific server responding to the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Request-Context": {
+                                "required": true,
+                                "description": "Correlation ID of the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-website-request": {
+                                "required": true,
+                                "description": "Identifier to determine whether the request originates from the website.",
+                                "schema": {
+                                    "type": "number"
+                                }
                             }
                         }
                     },
                     "400": {
-                        "description": "Not found. Likely due to an invalid category (page name)."
+                        "description": "Bad request. Reason provided in response body where possible."
                     },
                     "404": {
-                        "description": ""
+                        "description": "Not found. Likely due to an invalid category (page name)."
                     },
                     "429": {
                         "description": "Too many requests - request has been throttled.",
@@ -681,7 +752,7 @@
                         }
                     },
                     "500": {
-                        "description": ""
+                        "description": "Server error"
                     }
                 }
             }
@@ -746,7 +817,7 @@
                     "200": {
                         "description": "Returns all areas for the specified category / area type combination.",
                         "headers": {
-                            "Content-Type": {
+                            "content-type": {
                                 "required": true,
                                 "schema": {
                                     "enum": [
@@ -755,20 +826,16 @@
                                     "type": "string"
                                 }
                             },
-                            "content-type": {
-                                "required": true,
-                                "schema": {
-                                    "type": "string"
-                                }
-                            },
                             "server": {
                                 "required": true,
+                                "description": "Server application name and version.",
                                 "schema": {
                                     "type": "string"
                                 }
                             },
                             "Strict-Transport-Security": {
                                 "required": true,
+                                "description": "",
                                 "schema": {
                                     "type": "string"
                                 }
@@ -808,11 +875,32 @@
                                 "schema": {
                                     "type": "string"
                                 }
+                            },
+                            "phe-server-loc": {
+                                "required": false,
+                                "description": "Identifier for the specific server responding to the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Request-Context": {
+                                "required": true,
+                                "description": "Correlation ID of the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-website-request": {
+                                "required": true,
+                                "description": "Identifier to determine whether the request originates from the website.",
+                                "schema": {
+                                    "type": "number"
+                                }
                             }
                         }
                     },
                     "400": {
-                        "description": ""
+                        "description": "Bad request. Reason provided in response body where possible."
                     },
                     "404": {
                         "description": "Not found. Likely due to an invalid category and / or area type."
@@ -830,7 +918,7 @@
                         }
                     },
                     "500": {
-                        "description": ""
+                        "description": "Server error"
                     }
                 }
             }
@@ -873,11 +961,126 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "application/json"
+                            ],
+                            "type": "string",
+                            "default": "application/json"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "",
+                        "headers": {
+                            "content-type": {
+                                "required": true,
+                                "schema": {
+                                    "enum": [
+                                        "application/vnd.PHE-COVID19.v1+json; charset=utf-8"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "server": {
+                                "required": true,
+                                "description": "Server application name and version.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Strict-Transport-Security": {
+                                "required": true,
+                                "description": "",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-frame-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-content-type-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-xss-protection": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "referrer-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-security-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-phe-media-type": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-server-loc": {
+                                "required": false,
+                                "description": "Identifier for the specific server responding to the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Request-Context": {
+                                "required": true,
+                                "description": "Correlation ID of the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-website-request": {
+                                "required": true,
+                                "description": "Identifier to determine whether the request originates from the website.",
+                                "schema": {
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request. Reason provided in response body where possible."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    },
+                    "429": {
+                        "description": "Too many requests - request has been throttled.",
+                        "headers": {
+                            "retry-after": {
+                                "description": "Time in seconds to wait before resubmitting the request.",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error"
                     }
                 }
             }
@@ -912,11 +1115,126 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "application/json"
+                            ],
+                            "type": "string",
+                            "default": "application/json"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "",
+                        "headers": {
+                            "content-type": {
+                                "required": true,
+                                "schema": {
+                                    "enum": [
+                                        "application/vnd.PHE-COVID19.v1+json; charset=utf-8"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "server": {
+                                "required": true,
+                                "description": "Server application name and version.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Strict-Transport-Security": {
+                                "required": true,
+                                "description": "",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-frame-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-content-type-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-xss-protection": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "referrer-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-security-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-phe-media-type": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-server-loc": {
+                                "required": false,
+                                "description": "Identifier for the specific server responding to the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Request-Context": {
+                                "required": true,
+                                "description": "Correlation ID of the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-website-request": {
+                                "required": true,
+                                "description": "Identifier to determine whether the request originates from the website.",
+                                "schema": {
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request. Reason provided in response body where possible."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    },
+                    "429": {
+                        "description": "Too many requests - request has been throttled.",
+                        "headers": {
+                            "retry-after": {
+                                "description": "Time in seconds to wait before resubmitting the request.",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error"
                     }
                 }
             }
@@ -933,11 +1251,126 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "application/json"
+                            ],
+                            "type": "string",
+                            "default": "application/json"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "",
+                        "headers": {
+                            "content-type": {
+                                "required": true,
+                                "schema": {
+                                    "enum": [
+                                        "application/vnd.PHE-COVID19.v1+json; charset=utf-8"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "server": {
+                                "required": true,
+                                "description": "Server application name and version.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Strict-Transport-Security": {
+                                "required": true,
+                                "description": "",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-frame-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-content-type-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-xss-protection": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "referrer-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-security-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-phe-media-type": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-server-loc": {
+                                "required": false,
+                                "description": "Identifier for the specific server responding to the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Request-Context": {
+                                "required": true,
+                                "description": "Correlation ID of the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-website-request": {
+                                "required": true,
+                                "description": "Identifier to determine whether the request originates from the website.",
+                                "schema": {
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request. Reason provided in response body where possible."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    },
+                    "429": {
+                        "description": "Too many requests - request has been throttled.",
+                        "headers": {
+                            "retry-after": {
+                                "description": "Time in seconds to wait before resubmitting the request.",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error"
                     }
                 }
             }
@@ -959,11 +1392,126 @@
                             ],
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "application/json"
+                            ],
+                            "type": "string",
+                            "default": "application/json"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "",
+                        "headers": {
+                            "content-type": {
+                                "required": true,
+                                "schema": {
+                                    "enum": [
+                                        "application/vnd.PHE-COVID19.v1+json; charset=utf-8"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "server": {
+                                "required": true,
+                                "description": "Server application name and version.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Strict-Transport-Security": {
+                                "required": true,
+                                "description": "",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-frame-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-content-type-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-xss-protection": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "referrer-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-security-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-phe-media-type": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-server-loc": {
+                                "required": false,
+                                "description": "Identifier for the specific server responding to the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Request-Context": {
+                                "required": true,
+                                "description": "Correlation ID of the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-website-request": {
+                                "required": true,
+                                "description": "Identifier to determine whether the request originates from the website.",
+                                "schema": {
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request. Reason provided in response body where possible."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    },
+                    "429": {
+                        "description": "Too many requests - request has been throttled.",
+                        "headers": {
+                            "retry-after": {
+                                "description": "Time in seconds to wait before resubmitting the request.",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error"
                     }
                 }
             }
@@ -1009,11 +1557,126 @@
                             "type": "integer",
                             "example": 1
                         }
-                    }  
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "application/json"
+                            ],
+                            "type": "string",
+                            "default": "application/json"
+                        }
+                    }
                 ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "",
+                        "headers": {
+                            "content-type": {
+                                "required": true,
+                                "schema": {
+                                    "enum": [
+                                        "application/vnd.PHE-COVID19.v1+json; charset=utf-8"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "server": {
+                                "required": true,
+                                "description": "Server application name and version.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Strict-Transport-Security": {
+                                "required": true,
+                                "description": "",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-frame-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-content-type-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-xss-protection": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "referrer-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-security-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-phe-media-type": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-server-loc": {
+                                "required": false,
+                                "description": "Identifier for the specific server responding to the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Request-Context": {
+                                "required": true,
+                                "description": "Correlation ID of the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-website-request": {
+                                "required": true,
+                                "description": "Identifier to determine whether the request originates from the website.",
+                                "schema": {
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request. Reason provided in response body where possible."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    },
+                    "429": {
+                        "description": "Too many requests - request has been throttled.",
+                        "headers": {
+                            "retry-after": {
+                                "description": "Time in seconds to wait before resubmitting the request.",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error"
                     }
                 }
             }
@@ -1073,11 +1736,126 @@
                             "type": "string" ,
                             "example": "United Kingdom"
                         }
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "application/json"
+                            ],
+                            "type": "string",
+                            "default": "application/json"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "",
+                        "headers": {
+                            "content-type": {
+                                "required": true,
+                                "schema": {
+                                    "enum": [
+                                        "application/vnd.PHE-COVID19.v1+json; charset=utf-8"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "server": {
+                                "required": true,
+                                "description": "Server application name and version.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Strict-Transport-Security": {
+                                "required": true,
+                                "description": "",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-frame-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-content-type-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-xss-protection": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "referrer-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-security-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-phe-media-type": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-server-loc": {
+                                "required": false,
+                                "description": "Identifier for the specific server responding to the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Request-Context": {
+                                "required": true,
+                                "description": "Correlation ID of the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-website-request": {
+                                "required": true,
+                                "description": "Identifier to determine whether the request originates from the website.",
+                                "schema": {
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request. Reason provided in response body where possible."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    },
+                    "429": {
+                        "description": "Too many requests - request has been throttled.",
+                        "headers": {
+                            "retry-after": {
+                                "description": "Time in seconds to wait before resubmitting the request.",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error"
                     }
                 }
             }
@@ -1133,11 +1911,126 @@
                             "type": "integer",
                             "example": 1
                         }
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "application/json"
+                            ],
+                            "type": "string",
+                            "default": "application/json"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "",
+                        "headers": {
+                            "content-type": {
+                                "required": true,
+                                "schema": {
+                                    "enum": [
+                                        "application/vnd.PHE-COVID19.v1+json; charset=utf-8"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "server": {
+                                "required": true,
+                                "description": "Server application name and version.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Strict-Transport-Security": {
+                                "required": true,
+                                "description": "",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-frame-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-content-type-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-xss-protection": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "referrer-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-security-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-phe-media-type": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-server-loc": {
+                                "required": false,
+                                "description": "Identifier for the specific server responding to the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Request-Context": {
+                                "required": true,
+                                "description": "Correlation ID of the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-website-request": {
+                                "required": true,
+                                "description": "Identifier to determine whether the request originates from the website.",
+                                "schema": {
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request. Reason provided in response body where possible."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    },
+                    "429": {
+                        "description": "Too many requests - request has been throttled.",
+                        "headers": {
+                            "retry-after": {
+                                "description": "Time in seconds to wait before resubmitting the request.",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error"
                     }
                 }
             }
@@ -1157,11 +2050,126 @@
                             "type": "string",
                             "example": "d4a1dd7a-d070-4515-a106-7c9e7c9576e1"
                         }
-                    }  
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "application/json"
+                            ],
+                            "type": "string",
+                            "default": "application/json"
+                        }
+                    }
                 ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "",
+                        "headers": {
+                            "content-type": {
+                                "required": true,
+                                "schema": {
+                                    "enum": [
+                                        "application/vnd.PHE-COVID19.v1+json; charset=utf-8"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "server": {
+                                "required": true,
+                                "description": "Server application name and version.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Strict-Transport-Security": {
+                                "required": true,
+                                "description": "",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-frame-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-content-type-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-xss-protection": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "referrer-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-security-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-phe-media-type": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-server-loc": {
+                                "required": false,
+                                "description": "Identifier for the specific server responding to the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Request-Context": {
+                                "required": true,
+                                "description": "Correlation ID of the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-website-request": {
+                                "required": true,
+                                "description": "Identifier to determine whether the request originates from the website.",
+                                "schema": {
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request. Reason provided in response body where possible."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    },
+                    "429": {
+                        "description": "Too many requests - request has been throttled.",
+                        "headers": {
+                            "retry-after": {
+                                "description": "Time in seconds to wait before resubmitting the request.",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error"
                     }
                 }
             }
@@ -1178,11 +2186,126 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "application/json"
+                            ],
+                            "type": "string",
+                            "default": "application/json"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "",
+                        "headers": {
+                            "content-type": {
+                                "required": true,
+                                "schema": {
+                                    "enum": [
+                                        "application/vnd.PHE-COVID19.v1+json; charset=utf-8"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "server": {
+                                "required": true,
+                                "description": "Server application name and version.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Strict-Transport-Security": {
+                                "required": true,
+                                "description": "",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-frame-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-content-type-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-xss-protection": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "referrer-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-security-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-phe-media-type": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-server-loc": {
+                                "required": false,
+                                "description": "Identifier for the specific server responding to the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Request-Context": {
+                                "required": true,
+                                "description": "Correlation ID of the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-website-request": {
+                                "required": true,
+                                "description": "Identifier to determine whether the request originates from the website.",
+                                "schema": {
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request. Reason provided in response body where possible."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    },
+                    "429": {
+                        "description": "Too many requests - request has been throttled.",
+                        "headers": {
+                            "retry-after": {
+                                "description": "Time in seconds to wait before resubmitting the request.",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error"
                     }
                 }
             }
@@ -1192,20 +2315,254 @@
                 "summary": "Announcements",
                 "operationId": "announcements",
                 "description": "Returns all announcements.",
+                "parameters": [
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "application/json"
+                            ],
+                            "type": "string",
+                            "default": "application/json"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "",
+                        "headers": {
+                            "content-type": {
+                                "required": true,
+                                "schema": {
+                                    "enum": [
+                                        "application/vnd.PHE-COVID19.v1+json; charset=utf-8"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "server": {
+                                "required": true,
+                                "description": "Server application name and version.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Strict-Transport-Security": {
+                                "required": true,
+                                "description": "",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-frame-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-content-type-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-xss-protection": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "referrer-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-security-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-phe-media-type": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-server-loc": {
+                                "required": false,
+                                "description": "Identifier for the specific server responding to the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Request-Context": {
+                                "required": true,
+                                "description": "Correlation ID of the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-website-request": {
+                                "required": true,
+                                "description": "Identifier to determine whether the request originates from the website.",
+                                "schema": {
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request. Reason provided in response body where possible."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    },
+                    "429": {
+                        "description": "Too many requests - request has been throttled.",
+                        "headers": {
+                            "retry-after": {
+                                "description": "Time in seconds to wait before resubmitting the request.",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error"
                     }
                 }
             }
         },
         "/announcements/latest": {
             "get": {
-                "summary": "Announcement - Lastest",
-                "operationId": "announcement-lastest",
+                "summary": "Announcement - Latest",
+                "operationId": "announcement-latest",
+                "parameters": [
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "application/json"
+                            ],
+                            "type": "string",
+                            "default": "application/json"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "",
+                        "headers": {
+                            "content-type": {
+                                "required": true,
+                                "schema": {
+                                    "enum": [
+                                        "application/vnd.PHE-COVID19.v1+json; charset=utf-8"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "server": {
+                                "required": true,
+                                "description": "Server application name and version.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Strict-Transport-Security": {
+                                "required": true,
+                                "description": "",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-frame-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-content-type-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-xss-protection": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "referrer-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-security-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-phe-media-type": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-server-loc": {
+                                "required": false,
+                                "description": "Identifier for the specific server responding to the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Request-Context": {
+                                "required": true,
+                                "description": "Correlation ID of the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-website-request": {
+                                "required": true,
+                                "description": "Identifier to determine whether the request originates from the website.",
+                                "schema": {
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request. Reason provided in response body where possible."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    },
+                    "429": {
+                        "description": "Too many requests - request has been throttled.",
+                        "headers": {
+                            "retry-after": {
+                                "description": "Time in seconds to wait before resubmitting the request.",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error"
                     }
                 }
             }
@@ -1229,11 +2586,132 @@
                             "type": "string",
                             "default": "atom"
                         }
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "application/xml",
+                                "text/xml",
+                                "application/atom+xml",
+                                "application/rss+xml"
+                            ],
+                            "type": "string",
+                            "default": "application/xml"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "",
+                        "headers": {
+                            "content-type": {
+                                "required": true,
+                                "schema": {
+                                    "enum": [
+                                        "application/xml",
+                                        "text/xml",
+                                        "application/atom+xml",
+                                        "application/rss+xml"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "server": {
+                                "required": true,
+                                "description": "Server application name and version.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Strict-Transport-Security": {
+                                "required": true,
+                                "description": "",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-frame-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-content-type-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-xss-protection": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "referrer-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-security-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-phe-media-type": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-server-loc": {
+                                "required": false,
+                                "description": "Identifier for the specific server responding to the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Request-Context": {
+                                "required": true,
+                                "description": "Correlation ID of the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-website-request": {
+                                "required": true,
+                                "description": "Identifier to determine whether the request originates from the website.",
+                                "schema": {
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request. Reason provided in response body where possible."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    },
+                    "429": {
+                        "description": "Too many requests - request has been throttled.",
+                        "headers": {
+                            "retry-after": {
+                                "description": "Time in seconds to wait before resubmitting the request.",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error"
                     }
                 }
             }
@@ -1253,11 +2731,126 @@
                             "type": "string",
                             "example": "e6817475-dd68-4153-859c-91bc209421e6"
                         }
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "application/json"
+                            ],
+                            "type": "string",
+                            "default": "application/json"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "",
+                        "headers": {
+                            "content-type": {
+                                "required": true,
+                                "schema": {
+                                    "enum": [
+                                        "application/vnd.PHE-COVID19.v1+json; charset=utf-8"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "server": {
+                                "required": true,
+                                "description": "Server application name and version.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Strict-Transport-Security": {
+                                "required": true,
+                                "description": "",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-frame-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-content-type-options": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-xss-protection": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "referrer-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "content-security-policy": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "x-phe-media-type": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-server-loc": {
+                                "required": false,
+                                "description": "Identifier for the specific server responding to the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Request-Context": {
+                                "required": true,
+                                "description": "Correlation ID of the request.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "phe-website-request": {
+                                "required": true,
+                                "description": "Identifier to determine whether the request originates from the website.",
+                                "schema": {
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request. Reason provided in response body where possible."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    },
+                    "429": {
+                        "description": "Too many requests - request has been throttled.",
+                        "headers": {
+                            "retry-after": {
+                                "description": "Time in seconds to wait before resubmitting the request.",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error"
                     }
                 }
             }
@@ -1278,11 +2871,55 @@
                                 "rss"
                             ]
                         }
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "enum": [
+                                "text/xsl"
+                            ],
+                            "type": "string",
+                            "default": "text/xsl"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "",
+                        "headers": {
+                            "content-type": {
+                                "required": true,
+                                "schema": {
+                                    "enum": [
+                                        "text/xsl"
+                                    ],
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request. Reason provided in response body where possible."
+                    },
+                    "404": {
+                        "description": "Not found."
+                    },
+                    "429": {
+                        "description": "Too many requests - request has been throttled.",
+                        "headers": {
+                            "retry-after": {
+                                "description": "Time in seconds to wait before resubmitting the request.",
+                                "required": true,
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error"
                     }
                 }
             }
@@ -1361,7 +2998,7 @@
                     }
                 }
             },
-            "Page areas": {
+            "page-areas": {
                 "type": "array",
                 "items": {
                     "required": [
@@ -1383,7 +3020,7 @@
                     }
                 }
             },
-            "Page areas with type": {
+            "pge-areas-with-type": {
                 "type": "array",
                 "items": {
                     "required": [
