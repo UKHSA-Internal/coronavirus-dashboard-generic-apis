@@ -70,6 +70,7 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 		response, err := conf.fromDatabase(&pathVars)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
 		}
 
 		if len(response) == 0 {
