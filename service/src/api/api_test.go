@@ -1275,3 +1275,42 @@ func TestAnnouncementItem(t *testing.T) {
 	assert.JsonObjResponseMatchExpected(t, expected, response.Body.Bytes())
 
 } // TestAnnouncementItem
+
+func TestMetricDoc(t *testing.T) {
+
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.Database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
+	api.Initialize()
+	defer api.Database.CloseConnection()
+
+	url, err := api.Router.
+		Get("metric_doc").
+		URL("metric", "newCasesBySpecimenDate")
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
+	response := executeRequest(req)
+
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
+
+	data := make([]map[string]string, 0)
+	if err = json.Unmarshal(response.Body.Bytes(), &data); err != nil {
+		t.Error(err)
+	}
+
+	for _, item := range data {
+		assert.Equal(t, "metrics match", "newCasesBySpecimenDate", item["metric"])
+	}
+
+} // TestAnnouncementItem
