@@ -2316,13 +2316,20 @@
       "get": {
         "summary": "Change logs components",
         "operationId": "60f5678913d5ce28b7fbadcd",
+        "description": "Returns valid components for the query parameters of the change logs.",
         "parameters": [
           {
             "name": "component",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "enum": [
+                "titles",
+                "types",
+                "dates"
+              ],
+              "type": "string",
+              "example": "types"
             }
           },
           {
@@ -2420,6 +2427,15 @@
                 "description": "Identifier to determine whether the request originates from the website.",
                 "schema": {
                   "type": "number"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Response for types": {
+                    "value": "[{\"tag\":\"update\"},{\"tag\":\"other\"},{\"tag\":\"new metric\"},{\"tag\":\"new feature\"},{\"tag\":\"new content\"},{\"tag\":\"data issue\"},{\"tag\":\"change to metric\"}]"
+                  }
                 }
               }
             }
