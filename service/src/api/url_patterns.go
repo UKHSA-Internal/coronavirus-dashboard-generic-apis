@@ -7,6 +7,7 @@ import (
 	"generic_apis/apps/code"
 	"generic_apis/apps/log_banners"
 	"generic_apis/apps/metric_availability"
+	"generic_apis/apps/metric_docs"
 	"generic_apis/apps/metric_props"
 	"generic_apis/apps/metric_search"
 	"generic_apis/apps/page_area"
@@ -164,5 +165,11 @@ var UrlPatterns = &[]utils.RouteEntry{
 		`/generic/announcements/latest`,
 		[]string{},
 		announcements.Handler,
+	},
+	{
+		"metric_doc",
+		`/generic/metrics/doc/{metric:[a-zA-Z2860\s]{2,120}}`,
+		[]string{},
+		metric_docs.Handler,
 	},
 } // routes
