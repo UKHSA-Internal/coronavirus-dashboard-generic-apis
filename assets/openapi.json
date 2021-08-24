@@ -51,7 +51,7 @@
     "/code/{area_type}/{area_code}": {
       "get": {
         "summary": "Code",
-        "description": "Given the an area type / area code combination, produces the ancestors of the area - i.e. larger, more general areas of which the requested area is a member.",
+        "description": "Given an area type / area code combination, produces the ancestors of the area - i.e. larger, more general areas of which the requested area is a member.",
         "operationId": "code-get",
         "parameters": [
           {
