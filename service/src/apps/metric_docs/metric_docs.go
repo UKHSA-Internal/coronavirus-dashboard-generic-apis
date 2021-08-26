@@ -117,8 +117,6 @@ func (conf *handler) fromDatabase(urlParams *map[string]string) (*Payload, error
 
 	response.Documentation = documentations
 
-	fmt.Println(fmt.Sprintf("%v", response))
-
 	return response, nil
 
 } // fromDatabase
