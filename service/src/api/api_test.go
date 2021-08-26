@@ -1304,13 +1304,11 @@ func TestMetricDoc(t *testing.T) {
 
 	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
 
-	data := make([]map[string]string, 0)
+	data := make(map[string]interface{}, 0)
 	if err = json.Unmarshal(response.Body.Bytes(), &data); err != nil {
 		t.Error(err)
 	}
 
-	for _, item := range data {
-		assert.Equal(t, "metrics match", "newCasesBySpecimenDate", item["metric"])
-	}
+	assert.Equal(t, "metrics match", "newCasesBySpecimenDate", data["metric"].(string))
 
 } // TestAnnouncementItem
