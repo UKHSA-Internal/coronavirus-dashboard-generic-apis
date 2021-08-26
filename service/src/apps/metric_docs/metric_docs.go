@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"generic_apis/apps/utils"
 	"generic_apis/db"
@@ -19,7 +20,26 @@ type handler struct {
 	traceparent string
 }
 
-func (conf *handler) fromDatabase(urlParams *map[string]string) ([]db.ResultType, error) {
+type DocumentationPayload struct {
+	LastModified time.Time `json:"last_modified"`
+	Body         string    `json:"body"`
+}
+
+type Documentation struct {
+	Abstract    *DocumentationPayload `json:"abstract,omitempty"`
+	Description *DocumentationPayload `json:"description,omitempty"`
+	Methodology *DocumentationPayload `json:"methodology,omitempty"`
+	Notice      *DocumentationPayload `json:"notice,omitempty"`
+	Source      *DocumentationPayload `json:"source,omitempty"`
+}
+
+type Payload struct {
+	MetricName    string         `json:"metric_name"`
+	Metric        string         `json:"metric"`
+	Documentation *Documentation `json:"documentation"`
+}
+
+func (conf *handler) fromDatabase(urlParams *map[string]string) (*Payload, error) {
 
 	var (
 		params []interface{}
@@ -45,7 +65,57 @@ func (conf *handler) fromDatabase(urlParams *map[string]string) ([]db.ResultType
 		return nil, fmt.Errorf("failed to retrieve data")
 	}
 
-	return res, nil
+	response := &Payload{}
+
+	if len(res) == 0 {
+		return response, nil
+	}
+
+	response.MetricName = res[0]["metric_name"].(string)
+	response.Metric = res[0]["metric"].(string)
+
+	documentations := &Documentation{}
+
+	for _, item := range res {
+		switch item["asset_type"].(string) {
+		case "abstract":
+			documentations.Abstract = &DocumentationPayload{
+				LastModified: item["last_modified"].(time.Time),
+				Body:         item["body"].(string),
+			}
+			break
+		case "description":
+			documentations.Description = &DocumentationPayload{
+				LastModified: item["last_modified"].(time.Time),
+				Body:         item["body"].(string),
+			}
+			break
+		case "methodology":
+			documentations.Methodology = &DocumentationPayload{
+				LastModified: item["last_modified"].(time.Time),
+				Body:         item["body"].(string),
+			}
+			break
+		case "notice":
+			documentations.Notice = &DocumentationPayload{
+				LastModified: item["last_modified"].(time.Time),
+				Body:         item["body"].(string),
+			}
+			break
+		case "source":
+			documentations.Source = &DocumentationPayload{
+				LastModified: item["last_modified"].(time.Time),
+				Body:         item["body"].(string),
+			}
+			break
+		default:
+			continue
+		}
+	}
+
+	response.Documentation = documentations
+
+	return response, nil
 
 } // fromDatabase
 
@@ -75,7 +145,7 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 			return
 		}
 
-		if len(response) == 0 {
+		if response.Metric == "" {
 			http.NotFound(w, r)
 			return
 		}
