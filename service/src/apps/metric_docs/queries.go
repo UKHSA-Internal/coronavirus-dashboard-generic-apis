@@ -1,8 +1,9 @@
 package metric_docs
 
 const mainQuery = `
-SELECT metric,
-	   asset_type,
+SELECT MAX(metric_name) AS metric_name,
+       metric,
+	   LOWER(asset_type) AS asset_type,
        STRING_AGG(ma.body, '\n\r\n\r' ORDER BY "order") AS body,
        MAX(ma.last_modified)::TIMESTAMP WITHOUT TIME ZONE AS last_modified
 FROM covid19.metric_reference AS mr
