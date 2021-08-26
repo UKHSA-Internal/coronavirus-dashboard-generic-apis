@@ -25,6 +25,14 @@ type DocumentationPayload struct {
 	Body         string    `json:"body"`
 }
 
+type Log struct {
+	Id      *string `json:"id"`
+	Heading *string `json:"heading"`
+	Date    *string `json:"date"`
+	Expiry  *string `json:"expiry"`
+	Type    *string `json:"type"`
+}
+
 type Documentation struct {
 	Abstract    *DocumentationPayload `json:"abstract,omitempty"`
 	Description *DocumentationPayload `json:"description,omitempty"`
@@ -37,7 +45,15 @@ type Payload struct {
 	MetricName    string         `json:"metric_name"`
 	Metric        string         `json:"metric"`
 	Documentation *Documentation `json:"documentation"`
-	Logs          []interface{}  `json:"logs"`
+	Logs          []*Log         `json:"logs"`
+}
+
+func stringOrNil(value interface{}) *string {
+	if value == nil {
+		return nil
+	}
+	val := value.(string)
+	return &val
 }
 
 func (conf *handler) fromDatabase(urlParams *map[string]string) (*Payload, error) {
@@ -74,9 +90,39 @@ func (conf *handler) fromDatabase(urlParams *map[string]string) (*Payload, error
 
 	response.MetricName = res[0]["metric_name"].(string)
 	response.Metric = res[0]["metric"].(string)
-	response.Logs = res[0]["logs"].([]interface{})
+	logs := make([]*Log, 0)
 
 	documentations := &Documentation{}
+
+	for _, item := range res[0]["logs"].([]interface{}) {
+		logItem := &Log{}
+		for key, value := range item.(map[string]interface{}) {
+			val := stringOrNil(value)
+
+			switch key {
+			case "id":
+				logItem.Id = val
+				break
+			case "heading":
+				logItem.Heading = val
+				break
+			case "date":
+				logItem.Date = val
+				break
+			case "expiry":
+				logItem.Expiry = val
+				break
+			case "type":
+				logItem.Type = val
+			default:
+				continue
+			}
+		}
+
+		logs = append(logs, logItem)
+	}
+
+	response.Logs = logs
 
 	for _, item := range res {
 		switch item["asset_type"].(string) {
