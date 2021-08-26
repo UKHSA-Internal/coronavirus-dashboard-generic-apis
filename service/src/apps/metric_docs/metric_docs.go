@@ -37,6 +37,7 @@ type Payload struct {
 	MetricName    string         `json:"metric_name"`
 	Metric        string         `json:"metric"`
 	Documentation *Documentation `json:"documentation"`
+	Logs          []interface{}  `json:"logs"`
 }
 
 func (conf *handler) fromDatabase(urlParams *map[string]string) (*Payload, error) {
@@ -73,6 +74,7 @@ func (conf *handler) fromDatabase(urlParams *map[string]string) (*Payload, error
 
 	response.MetricName = res[0]["metric_name"].(string)
 	response.Metric = res[0]["metric"].(string)
+	response.Logs = res[0]["logs"].([]interface{})
 
 	documentations := &Documentation{}
 
@@ -114,6 +116,8 @@ func (conf *handler) fromDatabase(urlParams *map[string]string) (*Payload, error
 	}
 
 	response.Documentation = documentations
+
+	fmt.Println(fmt.Sprintf("%v", response))
 
 	return response, nil
 
