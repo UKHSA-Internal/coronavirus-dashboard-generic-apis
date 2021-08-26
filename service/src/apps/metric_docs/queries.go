@@ -12,14 +12,16 @@ FROM covid19.metric_reference AS mr
   LEFT JOIN covid19.metric_asset           AS ma   ON ma.id = matm.asset_id
   LEFT JOIN covid19.change_log_to_metric   AS cltm ON mr.metric = cltm.metric_id
   LEFT JOIN (
-      SELECT id,
+      SELECT cl_inner.id,
 			 JSONB_BUILD_OBJECT(
-			 	 'id', id::TEXT,
+			 	 'id', cl_inner.id::TEXT,
+				 'heading', heading,
 				 'date', date::TEXT,
 				 'expiry', expiry::TEXT,
-				 'heading', heading
+				 'type', tag
 			 ) AS payload
-      FROM covid19.change_log
+      FROM covid19.change_log AS cl_inner
+      LEFT JOIN covid19.tag AS t ON t.id = cl_inner.type_id
     ) AS cl   ON cltm.log_id = cl.id
 WHERE mr.metric ILIKE ${metric_token}
 GROUP BY metric, asset_type;
