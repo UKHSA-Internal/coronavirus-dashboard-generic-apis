@@ -4,7 +4,7 @@ const mainQuery = `
 SELECT MAX(metric_name) AS metric_name,
        metric,
 	   LOWER(asset_type) AS asset_type,
-       STRING_AGG(ma.body, E'\n\n' ORDER BY "order") AS body,
+       STRING_AGG(DISTINCT ma.body, E'\n\n' ORDER BY "order") AS body,
        MAX(ma.last_modified)::TIMESTAMP WITHOUT TIME ZONE AS last_modified,
        JSONB_AGG(DISTINCT cl.payload::JSONB) AS logs
 FROM covid19.metric_reference AS mr
