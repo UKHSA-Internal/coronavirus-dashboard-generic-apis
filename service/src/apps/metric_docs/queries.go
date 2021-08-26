@@ -24,7 +24,7 @@ FROM (
 				 JSONB_BUILD_OBJECT(
 					 'id', cl_inner.id::TEXT,
 					 'heading', heading,
-					 'date', date::TEXT,
+					 'date', cl_inner.date::TEXT,
 					 'expiry', expiry::TEXT,
 					 'type', tag
 				 ) AS payload
