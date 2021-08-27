@@ -44,8 +44,10 @@ type Documentation struct {
 type Payload struct {
 	MetricName    string         `json:"metric_name"`
 	Metric        string         `json:"metric"`
+	Category      string         `json:"category"`
 	Documentation *Documentation `json:"documentation"`
 	Logs          []*Log         `json:"logs"`
+	Tags          []string       `json:"tags"`
 }
 
 func stringOrNil(value interface{}) *string {
@@ -90,11 +92,12 @@ func (conf *handler) fromDatabase(urlParams *map[string]string) (*Payload, error
 
 	response.MetricName = res[0]["metric_name"].(string)
 	response.Metric = res[0]["metric"].(string)
-	logs := make([]*Log, 0)
-
+	response.Category = res[0]["category"].(string)
+	logs := make([]*Log, len(res[0]["logs"].([]interface{})))
+	response.Tags = strings.Split(res[0]["tags"].(string), ",")
 	documentations := &Documentation{}
 
-	for _, item := range res[0]["logs"].([]interface{}) {
+	for index, item := range res[0]["logs"].([]interface{}) {
 		logItem := &Log{}
 		for key, value := range item.(map[string]interface{}) {
 			val := stringOrNil(value)
@@ -119,7 +122,7 @@ func (conf *handler) fromDatabase(urlParams *map[string]string) (*Payload, error
 			}
 		}
 
-		logs = append(logs, logItem)
+		logs[index] = logItem
 	}
 
 	response.Logs = logs
