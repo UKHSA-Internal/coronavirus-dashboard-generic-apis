@@ -6,6 +6,7 @@
 APIs that power
 the [map](https://coronavirus.data.gov.uk/details/interactive-map/cases), navigation, hierarchy, relations, banners, syndication feeds, [What's New](https://coronavirus.data.gov.uk/details/whats-new) page, and [Announcements](https://coronavirus.data.gov.uk/details/announcements) page.
 
+See the [documentation (Swagger)](https://coronavirus.data.gov.uk/details/developers-guide/generic-api) for Generic APIs.
  
 ## Other repositories
 
