@@ -1311,4 +1311,45 @@ func TestMetricDoc(t *testing.T) {
 
 	assert.Equal(t, "metrics match", "newCasesBySpecimenDate", data["metric"].(string))
 
-} // TestAnnouncementItem
+} // TestMetricDoc
+
+func TestMetricAreas(t *testing.T) {
+
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.Database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
+	api.Initialize()
+	defer api.Database.CloseConnection()
+
+	expected := []map[string]interface{}{
+		{"area_type": "ltla", "last_update": "2021-08-25"},
+		{"area_type": "msoa", "last_update": "2021-08-21"},
+		{"area_type": "nation", "last_update": "2021-08-25"},
+		{"area_type": "overview", "last_update": "2021-08-25"},
+		{"area_type": "region", "last_update": "2021-08-25"},
+		{"area_type": "utla", "last_update": "2021-08-25"},
+	}
+
+	url, err := api.Router.
+		Get("metric_areas").
+		URL("metric", "newCasesBySpecimenDate", "date", "2021-08-26")
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
+	response := executeRequest(req)
+
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
+
+	assert.JsonArrResponseMatchExpected(t, expected, response.Body.Bytes())
+
+} // TestMetricAreas
