@@ -6,6 +6,7 @@ import (
 	"generic_apis/apps/change_logs"
 	"generic_apis/apps/code"
 	"generic_apis/apps/log_banners"
+	"generic_apis/apps/metric_areas"
 	"generic_apis/apps/metric_availability"
 	"generic_apis/apps/metric_docs"
 	"generic_apis/apps/metric_props"
@@ -168,8 +169,14 @@ var UrlPatterns = &[]utils.RouteEntry{
 	},
 	{
 		"metric_doc",
-		`/generic/metrics/doc/{metric:[a-zA-Z2860\s]{2,120}}`,
+		`/generic/metrics/{metric:[a-zA-Z2860\s]{2,120}}/doc`,
 		[]string{},
 		metric_docs.Handler,
+	},
+	{
+		"metric_areas",
+		`/generic/metrics/{metric:[a-zA-Z2860\s]{2,120}}/areas/{date:202\d-[01]\d-[0123]\d}`,
+		[]string{},
+		metric_areas.Handler,
 	},
 } // routes
