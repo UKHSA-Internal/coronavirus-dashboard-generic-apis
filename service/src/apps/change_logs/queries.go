@@ -235,5 +235,11 @@ SELECT cl.id::TEXT          AS guid,
        UPPER(t.tag)         AS category
 FROM covid19.change_log AS cl
   LEFT JOIN covid19.tag AS t ON t.id = cl.type_id
+WHERE
+	cl.date <= (
+		SELECT MAX(timestamp)::DATE
+		FROM covid19.release_reference AS rr
+		WHERE rr.released IS TRUE
+	)
 ORDER BY cl.date DESC;
 `
