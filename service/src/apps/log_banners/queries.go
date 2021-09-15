@@ -16,6 +16,7 @@ WHERE cl.display_banner IS TRUE
   AND LOWER(p.title) = LOWER(${page_token})
   AND (
 	   cl.area ISNULL
+	OR p.data_category IS FALSE
 	OR LOWER(${area_type_token}) || '::' || LOWER(${area_name_token}) IN (
       	 SELECT LOWER(area_type) || '::' || LOWER(area_name)
       	 FROM covid19.area_reference AS ar
