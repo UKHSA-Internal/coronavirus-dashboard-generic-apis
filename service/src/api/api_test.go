@@ -1051,6 +1051,44 @@ func TestLogBanner(t *testing.T) {
 
 } // TestLogBanner
 
+func TestNonLocalLogBanner(t *testing.T) {
+
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.Database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
+	api.Initialize()
+	defer api.Database.CloseConnection()
+
+	url, err := api.Router.
+		Get("log_banners").
+		URL("date", "2021-09-11", "page", "Interactive map of vaccinations", "area_type", "overview", "area_name", "United Kingdom")
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
+	response := executeRequest(req)
+
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
+
+	data := make([]interface{}, 0)
+	if err = json.Unmarshal(response.Body.Bytes(), &data); err != nil {
+		t.Error(err)
+	}
+
+	expected := 1 // Expected length for May 2021 with search query "cases in England".
+	assert.Equal(t, "response length", len(data), expected)
+
+} // TestNonLocalLogBanner
+
 func TestChangeLogDates(t *testing.T) {
 
 	var err error
