@@ -2,12 +2,11 @@ package area_name
 
 import (
 	"fmt"
-	"net/http"
-	"strings"
-
 	"generic_apis/apps/utils"
 	"generic_apis/db"
 	"generic_apis/insight"
+	"net/http"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
@@ -18,7 +17,7 @@ type handler struct {
 	traceparent string
 }
 
-func (conf *handler) fromDatabase(areaType, areaName string) (map[string]string, error) {
+func (conf *handler) fromDatabase(areaType, areaName string) (map[string]interface{}, error) {
 
 	var (
 		ok     bool
@@ -40,18 +39,12 @@ func (conf *handler) fromDatabase(areaType, areaName string) (map[string]string,
 		Args:          params,
 		OperationData: insight.GetOperationData(conf.traceparent),
 	}
-	results, err := conf.db.FetchAll(payload)
+	results, err := conf.db.FetchRow(payload)
 	if err != nil {
 		return nil, err
 	}
 
-	data := make(map[string]string)
-	for _, item := range results {
-		data[item["areaType"].(string)+"Name"] = item["areaName"].(string)
-		data[item["areaType"].(string)] = item["areaCode"].(string)
-	}
-
-	return data, nil
+	return results, nil
 
 } // fromDatabase
 
@@ -63,7 +56,7 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 
 		var (
 			err         error
-			response    map[string]string
+			response    map[string]interface{}
 			jsonPayload []byte
 		)
 

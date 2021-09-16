@@ -26,26 +26,16 @@ func TestFromDataBase(t *testing.T) {
 	conf := &handler{database, ""}
 
 	expected := map[string]interface{}{
-		"ltla":          "E09000033",
-		"ltlaName":      "Westminster",
-		"msoa":          "E02000979",
-		"msoaName":      "Central Westminster",
-		"nation":        "E92000001",
-		"nationName":    "England",
-		"nhsRegion":     "E40000003",
-		"nhsRegionName": "London",
-		"nhsTrust":      "RJ1",
-		"nhsTrustName":  "Guy's and St Thomas' NHS Foundation Trust",
-		"region":        "E12000007",
-		"regionName":    "London",
-		"utla":          "E09000033",
-		"utlaName":      "Westminster",
+		"areaCode": "E02000979",
+		"areaName": "Central Westminster",
+		"areaType": "msoa",
 	}
 
 	response, err := conf.fromDatabase("msoa", "Central Westminster")
 	if err != nil {
 		t.Error(err.Error())
 	}
+
 	jsonResponse, err := utils.JSONMarshal(response)
 	if err != nil {
 		t.Error(err.Error())
