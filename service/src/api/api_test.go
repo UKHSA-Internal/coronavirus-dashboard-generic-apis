@@ -11,6 +11,7 @@ import (
 	"generic_apis/base"
 	"generic_apis/db"
 	"generic_apis/insight"
+
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 )
 
@@ -201,6 +202,40 @@ func TestUtla(t *testing.T) {
 	})
 
 } // TestUtla
+
+func TestAreaName(t *testing.T) {
+
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.Database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
+	api.Initialize()
+	defer api.Database.CloseConnection()
+
+	expected := map[string]interface{}{
+		"areaCode": "E07000027", "areaType": "ltla", "areaName": "Barrow-in-Furness",
+	}
+
+	url, err := api.Router.Get("area_name").URL("area_type", "ltla", "area_name", "Barrow-in-Furness")
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
+	response := executeRequest(req)
+
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
+
+	assert.JsonObjResponseMatchExpected(t, expected, response.Body.Bytes())
+
+} // TestPageAreaQuery
 
 func TestMsoa(t *testing.T) {
 

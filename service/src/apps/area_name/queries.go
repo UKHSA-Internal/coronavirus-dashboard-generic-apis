@@ -7,6 +7,6 @@ SELECT
    ar.area_type AS "areaType"
 FROM covid19.area_reference AS ar
 WHERE area_type = LOWER($1)
-  AND area_name ILIKE LOWER($2)
+  AND area_name ILIKE $2
 LIMIT 1 OFFSET 0;
 `

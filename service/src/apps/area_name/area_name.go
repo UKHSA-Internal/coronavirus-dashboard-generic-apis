@@ -6,6 +6,7 @@ import (
 	"generic_apis/db"
 	"generic_apis/insight"
 	"net/http"
+	"regexp"
 	"strings"
 
 	"github.com/gorilla/mux"
@@ -30,6 +31,9 @@ func (conf *handler) fromDatabase(areaType, areaName string) (map[string]interfa
 	if areaType, ok = utils.AreaTypes[areaType]; !ok {
 		return nil, fmt.Errorf("invalid area type")
 	}
+
+	pattern := regexp.MustCompile(`['\s,.()]`)
+	areaName = pattern.ReplaceAllString(areaName, "%")
 
 	params = []interface{}{areaType, areaName}
 	query = areaQuery
@@ -71,7 +75,7 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 
 		response, err = conf.fromDatabase(pathVars["area_type"], pathVars["area_name"])
 		if err != nil {
-			http.Error(w, "failed to retrieve data", http.StatusBadRequest)
+			http.Error(w, "failed to retrieve data", http.StatusInternalServerError)
 			return
 		}
 

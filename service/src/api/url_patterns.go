@@ -26,7 +26,7 @@ var UrlPatterns = &[]utils.RouteEntry{
 	},
 	{
 		"area_name",
-		`/generic/area_name/{area_type:[a-zA-Z]{4,10}}/{area_name:[A-Za-z0-9,'.\s()-]{5,120}}`,
+		`/generic/area/{area_type:[a-zA-Z]{4,10}}/area_name/{area_name:[A-Za-z0-9,'.\s()-]{5,120}}`,
 		[]string{},
 		area_name.Handler,
 	},
