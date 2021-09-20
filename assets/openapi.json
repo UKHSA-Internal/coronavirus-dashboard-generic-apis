@@ -644,8 +644,7 @@
                 "ltla",
                 "msoa"
               ],
-              "type": "string",
-              "required": true
+              "type": "string"
             }
           },
           {
@@ -653,7 +652,9 @@
             "in": "path",
             "description": "The area name to search by",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -738,6 +739,18 @@
                 "description": "Identifier to determine whether the request originates from the website.",
                 "schema": {
                   "type": "number"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/area-name"
+                },
+                "examples": {
+                  "example response of area code for england": {
+                    "value": "{\"areaCode\":\"E92000001\",\"areaName\":\"England\",\"areaType\":\"nation\"}"
+                  }
                 }
               }
             }
@@ -3411,6 +3424,20 @@
             "areaName": {
               "type": "string"
             }
+          }
+        }
+      },
+      "area-name": {
+        "type": "object",
+        "properties": {
+          "areaCode": {
+            "type": "string"
+          },
+          "areaName": {
+            "type": "string"
+          },
+          "areaType": {
+            "type": "string"
           }
         }
       },
