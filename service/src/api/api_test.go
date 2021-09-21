@@ -203,7 +203,7 @@ func TestUtla(t *testing.T) {
 
 } // TestUtla
 
-func TestAreaName(t *testing.T) {
+func TestAreaNameLTLA(t *testing.T) {
 
 	var err error
 	api.Insight = insight.InitialiseInsightClient()
@@ -235,7 +235,41 @@ func TestAreaName(t *testing.T) {
 
 	assert.JsonObjResponseMatchExpected(t, expected, response.Body.Bytes())
 
-} // TestPageAreaQuery
+} // Test area name response for an ltla
+
+func TestAreaNameNHSRegion(t *testing.T) {
+
+	var err error
+	api.Insight = insight.InitialiseInsightClient()
+	defer appinsights.TrackPanic(api.Insight, true)
+
+	api.Database, err = db.Connect(api.Insight)
+	if err != nil {
+		panic(err)
+	}
+	api.Initialize()
+	defer api.Database.CloseConnection()
+
+	expected := map[string]interface{}{
+		"areaCode": "E40000005", "areaType": "nhsRegion", "areaName": "South East",
+	}
+
+	url, err := api.Router.Get("area_name").URL("area_type", "nhsRegion", "area_name", "South East")
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		t.Error(err)
+	}
+	response := executeRequest(req)
+
+	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
+
+	assert.JsonObjResponseMatchExpected(t, expected, response.Body.Bytes())
+
+} // Test area name response for an ltla
 
 func TestMsoa(t *testing.T) {
 
