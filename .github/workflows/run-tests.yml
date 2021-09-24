@@ -60,7 +60,7 @@ jobs:
           psql -f testing/fixtures/postcode_lookup.sql postgresql://postgres:postgres@localhost:5432/postgres
 
       - name: Build Nginx Unit
-        uses: nginx/unit
+        uses: nginx/unit@1.25.0-minimal
 
       - name: Build Go
         uses: actions/setup-go@v2
