@@ -59,11 +59,6 @@ jobs:
           psql -f testing/fixtures/citus_covid19_page_area_type_reference.sql postgresql://postgres:postgres@localhost:5432/postgres && \
           psql -f testing/fixtures/postcode_lookup.sql postgresql://postgres:postgres@localhost:5432/postgres
 
-      - name: Get Nginx/Unit key
-        uses: wei/curl@master
-        with:
-          args: -sL https://nginx.org/keys/nginx_signing.key | apt-key add -
-
       - name: Install Ngnix/Unit
         working-directory: service
         shell: bash
