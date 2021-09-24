@@ -60,12 +60,7 @@ jobs:
           psql -f testing/fixtures/postcode_lookup.sql postgresql://postgres:postgres@localhost:5432/postgres
 
       - name: Build Nginx Unit
-        uses: docker://nginx/unit:1.25.0-minimal
-
-      - name: Build Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: '1.15'
+        uses: docker://nginx/unit:1.23.0-go1.15
 
       - name: Install dependencies
         working-directory: service/src
