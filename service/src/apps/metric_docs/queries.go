@@ -6,8 +6,11 @@ SELECT MAX(metric_name) AS metric_name,
        asset_type,
        STRING_AGG(body, E'\n\n' ORDER BY "order") AS body,
        MAX(last_modified) AS last_modified,
-       MAX(logs::TEXT)::JSONB AS logs,
-       MAX(tags) AS tags,
+       CASE
+           WHEN MAX(logs::TEXT) <> '[null]' THEN MAX(logs::TEXT)::JSONB
+           ELSE '[]'::JSONB
+       END AS logs,
+	   MAX(tags) AS tags,
        MAX(category) AS category
 FROM (
 	SELECT DISTINCT ma.body AS body,
