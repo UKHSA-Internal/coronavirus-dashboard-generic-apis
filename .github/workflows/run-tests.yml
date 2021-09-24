@@ -36,7 +36,7 @@ jobs:
           ref: ${{ github.ref }}
 
       - name: Run migrations
-        run: |
+        run: >
         psql -f testing/fixtures/init.sql postgresql://postgres:postgres@localhost:5432/postgres && \
         psql -f testing/fixtures/citus_covid19_page.sql postgresql://postgres:postgres@localhost:5432/postgres && \
         psql -f testing/fixtures/citus_covid19_tag.sql postgresql://postgres:postgres@localhost:5432/postgres && \
