@@ -1,0 +1,16 @@
+insert into covid19.page (id, title, uri, data_category)
+values  ('1e0d396b-de14-4858-a34a-f0377209cfa4', 'Daily summary', '/', false),
+        ('53bfb88d-827f-4823-8f9d-a83eabd6269d', 'Download', '/details/download', false),
+        ('b7d29f14-1903-4328-a3fd-55b4162f411d', 'Testing', '/details/testing', true),
+        ('ad6767e9-2a06-467c-9b6d-e4f78345afc6', 'Cases', '/details/cases', true),
+        ('abcbe6e5-b894-4345-b7cc-74aef60e6ce9', 'Healthcare', '/details/healthcare', true),
+        ('65b74e28-ccae-48dc-8068-0be81ff3f13a', 'Vaccinations', '/details/vaccinations', true),
+        ('23beaed6-2226-49cd-a288-391fdf6ef2c9', 'Deaths', '/details/deaths', true),
+        ('b318f3fd-daef-4db8-b8f8-7fbc96f85ae4', 'Interactive map - general', '/details/interactive-map', false),
+        ('b8f309a3-ae83-4226-8cbd-bdedab4e27b2', 'About data', '/details/about-data', false),
+        ('e0169fdf-2ce4-4e24-9091-6369b8921cfb', 'What''s new', '/details/whats-new', false),
+        ('4cf6bd86-38f5-46ce-b342-5f2e9372181b', 'Easy-read summary', '/easy_read', false),
+        ('86ac425f-ea7a-4e24-a6b1-6fc7cbbfdd5e', 'Announcements', '/details/announcements', false),
+        ('8f3643dc-467f-40f6-a793-c97b2f165808', 'Compliance', '/details/compliance', false),
+        ('9bfecc1a-f2b1-4fb1-822d-518642551778', 'Interactive map of vaccinations', '/details/interactive-map/vaccinations', false),
+        ('d373af6e-90eb-4842-8a94-7227066a3eaa', 'Interactive map of cases', '/details/interactive-map/cases', false);

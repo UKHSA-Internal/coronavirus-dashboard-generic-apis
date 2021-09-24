@@ -1,0 +1,16 @@
+insert into covid19.tag (id, association, tag)
+values  ('17a89ab1-b2c0-4433-a40e-a1ee26827c18', 'METRICS', 'cumulative'),
+        ('9381f23c-4890-4f65-b9cd-8a0a50532918', 'METRICS', 'daily'),
+        ('0bbcd0fd-d1fb-4e18-8e25-03e952262eda', 'METRICS', 'event date'),
+        ('b63df1a0-8bbb-4db5-a77d-db44faa53ad2', 'METRICS', 'incidence rate'),
+        ('aae78a43-a89c-461b-82e0-21a14a11d5d5', 'METRICS', 'prevalence rate'),
+        ('bc06920a-4311-4d42-976e-7b17fabcc848', 'METRICS', 'national statistics'),
+        ('1532e397-e889-4074-884f-fb928182a6a5', 'METRICS', 'reporting date'),
+        ('5b1c5810-edaa-4f95-b38e-3b8f3b25c189', 'METRICS', 'weekly'),
+        ('9ff736b0-24c0-4a8c-b363-eabc4e142fa5', 'CHANGE LOGS', 'new metric'),
+        ('6494de17-47b2-486c-9d8f-e5aca27b258f', 'CHANGE LOGS', 'new feature'),
+        ('1940b80b-bb38-42c4-9134-0cafe759f652', 'CHANGE LOGS', 'change to metric'),
+        ('97ea40d6-c87f-4955-87f6-5eefd60bc5aa', 'CHANGE LOGS', 'update'),
+        ('8ed96806-9364-42fb-8613-c8f0d95f771e', 'CHANGE LOGS', 'new content'),
+        ('52f2fd0a-a6ad-45b1-bb0b-2ed7c9933acf', 'CHANGE LOGS', 'data issue'),
+        ('83552b17-454e-4c18-adde-f29e8f9c372c', 'CHANGE LOGS', 'other');
