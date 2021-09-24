@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -80,8 +79,6 @@ func TestPostcode(t *testing.T) {
 	}
 
 	response := executeRequest(req)
-
-	fmt.Println(response.Body.String())
 
 	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
 
@@ -387,9 +384,9 @@ func TestMetricSearchQuery(t *testing.T) {
 		{"metric": "newCasesBySpecimenDate", "metric_name": "New cases by specimen date", "category": "Cases", "tags": []interface{}{"daily", "event date"}},
 		{"metric": "newCasesBySpecimenDateAgeDemographics", "metric_name": "New cases by specimen date age demographics", "category": "Cases", "tags": []interface{}{"daily", "event date"}},
 		{"metric": "newCasesBySpecimenDateChange", "metric_name": "New cases by specimen date change", "category": "Cases", "tags": []interface{}{"daily", "event date"}},
-		{"metric": "newCasesBySpecimenDateChangePercentage", "metric_name": "New cases by specimen date change percentage", "category": "Cases", "tags": []interface{}{"daily", "event date"}},
+		{"metric": "newCasesBySpecimenDateChangePercentage", "metric_name": "New cases percentage change by specimen date", "category": "Cases", "tags": []interface{}{"daily", "event date"}},
 		{"metric": "newCasesBySpecimenDateDirection", "metric_name": "New cases by specimen date direction", "category": "Cases", "tags": []interface{}{"daily", "event date"}},
-		{"metric": "newCasesBySpecimenDateRollingRate", "metric_name": "New cases by specimen date rolling rate", "category": "Cases", "tags": []interface{}{"daily", "event date", "prevalence rate"}},
+		{"metric": "newCasesBySpecimenDateRollingRate", "metric_name": "New cases rolling rate by specimen date", "category": "Cases", "tags": []interface{}{"daily", "event date", "prevalence rate"}},
 		{"metric": "newCasesBySpecimenDateRollingSum", "metric_name": "New cases by specimen date rolling sum", "category": "Cases", "tags": []interface{}{"daily", "event date"}},
 		{"metric": "previouslyReportedNewCasesBySpecimenDate", "metric_name": "Previously reported new cases by specimen date", "category": "Cases", "tags": []interface{}{"event date"}},
 	}
@@ -466,9 +463,9 @@ func TestMetricSearchQueryWithCategory(t *testing.T) {
 		{"metric": "newCasesBySpecimenDate", "metric_name": "New cases by specimen date", "category": "Cases", "tags": []interface{}{"daily", "event date"}},
 		{"metric": "newCasesBySpecimenDateAgeDemographics", "metric_name": "New cases by specimen date age demographics", "category": "Cases", "tags": []interface{}{"daily", "event date"}},
 		{"metric": "newCasesBySpecimenDateChange", "metric_name": "New cases by specimen date change", "category": "Cases", "tags": []interface{}{"daily", "event date"}},
-		{"metric": "newCasesBySpecimenDateChangePercentage", "metric_name": "New cases by specimen date change percentage", "category": "Cases", "tags": []interface{}{"daily", "event date"}},
+		{"metric": "newCasesBySpecimenDateChangePercentage", "metric_name": "New cases percentage change by specimen date", "category": "Cases", "tags": []interface{}{"daily", "event date"}},
 		{"metric": "newCasesBySpecimenDateDirection", "metric_name": "New cases by specimen date direction", "category": "Cases", "tags": []interface{}{"daily", "event date"}},
-		{"metric": "newCasesBySpecimenDateRollingRate", "metric_name": "New cases by specimen date rolling rate", "category": "Cases", "tags": []interface{}{"daily", "event date", "prevalence rate"}},
+		{"metric": "newCasesBySpecimenDateRollingRate", "metric_name": "New cases rolling rate by specimen date", "category": "Cases", "tags": []interface{}{"daily", "event date", "prevalence rate"}},
 		{"metric": "newCasesBySpecimenDateRollingSum", "metric_name": "New cases by specimen date rolling sum", "category": "Cases", "tags": []interface{}{"daily", "event date"}},
 		{"metric": "previouslyReportedNewCasesBySpecimenDate", "metric_name": "Previously reported new cases by specimen date", "category": "Cases", "tags": []interface{}{"event date"}},
 	}
@@ -548,7 +545,7 @@ func TestMetricSearchQueryWithCategoryAndTag(t *testing.T) {
 	expected := []map[string]interface{}{
 		{"metric": "cumCasesBySpecimenDate", "metric_name": "Cumulative cases by specimen date", "category": "Cases", "tags": []interface{}{"cumulative", "event date"}},
 		{"metric": "cumCasesBySpecimenDateRate", "metric_name": "Cumulative cases by specimen date rate", "category": "Cases", "tags": []interface{}{"cumulative", "event date", "incidence rate"}},
-		{"metric": "newCasesBySpecimenDateRollingRate", "metric_name": "New cases by specimen date rolling rate", "category": "Cases", "tags": []interface{}{"daily", "event date", "prevalence rate"}},
+		{"metric": "newCasesBySpecimenDateRollingRate", "metric_name": "New cases rolling rate by specimen date", "category": "Cases", "tags": []interface{}{"daily", "event date", "prevalence rate"}},
 	}
 
 	url, err := api.Router.Get("metric_search").Queries("search", "casesBySpecimen", "category", "cases", "tags", "cumulative,prevalence rate").URL()
@@ -825,7 +822,7 @@ func TestChangeLog(t *testing.T) {
 
 	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
 
-	t.Run("Request tests", func(t *testing.T) {
+	t.Run("Request fixtures", func(t *testing.T) {
 		t.Parallel()
 
 		expectedPage := 1
@@ -867,7 +864,7 @@ func TestPaginatedChangeLog(t *testing.T) {
 
 	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
 
-	t.Run("Request tests", func(t *testing.T) {
+	t.Run("Request fixtures", func(t *testing.T) {
 		t.Parallel()
 
 		expectedPage := 2
@@ -892,7 +889,7 @@ func TestChangeLogSearch(t *testing.T) {
 	api.Initialize()
 	defer api.Database.CloseConnection()
 
-	url, err := api.Router.Get("change_logs").Queries("search", "incor").URL()
+	url, err := api.Router.Get("change_logs").Queries("search", "england").URL()
 	if err != nil {
 		t.Error(err)
 	}
@@ -909,7 +906,7 @@ func TestChangeLogSearch(t *testing.T) {
 
 	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
 
-	t.Run("Request tests", func(t *testing.T) {
+	t.Run("Request fixtures", func(t *testing.T) {
 		t.Parallel()
 
 		expectedPage := 1
@@ -918,7 +915,7 @@ func TestChangeLogSearch(t *testing.T) {
 		returnedLen := len(data["data"].([]interface{}))
 		assert.Equal(t, "payload count", int(data["length"].(float64)), returnedLen)
 
-		expectedLenGreaterThan := 2
+		expectedLenGreaterThan := 11
 		assert.IntGreater(t, "payload count", int(data["length"].(float64)), expectedLenGreaterThan)
 	})
 
@@ -937,7 +934,7 @@ func TestDatedChangeLog(t *testing.T) {
 	api.Initialize()
 	defer api.Database.CloseConnection()
 
-	url, err := api.Router.Get("change_logs_single_month").URL("date", "2021-05")
+	url, err := api.Router.Get("change_logs_single_month").URL("date", "2021-02")
 	if err != nil {
 		t.Error(err)
 	}
@@ -955,7 +952,7 @@ func TestDatedChangeLog(t *testing.T) {
 		t.Error(err)
 	}
 
-	expected := 17 // Expected length for May 2021.
+	expected := 14 // Expected length for Feb 2021.
 	assert.Equal(t, "response length", int(data["length"].(float64)), expected)
 
 } // TestDatedChangeLog
@@ -973,12 +970,12 @@ func TestDatedChangeLogSearch(t *testing.T) {
 	api.Initialize()
 	defer api.Database.CloseConnection()
 
-	monthParam := "2021-05"
+	monthParam := "2021-02"
 	monthParamLen := len(monthParam)
 
 	url, err := api.Router.
 		Get("change_logs_single_month").
-		Queries("search", "cases in england").
+		Queries("search", "england hospital").
 		URL("date", monthParam)
 	if err != nil {
 		t.Error(err)
@@ -997,7 +994,7 @@ func TestDatedChangeLogSearch(t *testing.T) {
 		t.Error(err)
 	}
 
-	expected := 5 // Expected length for May 2021 with search query "cases in England".
+	expected := 3 // Expected length for Feb 2021 with search query "cases in England".
 	assert.Equal(t, "response length", int(data["length"].(float64)), expected)
 
 	// Asserting that the data of each record is consistent
@@ -1287,7 +1284,7 @@ func TestAnnouncementItem(t *testing.T) {
 
 	url, err := api.Router.
 		Get("announcement_item").
-		URL("id", "e6817475-dd68-4153-859c-91bc209421e6")
+		URL("id", "0358e0b1-601d-472b-b904-5dbf7cafbaa9")
 	if err != nil {
 		t.Error(err)
 	}
@@ -1301,13 +1298,13 @@ func TestAnnouncementItem(t *testing.T) {
 	assert.Equal(t, "responseCode", http.StatusOK, response.Code)
 
 	expected := map[string]interface{}{
-		"body": "On Thursday 5 August, case, hospital admission and death rates per 100,000 people for the UK, " +
-			"nations, regions and local authorities will be updated to use the mid-2020 population estimates.",
-		"date":        "2021-08-03T00:00:00Z",
-		"expire":      "2021-08-05",
-		"guid":        "e6817475-dd68-4153-859c-91bc209421e6",
+		"body": "Complete our [quick survey](https://docs.google.com/forms/d/e/1FAIpQLSc4GnaNWayFyBJxno" +
+			"GHOnL1Igwo6KsOtDBAQYBN6uxWCDvH7Q/viewform) to help us improve this website.",
+		"date":        "2021-02-02T00:00:00Z",
+		"expire":      "2021-02-09",
+		"guid":        "0358e0b1-601d-472b-b904-5dbf7cafbaa9",
 		"has_expired": true,
-		"launch":      "2021-08-03",
+		"launch":      "2021-02-02",
 	}
 
 	assert.JsonObjResponseMatchExpected(t, expected, response.Body.Bytes())
@@ -1365,17 +1362,12 @@ func TestMetricAreas(t *testing.T) {
 	defer api.Database.CloseConnection()
 
 	expected := []map[string]interface{}{
-		{"area_type": "ltla", "last_update": "2021-08-25"},
-		{"area_type": "msoa", "last_update": "2021-08-21"},
-		{"area_type": "nation", "last_update": "2021-08-25"},
-		{"area_type": "overview", "last_update": "2021-08-25"},
-		{"area_type": "region", "last_update": "2021-08-25"},
-		{"area_type": "utla", "last_update": "2021-08-25"},
+		{"area_type": "utla", "last_update": "2021-03-05"},
 	}
 
 	url, err := api.Router.
 		Get("metric_areas").
-		URL("metric", "newCasesBySpecimenDate", "date", "2021-08-26")
+		URL("metric", "cumDeathsByPublishDate", "date", "2021-03-05")
 	if err != nil {
 		t.Error(err)
 	}
