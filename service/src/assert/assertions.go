@@ -2,6 +2,7 @@ package assert
 
 import (
 	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -54,18 +55,29 @@ func JsonArrResponseContains(t *testing.T, expected interface{}, jsonResponse []
 
 		lenExpected := len(expected.([]map[string]interface{}))
 		lenDetected := 0
+		notFound := make([]string, 0)
 
 		for _, expectedItem := range expected.([]map[string]interface{}) {
+			found := false
 			for _, responseItem := range response {
 				if cmp.Equal(expectedItem, responseItem) {
 					lenDetected += 1
+					found = true
 					break
 				}
+			}
+			if !found {
+				notFound = append(notFound, fmt.Sprintf("%v", expectedItem))
 			}
 		}
 
 		if lenExpected != lenDetected {
-			t.Errorf("Expected to find %d items in the response, found %d instead", lenExpected, lenDetected)
+			t.Errorf(
+				"Expected to find %d items in the response, found %d instead:\n%v",
+				lenExpected,
+				lenDetected,
+				notFound,
+			)
 		}
 	})
 
