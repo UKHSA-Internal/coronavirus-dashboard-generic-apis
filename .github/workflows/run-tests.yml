@@ -36,28 +36,28 @@ jobs:
           ref: ${{ github.ref }}
 
       - name: Run migrations
-        run: >
-        psql -f testing/fixtures/init.sql postgresql://postgres:postgres@localhost:5432/postgres && \
-        psql -f testing/fixtures/citus_covid19_page.sql postgresql://postgres:postgres@localhost:5432/postgres && \
-        psql -f testing/fixtures/citus_covid19_tag.sql postgresql://postgres:postgres@localhost:5432/postgres && \
-        psql -f testing/fixtures/citus_covid19_area_priorities.sql postgresql://postgres:postgres@localhost:5432/postgres && \
-        psql -f testing/fixtures/citus_covid19_area_reference.sql postgresql://postgres:postgres@localhost:5432/postgres && \
-        psql -f testing/fixtures/citus_covid19_metric_reference.sql postgresql://postgres:postgres@localhost:5432/postgres && \
-        psql -f testing/fixtures/citus_covid19_release_reference.sql postgresql://postgres:postgres@localhost:5432/postgres && \
-        psql -f testing/fixtures/citus_covid19_release_category.sql postgresql://postgres:postgres@localhost:5432/postgres && \
-        psql -f testing/fixtures/partitions.sql postgresql://postgres:postgres@localhost:5432/postgres && \
-        psql -f testing/fixtures/time_series_p2021_3_5_msoa.sql postgresql://postgres:postgres@localhost:5432/postgres && \
-        psql -f testing/fixtures/time_series_p2021_3_5_utla.sql postgresql://postgres:postgres@localhost:5432/postgres && \
-        psql -f testing/fixtures/citus_covid19_announcement.sql postgresql://postgres:postgres@localhost:5432/postgres && \
-        psql -f testing/fixtures/citus_covid19_change_log.sql postgresql://postgres:postgres@localhost:5432/postgres && \
-        psql -f testing/fixtures/citus_covid19_change_log_to_metric.sql postgresql://postgres:postgres@localhost:5432/postgres && \
-        psql -f testing/fixtures/citus_covid19_change_log_to_page.sql postgresql://postgres:postgres@localhost:5432/postgres && \
-        psql -f testing/fixtures/citus_covid19_metric_asset.sql postgresql://postgres:postgres@localhost:5432/postgres && \
-        psql -f testing/fixtures/citus_covid19_metric_asset_to_metric.sql postgresql://postgres:postgres@localhost:5432/postgres && \
-        psql -f testing/fixtures/citus_covid19_metric_tag.sql postgresql://postgres:postgres@localhost:5432/postgres && \
-        psql -f testing/fixtures/citus_covid19_area_relation.sql postgresql://postgres:postgres@localhost:5432/postgres && \
-        psql -f testing/fixtures/citus_covid19_page_area_type_reference.sql postgresql://postgres:postgres@localhost:5432/postgres && \
-        psql -f testing/fixtures/postcode_lookup.sql postgresql://postgres:postgres@localhost:5432/postgres
+        run: |
+          psql -f testing/fixtures/init.sql postgresql://postgres:postgres@localhost:5432/postgres && \
+          psql -f testing/fixtures/citus_covid19_page.sql postgresql://postgres:postgres@localhost:5432/postgres && \
+          psql -f testing/fixtures/citus_covid19_tag.sql postgresql://postgres:postgres@localhost:5432/postgres && \
+          psql -f testing/fixtures/citus_covid19_area_priorities.sql postgresql://postgres:postgres@localhost:5432/postgres && \
+          psql -f testing/fixtures/citus_covid19_area_reference.sql postgresql://postgres:postgres@localhost:5432/postgres && \
+          psql -f testing/fixtures/citus_covid19_metric_reference.sql postgresql://postgres:postgres@localhost:5432/postgres && \
+          psql -f testing/fixtures/citus_covid19_release_reference.sql postgresql://postgres:postgres@localhost:5432/postgres && \
+          psql -f testing/fixtures/citus_covid19_release_category.sql postgresql://postgres:postgres@localhost:5432/postgres && \
+          psql -f testing/fixtures/partitions.sql postgresql://postgres:postgres@localhost:5432/postgres && \
+          psql -f testing/fixtures/time_series_p2021_3_5_msoa.sql postgresql://postgres:postgres@localhost:5432/postgres && \
+          psql -f testing/fixtures/time_series_p2021_3_5_utla.sql postgresql://postgres:postgres@localhost:5432/postgres && \
+          psql -f testing/fixtures/citus_covid19_announcement.sql postgresql://postgres:postgres@localhost:5432/postgres && \
+          psql -f testing/fixtures/citus_covid19_change_log.sql postgresql://postgres:postgres@localhost:5432/postgres && \
+          psql -f testing/fixtures/citus_covid19_change_log_to_metric.sql postgresql://postgres:postgres@localhost:5432/postgres && \
+          psql -f testing/fixtures/citus_covid19_change_log_to_page.sql postgresql://postgres:postgres@localhost:5432/postgres && \
+          psql -f testing/fixtures/citus_covid19_metric_asset.sql postgresql://postgres:postgres@localhost:5432/postgres && \
+          psql -f testing/fixtures/citus_covid19_metric_asset_to_metric.sql postgresql://postgres:postgres@localhost:5432/postgres && \
+          psql -f testing/fixtures/citus_covid19_metric_tag.sql postgresql://postgres:postgres@localhost:5432/postgres && \
+          psql -f testing/fixtures/citus_covid19_area_relation.sql postgresql://postgres:postgres@localhost:5432/postgres && \
+          psql -f testing/fixtures/citus_covid19_page_area_type_reference.sql postgresql://postgres:postgres@localhost:5432/postgres && \
+          psql -f testing/fixtures/postcode_lookup.sql postgresql://postgres:postgres@localhost:5432/postgres
 
       - name: Check out repository code
         uses: docker/nginx/unit:1.23.0-go1.15
