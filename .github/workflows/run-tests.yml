@@ -65,22 +65,22 @@ jobs:
           go-version: '1.15'
 
       - name: Install dependencies
-        working-directory: service
+        working-directory: service/src
         shell: bash
         run: go get
 
-      - working-directory: service
+      - working-directory: service/src
         shell: bash
         run: mkdir build
 
       - name: Run build test
         shell: bash
-        working-directory: service
-        run: go build -o /opt/build/generic_api
+        working-directory: service/src
+        run: go build -o ../build/generic_api
 
       - name: Run application tests
         shell: bash
-        working-directory: service
+        working-directory: service/src
         run: go test -v ./...
         env:
           POSTGRES_CONNECTION_STRING: postgres://postgres:postgres@localhost/postgres
