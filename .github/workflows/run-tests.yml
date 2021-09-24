@@ -59,13 +59,15 @@ jobs:
           psql -f testing/fixtures/citus_covid19_page_area_type_reference.sql postgresql://postgres:postgres@localhost:5432/postgres && \
           psql -f testing/fixtures/postcode_lookup.sql postgresql://postgres:postgres@localhost:5432/postgres
 
-      - name: Build Nginx Unit
-        uses: docker://nginx/unit:1.23.0-go1.15
+      - name: Build Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.15'
 
       - name: Install dependencies
         working-directory: service/src
         shell: bash
-        run: go get
+        run: go get unit.nginx.org/go@1.25.0 && go get
 
       - working-directory: service/src
         shell: bash
