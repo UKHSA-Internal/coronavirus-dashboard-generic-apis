@@ -63,8 +63,7 @@ jobs:
         working-directory: service
         shell: bash
         run: |
-          sudo apt install wget && \
-          wget -qO https://nginx.org/keys/nginx_signing.key | sudo apt-key add -  && \
+          sudo apt-key adv --fetch-keys http://deb.opera.com/archive.key https://nginx.org/keys/nginx_signing.key && \
           sudo touch /etc/apt/sources.list.d/unit.list && \
           echo "deb https://packages.nginx.org/unit/ubuntu/ hirsute unit" | sudo tee -a /etc/apt/sources.list.d/unit.list
           echo "deb-src https://packages.nginx.org/unit/ubuntu/ hirsute unit" | sudo tee -a /etc/apt/sources.list.d/unit.list
