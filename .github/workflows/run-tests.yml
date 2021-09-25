@@ -63,7 +63,7 @@ jobs:
         working-directory: service
         shell: bash
         run: |
-          sudo apt install -y libc6 libc-bin=2.31-0ubuntu9.2
+          sudo apt install -y libc6=2.31-0ubuntu9.2 libc-bin=2.31-0ubuntu9.2
 
       - name: Install Ngnix/Unit
         working-directory: service
@@ -76,8 +76,7 @@ jobs:
           sudo apt update && \
           sudo apt install -y libc6 && \
           sudo apt install -y unit && \
-          sudo apt install -y unit-dev unit-go unit-jsc11 unit-jsc15 unit-jsc16 unit-jsc17 \
-                                      unit-perl unit-php unit-python2.7 unit-python3.9 unit-ruby && \
+          sudo apt install -y unit-dev unit-go && \
           sudo systemctl restart unit
 
       - name: Build Go
