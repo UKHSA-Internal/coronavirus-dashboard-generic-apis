@@ -63,7 +63,7 @@ jobs:
         working-directory: service
         shell: bash
         run: |
-          sudo apt install -y libc6-udeb
+          sudo apt install -y libc6
 
       - name: Install Ngnix/Unit
         working-directory: service
