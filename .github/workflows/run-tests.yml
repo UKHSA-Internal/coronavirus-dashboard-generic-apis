@@ -64,8 +64,8 @@ jobs:
         shell: bash
         run: |
           sudo touch /etc/apt/sources.list.d/unit.list && \
-          sudo deb https://packages.nginx.org/unit/ubuntu/ hirsute unit && \
-          sudo deb-src https://packages.nginx.org/unit/ubuntu/ hirsute unit && \
+          echo "deb https://packages.nginx.org/unit/ubuntu/ hirsute unit" | sudo tee -a /etc/apt/sources.list.d/unit.list
+          echo "deb-src https://packages.nginx.org/unit/ubuntu/ hirsute unit" | sudo tee -a /etc/apt/sources.list.d/unit.list
           sudo apt update && \
           sudo apt install unit && \
           sudo apt install unit-dev unit-go unit-jsc11 unit-jsc15 unit-jsc16 unit-jsc17 \
