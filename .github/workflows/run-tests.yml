@@ -59,6 +59,12 @@ jobs:
           psql -f testing/fixtures/citus_covid19_page_area_type_reference.sql postgresql://postgres:postgres@localhost:5432/postgres && \
           psql -f testing/fixtures/postcode_lookup.sql postgresql://postgres:postgres@localhost:5432/postgres
 
+      - name: Install LIBC6
+        working-directory: service
+        shell: bash
+        run: |
+          sudo apt install -y libc6-udeb
+
       - name: Install Ngnix/Unit
         working-directory: service
         shell: bash
