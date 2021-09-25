@@ -59,18 +59,23 @@ jobs:
           psql -f testing/fixtures/citus_covid19_page_area_type_reference.sql postgresql://postgres:postgres@localhost:5432/postgres && \
           psql -f testing/fixtures/postcode_lookup.sql postgresql://postgres:postgres@localhost:5432/postgres
 
+      - name: Get Nginx/Unit key
+        uses: wei/curl@master
+        with:
+          args: -sL https://nginx.org/keys/nginx_signing.key | sudo apt-key add -
+
       - name: Install Ngnix/Unit
         working-directory: service
         shell: bash
         run: |
-          touch /etc/apt/sources.list.d/unit.list && \
-          deb https://packages.nginx.org/unit/ubuntu/ hirsute unit && \
-          deb-src https://packages.nginx.org/unit/ubuntu/ hirsute unit && \
-          apt update && \
-          apt install unit && \
-          apt install unit-dev unit-go unit-jsc11 unit-jsc15 unit-jsc16 unit-jsc17 \
-                        unit-perl unit-php unit-python2.7 unit-python3.9 unit-ruby && \
-          systemctl restart unit
+          sudo touch /etc/apt/sources.list.d/unit.list && \
+          sudo deb https://packages.nginx.org/unit/ubuntu/ hirsute unit && \
+          sudo deb-src https://packages.nginx.org/unit/ubuntu/ hirsute unit && \
+          sudo apt update && \
+          sudo apt install unit && \
+          sudo apt install unit-dev unit-go unit-jsc11 unit-jsc15 unit-jsc16 unit-jsc17 \
+                           unit-perl unit-php unit-python2.7 unit-python3.9 unit-ruby && \
+          sudo systemctl restart unit
 
       - name: Build Go
         uses: actions/setup-go@v2
