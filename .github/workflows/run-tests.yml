@@ -68,6 +68,7 @@ jobs:
           echo "deb https://packages.nginx.org/unit/ubuntu/ hirsute unit" | sudo tee -a /etc/apt/sources.list.d/unit.list
           echo "deb-src https://packages.nginx.org/unit/ubuntu/ hirsute unit" | sudo tee -a /etc/apt/sources.list.d/unit.list
           sudo apt update && \
+          sudo apt install -y libc6 && \
           sudo apt install -y unit && \
           sudo apt install -y unit-dev unit-go unit-jsc11 unit-jsc15 unit-jsc16 unit-jsc17 \
                                       unit-perl unit-php unit-python2.7 unit-python3.9 unit-ruby && \
