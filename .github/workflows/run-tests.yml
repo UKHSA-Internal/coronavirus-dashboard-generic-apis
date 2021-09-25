@@ -63,7 +63,7 @@ jobs:
         working-directory: service
         shell: bash
         run: |
-          sudo apt install -y libc6=2.31-0ubuntu9.2 libc-bin=2.31-0ubuntu9.2
+          sudo apt install -y gcc-9-base libgcc-9-dev libc6-dev libc6=2.31-0ubuntu9.2 libc-bin=2.31-0ubuntu9.2
 
       - name: Install Ngnix/Unit
         working-directory: service
