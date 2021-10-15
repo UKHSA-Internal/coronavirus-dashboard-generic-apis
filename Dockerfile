@@ -1,4 +1,4 @@
-FROM nginx/unit:1.23.0-go1.15 as compiler
+FROM nginx/unit:1.25.0-go1.15 as compiler
 
 WORKDIR /opt/src
 
