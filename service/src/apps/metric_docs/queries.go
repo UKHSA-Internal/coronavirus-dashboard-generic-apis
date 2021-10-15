@@ -3,6 +3,7 @@ package metric_docs
 const mainQuery = `
 SELECT MAX(metric_name) AS metric_name,
        metric,
+	   MAX(deprecated) AS deprecated,
        asset_type,
        STRING_AGG(body, E'\n\n' ORDER BY "order") AS body,
        MAX(last_modified) AS last_modified,
@@ -13,6 +14,7 @@ FROM (
 	SELECT DISTINCT ma.body AS body,
            MAX(metric_name) AS metric_name,
            metric,
+		   MAX(deprecated::TEXT) AS deprecated,
            LOWER(asset_type) AS asset_type,
            MAX("order") AS "order",
            MAX(ma.last_modified)::TIMESTAMP WITHOUT TIME ZONE AS last_modified,
