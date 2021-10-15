@@ -45,6 +45,7 @@ type Documentation struct {
 type Payload struct {
 	MetricName    string         `json:"metric_name"`
 	Metric        string         `json:"metric"`
+	Deprecated    *string        `json:"deprecated"`
 	Category      string         `json:"category"`
 	Documentation *Documentation `json:"documentation"`
 	Logs          []*Log         `json:"logs"`
@@ -94,6 +95,7 @@ func (conf *handler) fromDatabase(urlParams *map[string]string) (*Payload, error
 	response.MetricName = res[0]["metric_name"].(string)
 	response.Metric = res[0]["metric"].(string)
 	response.Category = res[0]["category"].(string)
+	response.Deprecated = stringOrNil(res[0]["deprecated"])
 	logs := make([]*Log, len(res[0]["logs"].([]interface{})))
 	response.Tags = strings.Split(res[0]["tags"].(string), ",")
 	documentations := &Documentation{}
@@ -128,11 +130,7 @@ func (conf *handler) fromDatabase(urlParams *map[string]string) (*Payload, error
 
 	// Descending sort
 	sort.Slice(logs[:], func(i, j int) bool {
-		if strings.Compare(*logs[i].Date, *logs[j].Date) == 1 {
-			return true
-		} else {
-			return false
-		}
+		return strings.Compare(*logs[i].Date, *logs[j].Date) == 1
 	})
 
 	response.Logs = logs
