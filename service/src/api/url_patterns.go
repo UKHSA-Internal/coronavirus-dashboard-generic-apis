@@ -3,6 +3,7 @@ package api
 import (
 	"generic_apis/apps/announcements"
 	"generic_apis/apps/area_by_type"
+	"generic_apis/apps/area_name"
 	"generic_apis/apps/change_logs"
 	"generic_apis/apps/code"
 	"generic_apis/apps/log_banners"
@@ -22,6 +23,12 @@ var UrlPatterns = &[]utils.RouteEntry{
 		`/generic/code/{area_type:[a-zA-Z]{4,10}}/{area_code:[a-zA-Z0-9+%\s]{3,12}}`,
 		[]string{},
 		code.Handler,
+	},
+	{
+		"area_name",
+		`/generic/area/{area_type:[a-zA-Z]{4,10}}/area_name/{area_name:[A-Za-z0-9,'.\s()-]{5,120}}`,
+		[]string{},
+		area_name.Handler,
 	},
 	{
 		"soa",

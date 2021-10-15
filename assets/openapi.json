@@ -625,6 +625,160 @@
         }
       }
     },
+    "/area/{area_type}/area_name/{area_name}": {
+      "get": {
+        "summary": "Code by area name",
+        "description": "Get area code from specified area name and type",
+        "operationId": "area-code-get",
+        "parameters": [
+          {
+            "name": "area_type",
+            "in": "path",
+            "description": "Type of the area of the specified area name.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "nation",
+                "region",
+                "utla",
+                "ltla",
+                "msoa"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "area_name",
+            "in": "path",
+            "description": "The area name to search by",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the area type, name and code",
+            "headers": {
+              "content-type": {
+                "required": true,
+                "schema": {
+                  "enum": [
+                    "application/vnd.PHE-COVID19.v1+json; charset=utf-8"
+                  ],
+                  "type": "string"
+                }
+              },
+              "server": {
+                "required": true,
+                "description": "Server application name and version.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Strict-Transport-Security": {
+                "required": true,
+                "description": "",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-frame-options": {
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-content-type-options": {
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-xss-protection": {
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "referrer-policy": {
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "content-security-policy": {
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-phe-media-type": {
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "phe-server-loc": {
+                "required": false,
+                "description": "Identifier for the specific server responding to the request.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Request-Context": {
+                "required": true,
+                "description": "Correlation ID of the request.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "phe-website-request": {
+                "required": true,
+                "description": "Identifier to determine whether the request originates from the website.",
+                "schema": {
+                  "type": "number"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/area-name"
+                },
+                "examples": {
+                  "example response of area code for england": {
+                    "value": "{\"areaCode\":\"E92000001\",\"areaName\":\"England\",\"areaType\":\"nation\"}"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request. Reason provided in response body where possible."
+          },
+          "404": {
+            "description": "Not found. Likely due to an invalid area type and / or area name."
+          },
+          "429": {
+            "description": "Too many requests - request has been throttled.",
+            "headers": {
+              "retry-after": {
+                "description": "Time in seconds to wait before resubmitting the request.",
+                "required": true,
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
     "/page_areas/{page}": {
       "get": {
         "summary": "Page areas",
@@ -3270,6 +3424,20 @@
             "areaName": {
               "type": "string"
             }
+          }
+        }
+      },
+      "area-name": {
+        "type": "object",
+        "properties": {
+          "areaCode": {
+            "type": "string"
+          },
+          "areaName": {
+            "type": "string"
+          },
+          "areaType": {
+            "type": "string"
           }
         }
       },
