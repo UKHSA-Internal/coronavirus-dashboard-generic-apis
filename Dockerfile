@@ -10,7 +10,7 @@ RUN mkdir -p /opt/build        && \
     rm -rf /opt/src
 
 
-FROM nginx/unit:1.23.0-minimal
+FROM nginx/unit:1.25.0-minimal
 
 COPY service/server/*.json      /docker-entrypoint.d/
 
