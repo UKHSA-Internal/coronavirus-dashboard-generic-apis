@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -124,6 +125,15 @@ func (conf *handler) fromDatabase(urlParams *map[string]string) (*Payload, error
 
 		logs[index] = logItem
 	}
+
+	// Descending sort
+	sort.Slice(logs[:], func(i, j int) bool {
+		if strings.Compare(*logs[i].Date, *logs[j].Date) == 1 {
+			return true
+		} else {
+			return false
+		}
+	})
 
 	response.Logs = logs
 
