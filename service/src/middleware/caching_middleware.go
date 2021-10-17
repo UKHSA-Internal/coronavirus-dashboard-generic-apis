@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"bytes"
 	"context"
 	"io"
 	"net/http"
@@ -32,7 +33,7 @@ func FromCacheOrDB(redisClient *redis.Client, redisHostName string, insight appi
 
 		if cacheDuration == 0 {
 			handlerFunc(w, r)
-			w.Header().Set("X-CACHE-HIT", "0")
+			w.Header().Set("X-CACHE-HIT", "-1")
 			return
 		} else {
 			redisAction = "GET"
@@ -49,14 +50,16 @@ func FromCacheOrDB(redisClient *redis.Client, redisHostName string, insight appi
 			handlerFunc(rec, r)
 			w.WriteHeader(rec.Result().StatusCode)
 
-			_, err = io.Copy(w, rec.Result().Body)
+			data := bytes.NewBuffer(nil)
+			_, err = io.Copy(data, rec.Result().Body)
+			_, _ = w.Write(data.Bytes())
 			if err != nil {
 				panic(err)
 			}
 
 			redisAction = "SET"
 			startTime = time.Now()
-			redisClient.SetEX(ctx, r.RequestURI, rec.Result().Body, cacheDuration)
+			redisClient.SetEX(ctx, r.RequestURI, data.Bytes(), cacheDuration)
 			endTime = time.Now()
 
 		} else if err != nil {
@@ -66,12 +69,11 @@ func FromCacheOrDB(redisClient *redis.Client, redisHostName string, insight appi
 		} else {
 
 			res := []byte(payload)
+			w.Header().Set("X-CACHE-HIT", "1")
 			_, err = w.Write(res)
 			if err != nil {
 				panic(err)
 			}
-
-			w.Header().Set("X-CACHE-HIT", "1")
 
 		}
 
