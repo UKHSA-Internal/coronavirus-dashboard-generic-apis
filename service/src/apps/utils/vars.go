@@ -2,15 +2,17 @@ package utils
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 )
 
 type RouteEntry struct {
-	Name        string
-	Path        string
-	QueryParams []string
-	Handler     func(appinsights.TelemetryClient) func(http.ResponseWriter, *http.Request)
+	Name          string
+	Path          string
+	QueryParams   []string
+	Handler       func(appinsights.TelemetryClient) func(http.ResponseWriter, *http.Request)
+	CacheDuration time.Duration
 }
 
 var (
