@@ -123,14 +123,14 @@ var UrlPatterns = &[]utils.RouteEntry{
 		`/generic/metric_availability/{area_type:[a-zA-Z]{2,12}}`,
 		[]string{"date", `202\d-[01]\d-[0123]\d`},
 		metric_availability.Handler,
-		time.Minute * 30,
+		time.Minute * 5,
 	},
 	{
 		"metric_availability_by_area",
 		`/generic/metric_availability/{area_type:[a-zA-Z]{2,12}}/{area_code:[a-zA-Z0-9]{3,10}}`,
 		[]string{"date", `202\d-[01]\d-[0123]\d`},
 		metric_availability.Handler,
-		time.Minute * 30,
+		time.Minute * 5,
 	},
 	{
 		"change_logs",
