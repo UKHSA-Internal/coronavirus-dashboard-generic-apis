@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"strings"
 	"time"
 
@@ -14,6 +13,7 @@ import (
 	"github.com/caarlos0/env"
 	"github.com/go-redis/redis/v8"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
+	unit "unit.nginx.org/go"
 )
 
 type RedisClient struct {
@@ -80,20 +80,17 @@ func Run(apiClient *base.Api) {
 	// Initialise the application
 	apiClient.Initialize()
 
-	// res := apiClient.RedisClient.Ping(context.Background())
-	// fmt.Println(res)
-	//
 	// Uncomment for local testing
-	if err = http.ListenAndServe(addr, apiClient.Router); err != nil {
-		panic(err)
-	}
+	// if err = http.ListenAndServe(addr, apiClient.Router); err != nil {
+	// 	panic(err)
+	// }
 
 	// Comment for testing
 	// This will only run inside the container - needs Nginx Unit
 	// to be installed.
-	// if err = unit.ListenAndServe(addr, apiClient.Router); err != nil {
-	// 	panic(err)
-	// }
+	if err = unit.ListenAndServe(addr, apiClient.Router); err != nil {
+		panic(err)
+	}
 
 	// Finalise the app - prepare to exit.
 	apiClient.RedisQueue.FinaliseAndClose(10 * time.Second)
