@@ -1,15 +1,12 @@
 package api
 
 import (
-	"context"
 	"fmt"
 	"strings"
 	"time"
 
 	"generic_apis/base"
 	"generic_apis/insight"
-	"generic_apis/middleware"
-	"generic_apis/taks_queue"
 	"github.com/caarlos0/env"
 	"github.com/go-redis/redis/v8"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
@@ -69,13 +66,13 @@ func Run(apiClient *base.Api) {
 	}()
 
 	// Redis background jobs
-	ctx := context.Background()
-	setter := func(args interface{}) {
-		payload := args.(middleware.SetExPayload)
-		apiClient.RedisClient.SetEX(ctx, payload.Key, payload.Value, payload.Duration)
-	}
+	// ctx := context.Background()
+	// setter := func(args interface{}) {
+	// 	payload := args.(middleware.SetExPayload)
+	// 	apiClient.RedisClient.SetEX(ctx, payload.Key, payload.Value, payload.Duration)
+	// }
 
-	apiClient.RedisQueue = taks_queue.NewQueue(setter, redisPoolSize)
+	// apiClient.RedisQueue = taks_queue.NewQueue(setter, redisPoolSize)
 
 	// Initialise the application
 	apiClient.Initialize()

@@ -66,12 +66,12 @@ func FromCacheOrDB(redisClient *redis.Client, redisQueue *taks_queue.Queue, redi
 
 			redisAction = "SET"
 			startTime = time.Now()
-			setExPayload := SetExPayload{
-				Key:      r.RequestURI,
-				Value:    data.Bytes(),
-				Duration: cacheDuration,
-			}
-			redisQueue.Push(setExPayload)
+			// setExPayload := SetExPayload{
+			// 	Key:      r.RequestURI,
+			// 	Value:    data.Bytes(),
+			// 	Duration: cacheDuration,
+			// }
+			// redisQueue.Push(setExPayload)
 			redisClient.SetEX(ctx, r.RequestURI, data.Bytes(), cacheDuration)
 			endTime = time.Now()
 
