@@ -8,16 +8,23 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"generic_apis/taks_queue"
 	"github.com/go-redis/redis/v8"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 )
 
 type HandlerFunc func(appinsights.TelemetryClient) func(http.ResponseWriter, *http.Request)
 
+type SetExPayload struct {
+	Key      string
+	Value    []byte
+	Duration time.Duration
+}
+
 var ctx = context.Background()
 
-func FromCacheOrDB(redisClient *redis.Client, redisHostName string, insight appinsights.TelemetryClient,
-	cacheDuration time.Duration, handler HandlerFunc) http.HandlerFunc {
+func FromCacheOrDB(redisClient *redis.Client, redisQueue *taks_queue.Queue, redisHostName string,
+	insight appinsights.TelemetryClient, cacheDuration time.Duration, handler HandlerFunc) http.HandlerFunc {
 
 	handlerFunc := handler(insight)
 
@@ -59,6 +66,12 @@ func FromCacheOrDB(redisClient *redis.Client, redisHostName string, insight appi
 
 			redisAction = "SET"
 			startTime = time.Now()
+			setExPayload := SetExPayload{
+				Key:      r.RequestURI,
+				Value:    data.Bytes(),
+				Duration: cacheDuration,
+			}
+			redisQueue.Push(setExPayload)
 			redisClient.SetEX(ctx, r.RequestURI, data.Bytes(), cacheDuration)
 			endTime = time.Now()
 
