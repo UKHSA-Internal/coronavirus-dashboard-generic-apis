@@ -7,6 +7,7 @@ import (
 	"generic_apis/apps/utils"
 	"generic_apis/db"
 	"generic_apis/middleware"
+	"generic_apis/taks_queue"
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
@@ -20,6 +21,7 @@ type Api struct {
 	Port          string `env:"WEBSITE_PORT"`
 	RedisClient   *redis.Client
 	RedisHostName string
+	RedisQueue    *taks_queue.Queue
 }
 
 func (apiClient *Api) Initialize() {
@@ -41,6 +43,7 @@ func (apiClient *Api) Initialize() {
 				route.Path,
 				middleware.FromCacheOrDB(
 					apiClient.RedisClient,
+					apiClient.RedisQueue,
 					apiClient.RedisHostName,
 					apiClient.Insight,
 					route.CacheDuration,

@@ -1,16 +1,19 @@
 package api
 
 import (
+	"context"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
 	"generic_apis/base"
 	"generic_apis/insight"
+	"generic_apis/middleware"
+	"generic_apis/taks_queue"
 	"github.com/caarlos0/env"
 	"github.com/go-redis/redis/v8"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
-	unit "unit.nginx.org/go"
 )
 
 type RedisClient struct {
@@ -19,6 +22,8 @@ type RedisClient struct {
 	AzureRedisPassword string `env:"AZURE_REDIS_PASSWORD"`
 	redisHostName      string
 }
+
+const redisPoolSize = 3
 
 func (conf *RedisClient) getRedisClient() *redis.Client {
 
@@ -32,6 +37,7 @@ func (conf *RedisClient) getRedisClient() *redis.Client {
 		Addr:     fmt.Sprintf("%s:%s", conf.AzureRedisHost, conf.AzureRedisPort),
 		Password: conf.AzureRedisPassword,
 		DB:       3,
+		PoolSize: redisPoolSize,
 	})
 
 	return redisClient
@@ -53,6 +59,7 @@ func Run(apiClient *base.Api) {
 	defer appinsights.TrackPanic(apiClient.Insight, true)
 	apiClient.Routes = UrlPatterns
 
+	// Redis initialisation
 	redisConf := &RedisClient{}
 	apiClient.RedisClient = redisConf.getRedisClient()
 	apiClient.RedisHostName = redisConf.redisHostName
@@ -61,22 +68,35 @@ func Run(apiClient *base.Api) {
 		panic(err)
 	}()
 
+	// Redis background jobs
+	ctx := context.Background()
+	setter := func(args interface{}) {
+		payload := args.(middleware.SetExPayload)
+		apiClient.RedisClient.SetEX(ctx, payload.Key, payload.Value, payload.Duration)
+	}
+
+	apiClient.RedisQueue = taks_queue.NewQueue(setter, redisPoolSize)
+
+	// Initialise the application
 	apiClient.Initialize()
 
 	// res := apiClient.RedisClient.Ping(context.Background())
 	// fmt.Println(res)
 	//
 	// Uncomment for local testing
-	// if err = http.ListenAndServe(addr, apiClient.Router); err != nil {
-	// 	panic(err)
-	// }
+	if err = http.ListenAndServe(addr, apiClient.Router); err != nil {
+		panic(err)
+	}
 
 	// Comment for testing
 	// This will only run inside the container - needs Nginx Unit
 	// to be installed.
-	if err = unit.ListenAndServe(addr, apiClient.Router); err != nil {
-		panic(err)
-	}
+	// if err = unit.ListenAndServe(addr, apiClient.Router); err != nil {
+	// 	panic(err)
+	// }
+
+	// Finalise the app - prepare to exit.
+	apiClient.RedisQueue.FinaliseAndClose(10 * time.Second)
 
 	select {
 	case <-apiClient.Insight.Channel().Close(10 * time.Second):
