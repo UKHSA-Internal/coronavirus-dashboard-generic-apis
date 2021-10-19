@@ -1,58 +1,33 @@
 package api
 
 import (
-	"context"
 	"fmt"
-	"strings"
+	"net/http"
 	"time"
 
+	"generic_apis/apps/healthcheck"
 	"generic_apis/base"
+	"generic_apis/caching"
 	"generic_apis/insight"
-	"generic_apis/middleware"
 	"generic_apis/taks_queue"
 	"github.com/caarlos0/env"
-	"github.com/go-redis/redis/v8"
+	"github.com/gorilla/mux"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
-	unit "unit.nginx.org/go"
 )
-
-type RedisClient struct {
-	AzureRedisHost     string `env:"AZURE_REDIS_HOST"`
-	AzureRedisPort     string `env:"AZURE_REDIS_PORT"`
-	AzureRedisPassword string `env:"AZURE_REDIS_PASSWORD"`
-	redisHostName      string
-}
-
-const redisPoolSize = 3
-
-func (conf *RedisClient) getRedisClient() *redis.Client {
-
-	if err := env.Parse(conf); err != nil {
-		panic(err)
-	}
-
-	conf.redisHostName = strings.Split(conf.AzureRedisHost, ".")[0]
-
-	redisClient := redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%s", conf.AzureRedisHost, conf.AzureRedisPort),
-		Password: conf.AzureRedisPassword,
-		DB:       3,
-		PoolSize: redisPoolSize,
-	})
-
-	return redisClient
-
-} // getRedisClient
 
 func Run(apiClient *base.Api) {
 
 	var err error
 
-	if err = env.Parse(apiClient); err != nil {
+	if err = healthcheck.CreateHealthCheckFile(); err != nil {
 		panic(err)
 	}
 
-	addr := fmt.Sprintf(":%s", apiClient.Port)
+	defer healthcheck.RemoveHealthCheckFile()
+
+	if err = env.Parse(apiClient); err != nil {
+		panic(err)
+	}
 
 	// Insight initialisation
 	apiClient.Insight = insight.InitialiseInsightClient()
@@ -60,40 +35,36 @@ func Run(apiClient *base.Api) {
 	apiClient.Routes = UrlPatterns
 
 	// Redis initialisation
-	redisConf := &RedisClient{}
-	apiClient.RedisClient = redisConf.getRedisClient()
-	apiClient.RedisHostName = redisConf.redisHostName
+	redisConf := &caching.Config{}
+	apiClient.Redis = &caching.RedisClient{
+		Client:   redisConf.GetRedisClient(),
+		HostName: redisConf.HostName,
+	}
+	apiClient.Redis.Queue = taks_queue.NewQueue(caching.SetEx(apiClient.Redis), caching.RedisMinClients)
+
 	defer func() {
-		err = apiClient.RedisClient.Close()
+		err = apiClient.Redis.Client.Close()
 		panic(err)
 	}()
 
-	// Redis background jobs
-	ctx := context.Background()
-	setter := func(args interface{}) {
-		payload := args.(middleware.SetExPayload)
-		apiClient.RedisClient.SetEX(ctx, payload.Key, payload.Value, payload.Duration)
-	}
-
-	apiClient.RedisQueue = taks_queue.NewQueue(setter, redisPoolSize)
-
 	// Initialise the application
+	apiClient.Router = mux.NewRouter()
 	apiClient.Initialize()
 
-	// Uncomment for local testing
-	// if err = http.ListenAndServe(addr, apiClient.Router); err != nil {
-	// 	panic(err)
-	// }
+	// Launch server
+	srv := &http.Server{
+		Addr:         fmt.Sprintf(":%s", apiClient.Port),
+		Handler:      apiClient.Router,
+		WriteTimeout: 5 * time.Second,
+		ReadTimeout:  5 * time.Second,
+	}
 
-	// Comment for testing
-	// This will only run inside the container - needs Nginx Unit
-	// to be installed.
-	if err = unit.ListenAndServe(addr, apiClient.Router); err != nil {
+	if err = srv.ListenAndServe(); err != nil {
 		panic(err)
 	}
 
 	// Finalise the app - prepare to exit.
-	apiClient.RedisQueue.FinaliseAndClose(10 * time.Second)
+	apiClient.Redis.Queue.FinaliseAndClose(10 * time.Second)
 
 	select {
 	case <-apiClient.Insight.Channel().Close(10 * time.Second):

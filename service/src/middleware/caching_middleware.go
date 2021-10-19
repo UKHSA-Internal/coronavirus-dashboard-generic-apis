@@ -8,23 +8,17 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"generic_apis/taks_queue"
+	"generic_apis/caching"
 	"github.com/go-redis/redis/v8"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 )
 
 type HandlerFunc func(appinsights.TelemetryClient) func(http.ResponseWriter, *http.Request)
 
-type SetExPayload struct {
-	Key      string
-	Value    []byte
-	Duration time.Duration
-}
-
 var ctx = context.Background()
 
-func FromCacheOrDB(redisClient *redis.Client, redisQueue *taks_queue.Queue, redisHostName string,
-	insight appinsights.TelemetryClient, cacheDuration time.Duration, handler HandlerFunc) http.HandlerFunc {
+func FromCacheOrDB(redisCli *caching.RedisClient, insight appinsights.TelemetryClient, cacheDuration time.Duration,
+	handler HandlerFunc) http.HandlerFunc {
 
 	handlerFunc := handler(insight)
 
@@ -45,7 +39,7 @@ func FromCacheOrDB(redisClient *redis.Client, redisQueue *taks_queue.Queue, redi
 		} else {
 			redisAction = "GET"
 			startTime = time.Now()
-			payload, err = redisClient.Get(ctx, r.RequestURI).Result()
+			payload, err = redisCli.Client.Get(ctx, r.RequestURI).Result()
 			endTime = time.Now()
 		}
 
@@ -55,7 +49,8 @@ func FromCacheOrDB(redisClient *redis.Client, redisQueue *taks_queue.Queue, redi
 
 			rec := httptest.NewRecorder()
 			handlerFunc(rec, r)
-			w.WriteHeader(rec.Result().StatusCode)
+			statusCode := rec.Result().StatusCode
+			w.WriteHeader(statusCode)
 
 			data := bytes.NewBuffer(nil)
 			_, err = io.Copy(data, rec.Result().Body)
@@ -63,16 +58,18 @@ func FromCacheOrDB(redisClient *redis.Client, redisQueue *taks_queue.Queue, redi
 			if err != nil {
 				panic(err)
 			}
+			if statusCode >= 400 {
+				return
+			}
 
 			redisAction = "SET"
 			startTime = time.Now()
-			setExPayload := SetExPayload{
+			setExPayload := &caching.SetExPayload{
 				Key:      r.RequestURI,
 				Value:    data.Bytes(),
 				Duration: cacheDuration,
 			}
-			redisQueue.Push(setExPayload)
-			redisClient.SetEX(ctx, r.RequestURI, data.Bytes(), cacheDuration)
+			redisCli.Queue.Push(setExPayload)
 			endTime = time.Now()
 
 		} else if err != nil {
@@ -91,9 +88,9 @@ func FromCacheOrDB(redisClient *redis.Client, redisQueue *taks_queue.Queue, redi
 		}
 
 		dependency := appinsights.NewRemoteDependencyTelemetry(
-			redisHostName,
+			redisCli.HostName,
 			"Redis",
-			"redis",
+			"caching",
 			err == nil,
 		)
 		dependency.Data = r.RequestURI

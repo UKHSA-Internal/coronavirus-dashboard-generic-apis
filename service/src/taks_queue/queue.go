@@ -1,5 +1,10 @@
 package taks_queue
 
+// Task queues to run background jobs without blocking the
+// main thread.
+//
+// Adaptation of `github.com/otium/queue` - MIT license.
+
 import (
 	"runtime"
 	"sync"
@@ -18,8 +23,6 @@ type queue struct {
 	Handler          Handler
 	ConcurrencyLimit uint32
 
-	// close            time.Duration
-	// killAfter        time.Duration
 	finalise chan *finalise
 
 	push      chan interface{}
@@ -53,20 +56,20 @@ func NewQueue(handler Handler, concurrencyLimit uint32) *Queue {
 	go q.run()
 	runtime.SetFinalizer(q, (*Queue).Stop)
 	return q
-}
+} // NewQueue
 
 func (q *Queue) Push(val interface{}) {
 	q.push <- val
-}
+} // Push
 
 func (q *Queue) Stop() {
 	q.stop <- struct{}{}
 	runtime.SetFinalizer(q, nil)
-}
+} // Stop
 
 func (q *Queue) Wait() {
 	q.wg.Wait()
-}
+} // Wait
 
 func (q *Queue) FinaliseAndClose(timeout time.Duration) {
 	result := make(chan bool)
@@ -78,23 +81,11 @@ func (q *Queue) FinaliseAndClose(timeout time.Duration) {
 
 	<-result
 	close(result)
-}
-
-// func (q *Queue) KillAfter(timeout time.Duration) {
-// 	result := make(chan bool)
-// 	throttle.msgs <- &throttleMessage{
-// 		stop:   true,
-// 		result: result,
-// 		msg:    result,
-// 	}
-//
-// 	<-result
-// 	close(result)
-// }
+} // FinaliseAndCLose
 
 func (q *Queue) Len() (_, _ uint32) {
 	return q.count, uint32(len(q.buffer))
-}
+} // Len
 
 func (q *queue) run() {
 
@@ -157,4 +148,4 @@ func (q *queue) run() {
 
 	}
 
-}
+} // run

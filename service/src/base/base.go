@@ -5,46 +5,54 @@ import (
 
 	"generic_apis/apps/healthcheck"
 	"generic_apis/apps/utils"
+	"generic_apis/caching"
 	"generic_apis/db"
 	"generic_apis/middleware"
-	"generic_apis/taks_queue"
-	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 )
 
 type Api struct {
-	Router        *mux.Router
-	Routes        *[]utils.RouteEntry
-	Database      *db.Config
-	Insight       appinsights.TelemetryClient
-	Port          string `env:"WEBSITE_PORT"`
-	RedisClient   *redis.Client
-	RedisHostName string
-	RedisQueue    *taks_queue.Queue
+	Router   *mux.Router
+	Routes   *[]utils.RouteEntry
+	Database *db.Config
+	Insight  appinsights.TelemetryClient
+	Port     string `env:"WEBSITE_PORT"`
+	Redis    *caching.RedisClient
 }
+
+const (
+	openApiFilePath = "/opt/app/assets"
+	openApiUri      = "/generic/openapi.json"
+	heathCheckPath  = "/generic/healthcheck"
+	healthCheckName = "healthcheck"
+)
 
 func (apiClient *Api) Initialize() {
 
-	apiClient.Router = mux.NewRouter()
+	// Setting the middleware
 	apiClient.Router.Use(
 		middleware.LogRequest,
 		middleware.HeadersMiddleware,
 		middleware.PrepareTelemetryMiddleware(apiClient.Insight),
 	)
 
+	// Health check
 	apiClient.Router.
-		Handle(`/generic/healthcheck`, healthcheck.Handler()).
-		Name("healthcheck")
+		HandleFunc(heathCheckPath, healthcheck.Handler()).
+		Name(healthCheckName)
 
+	// Static files
+	fs := http.FileServer(http.Dir(openApiFilePath))
+	apiClient.Router.Handle(openApiUri, fs)
+
+	// API routes
 	for _, route := range *apiClient.Routes {
 		apiClient.Router.
 			HandleFunc(
 				route.Path,
 				middleware.FromCacheOrDB(
-					apiClient.RedisClient,
-					apiClient.RedisQueue,
-					apiClient.RedisHostName,
+					apiClient.Redis,
 					apiClient.Insight,
 					route.CacheDuration,
 					route.Handler,
