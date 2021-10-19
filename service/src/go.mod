@@ -4,7 +4,6 @@ go 1.16
 
 require (
 	github.com/caarlos0/env v3.5.0+incompatible
-	github.com/etherlabsio/healthcheck/v2 v2.0.0
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/gofrs/uuid v4.0.0+incompatible // indirect
 	github.com/gomarkdown/markdown v0.0.0-20210514010506-3b9f47219fe7
