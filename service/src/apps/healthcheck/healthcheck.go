@@ -15,17 +15,40 @@ const FilePath = "/opt/healthcheck.txt"
 
 var isDev, _ = os.LookupEnv("IS_DEV")
 
+func isHealthy() (bool, error) {
+
+	_, err := os.Stat(FilePath)
+
+	if err == nil {
+		return true, nil
+	}
+
+	if errors.Is(err, os.ErrNotExist) {
+		return false, nil
+	}
+
+	return false, err
+
+} // isHealthy
+
 func CreateHealthCheckFile() error {
 	var (
-		f   *os.File
-		err error
+		f      *os.File
+		err    error
+		exists bool
 	)
 
 	if isDev == "1" {
 		return err
 	}
 
-	f, err = os.OpenFile(FilePath, os.O_CREATE|os.O_RDWR, 0650)
+	if exists, err = isHealthy(); err != nil {
+		panic(err)
+	} else if exists {
+		return nil
+	}
+
+	f, err = os.OpenFile(FilePath, os.O_CREATE|os.O_RDWR, 0770)
 
 	if err = f.Close(); err != nil {
 		panic(err)
@@ -43,22 +66,6 @@ func RemoveHealthCheckFile() {
 		panic(err)
 	}
 }
-
-func isHealthy() (bool, error) {
-
-	_, err := os.Stat(FilePath)
-
-	if err == nil {
-		return true, nil
-	}
-
-	if errors.Is(err, os.ErrNotExist) {
-		return false, nil
-	}
-
-	return false, err
-
-} // isHealthy
 
 func Handler() http.HandlerFunc {
 
