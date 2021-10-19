@@ -39,7 +39,7 @@ func (apiClient *Api) Initialize() {
 
 	// Health check
 	apiClient.Router.
-		Handle(heathCheckPath, healthcheck.Handler()).
+		HandleFunc(heathCheckPath, healthcheck.Handler()).
 		Name(healthCheckName)
 
 	// Static files
