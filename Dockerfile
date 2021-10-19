@@ -12,13 +12,16 @@ RUN rm -rf /opt/src
 
 FROM golang:1.17-alpine
 
-COPY service/server/*.json      /docker-entrypoint.d/
-
 COPY --from=compiler /opt/build  /opt/app
 COPY ./assets                    /opt/app/assets/generic
+COPY ./health_status.sh          /opt/health_status.sh
 
 RUN chmod +x /opt/app/generic_api
+RUN chmod +x /opt/health_status.sh
 
 EXPOSE 5100
 
 ENTRYPOINT ["/opt/app/generic_api"]
+
+HEALTHCHECK --interval=20s --timeout=3s \
+    CMD /opt/health_status.sh
