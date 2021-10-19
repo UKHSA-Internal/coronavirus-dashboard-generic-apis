@@ -3,9 +3,8 @@ version: '3.7'
 services:
   covid19-generic-apis:
     build: .
+    restart: always
     env_file:
       - .env.dev
-    volumes:
-      - ./service/server/:/docker-entrypoint.d/
     ports:
-      - 5300:5100
+      - 5300:5200
