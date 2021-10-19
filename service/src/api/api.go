@@ -54,7 +54,7 @@ func Run(apiClient *base.Api) {
 
 	// Launch server
 	srv := &http.Server{
-		Addr:         fmt.Sprintf("0.0.0.0:%s", apiClient.Port),
+		Addr:         fmt.Sprintf(":%s", apiClient.Port),
 		Handler:      apiClient.Router,
 		WriteTimeout: 5 * time.Second,
 		ReadTimeout:  5 * time.Second,
