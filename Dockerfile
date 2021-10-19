@@ -1,5 +1,7 @@
 FROM golang:1.16
 
+ENV WEBSITE_PORT = "5100"
+
 WORKDIR /opt/src
 
 COPY ./service/src      /opt/src
