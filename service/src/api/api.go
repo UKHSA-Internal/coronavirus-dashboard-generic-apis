@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"generic_apis/apps/healthcheck"
 	"generic_apis/base"
 	"generic_apis/caching"
 	"generic_apis/insight"
@@ -17,6 +18,12 @@ import (
 func Run(apiClient *base.Api) {
 
 	var err error
+
+	if err = healthcheck.CreateHealthCheckFile(); err != nil {
+		panic(err)
+	}
+
+	defer healthcheck.RemoveHealthCheckFile()
 
 	if err = env.Parse(apiClient); err != nil {
 		panic(err)
@@ -41,6 +48,7 @@ func Run(apiClient *base.Api) {
 	}()
 
 	// Initialise the application
+	apiClient.Router = mux.NewRouter()
 	apiClient.Initialize()
 
 	// Launch server
@@ -51,18 +59,9 @@ func Run(apiClient *base.Api) {
 		ReadTimeout:  5 * time.Second,
 	}
 
-	apiClient.Router = mux.NewRouter()
-
 	if err = srv.ListenAndServe(); err != nil {
 		panic(err)
 	}
-
-	// Comment for testing
-	// This will only run inside the container - needs Nginx Unit
-	// to be installed.
-	// if err = unit.ListenAndServe(addr, apiClient.Router); err != nil {
-	// 	panic(err)
-	// }
 
 	// Finalise the app - prepare to exit.
 	apiClient.Redis.Queue.FinaliseAndClose(10 * time.Second)
