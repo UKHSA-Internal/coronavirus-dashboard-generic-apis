@@ -33,7 +33,7 @@ func Run(apiClient *base.Api) {
 		Client:   redisConf.GetRedisClient(),
 		HostName: redisConf.HostName,
 	}
-	apiClient.Redis.Queue = taks_queue.NewQueue(caching.SetEx(apiClient.Redis), caching.RedisPoolSize)
+	apiClient.Redis.Queue = taks_queue.NewQueue(caching.SetEx(apiClient.Redis), caching.RedisMinClients)
 
 	defer func() {
 		err = apiClient.Redis.Client.Close()
