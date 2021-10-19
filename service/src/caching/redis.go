@@ -31,7 +31,7 @@ type RedisClient struct {
 }
 
 const (
-	RedisPoolSize     = 5
+	RedisMinClients   = 5
 	RedisDB           = 3
 	hostUrlDelimiter  = "."
 	redisAddrTemplate = "%s:%s"
@@ -46,10 +46,10 @@ func (conf *Config) GetRedisClient() *redis.Client {
 	conf.HostName = strings.Split(conf.AzureRedisHost, hostUrlDelimiter)[0]
 
 	redisOpts := &redis.Options{
-		Addr:     fmt.Sprintf(redisAddrTemplate, conf.AzureRedisHost, conf.AzureRedisPort),
-		Password: conf.AzureRedisPassword,
-		DB:       RedisDB,
-		PoolSize: RedisPoolSize,
+		Addr:         fmt.Sprintf(redisAddrTemplate, conf.AzureRedisHost, conf.AzureRedisPort),
+		Password:     conf.AzureRedisPassword,
+		DB:           RedisDB,
+		MinIdleConns: RedisMinClients,
 	}
 
 	redisClient := redis.NewClient(redisOpts)
