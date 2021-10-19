@@ -8,6 +8,7 @@ import (
 	"generic_apis/caching"
 	"generic_apis/db"
 	"generic_apis/middleware"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 )
@@ -32,6 +33,7 @@ func (apiClient *Api) Initialize() {
 
 	// Setting the middleware
 	apiClient.Router.Use(
+		handlers.ProxyHeaders,
 		middleware.LogRequest,
 		middleware.HeadersMiddleware,
 		middleware.PrepareTelemetryMiddleware(apiClient.Insight),

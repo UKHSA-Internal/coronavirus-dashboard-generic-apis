@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -53,12 +54,13 @@ func Run(apiClient *base.Api) {
 
 	// Launch server
 	srv := &http.Server{
-		Addr:         fmt.Sprintf(":%s", apiClient.Port),
+		Addr:         fmt.Sprintf("0.0.0.0:%s", apiClient.Port),
 		Handler:      apiClient.Router,
 		WriteTimeout: 5 * time.Second,
 		ReadTimeout:  5 * time.Second,
 	}
 
+	log.Printf("Running on '%s'\n", srv.Addr)
 	if err = srv.ListenAndServe(); err != nil {
 		panic(err)
 	}
@@ -70,10 +72,10 @@ func Run(apiClient *base.Api) {
 	case <-apiClient.Insight.Channel().Close(10 * time.Second):
 		// Ten second timeout for retries.
 		// All telemetry should have been submitted
-		// successfully and we can proceed to exiting.
+		// successfully - we can proceed to exiting.
 
 	case <-time.After(30 * time.Second):
-		// Thirty second absolute timeout.  This covers any
+		// Thirty-second absolute timeout.  This covers any
 		// previous telemetry submission that may not have
 		// completed before Close was called.
 		// There are a number of reasons we could have

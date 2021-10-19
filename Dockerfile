@@ -1,4 +1,4 @@
-FROM golang:1.17-alpine as compiler
+FROM golang:1.16
 
 WORKDIR /opt/src
 
@@ -6,22 +6,12 @@ COPY ./service/src      /opt/src
 
 RUN mkdir -p /opt/build
 RUN go mod download
-RUN go build -o /opt/build/generic_api
+RUN go build -o /opt/app/generic_api
 RUN rm -rf /opt/src
 
-
-FROM golang:1.17-alpine
-
-COPY --from=compiler /opt/build  /opt/app
-COPY ./assets                    /opt/app/assets/generic
-COPY ./health_status.sh          /opt/health_status.sh
-
-RUN chmod +x /opt/app/generic_api
-RUN chmod +x /opt/health_status.sh
-
-EXPOSE 5100
+COPY ./assets                         /opt/app/assets/generic
+COPY ./health_status.sh               /opt/health_status.sh
 
 ENTRYPOINT ["/opt/app/generic_api"]
 
-HEALTHCHECK --interval=20s --timeout=3s \
-    CMD /opt/health_status.sh
+EXPOSE 5100
