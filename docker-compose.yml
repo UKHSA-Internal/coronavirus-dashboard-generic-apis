@@ -7,4 +7,4 @@ services:
     env_file:
       - .env.dev
     ports:
-      - 5300:5200
+      - 5300:5100
