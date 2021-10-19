@@ -22,6 +22,3 @@ RUN chmod +x /opt/health_status.sh
 EXPOSE 5100
 
 ENTRYPOINT ["/opt/app/generic_api"]
-
-HEALTHCHECK --interval=20s --timeout=3s \
-    CMD /opt/health_status.sh
