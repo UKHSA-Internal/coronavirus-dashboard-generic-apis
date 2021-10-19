@@ -7,8 +7,8 @@ import (
 )
 
 var headers = map[string]string{
-	"content-type":              "application/vnd.PHE-COVID19.v1+json; charset=utf-8",
-	"server":                    "PHE API Service v.1 (Unix) - Go",
+	"content-type":              "application/vnd.UKHSA-COVID19.v1+json; charset=utf-8",
+	"server":                    "UKHSA API Service v.1 (Unix) - Go",
 	"Strict-Transport-Security": "max-age=31536000; includeSubdomains; preload",
 	"x-frame-options":           "deny",
 	"x-content-type-options":    "nosniff",
@@ -16,8 +16,8 @@ var headers = map[string]string{
 	"referrer-policy":           "origin-when-cross-origin, strict-origin-when-cross-origin",
 	"content-security-policy": "default-src 'self' coronavirus.data.gov.uk *.coronavirus.data.gov.uk; " +
 		"style-src 'self' 'unsafe-inline' coronavirus.data.gov.uk *.coronavirus.data.gov.uk",
-	"x-phe-media-type": "PHE-COVID19.v1",
-	"phe-server-loc":   os.Getenv("SERVER_LOCATION"),
+	"x-UKHSA-media-type": "UKHSA-COVID19.generic",
+	"x-UKHSA-server-loc": os.Getenv("SERVER_LOCATION"),
 }
 
 func HeadersMiddleware(next http.Handler) http.Handler {
