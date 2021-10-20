@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"time"
 
 	"generic_apis/insight"
@@ -46,7 +47,7 @@ func Connect(insight appinsights.TelemetryClient) (*Config, error) {
 	var err error
 	conf := &Config{Insight: insight}
 	if err = env.Parse(conf); err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 
 	conf.dbConfig, err = pgx.ParseConfig(conf.DatabaseConnectionString)
