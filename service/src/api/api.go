@@ -21,13 +21,13 @@ func Run(apiClient *base.Api) {
 	var err error
 
 	if err = healthcheck.CreateHealthCheckFile(); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	defer healthcheck.RemoveHealthCheckFile()
 
 	if err = env.Parse(apiClient); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	// Insight initialisation
@@ -45,7 +45,7 @@ func Run(apiClient *base.Api) {
 
 	defer func() {
 		err = apiClient.Redis.Client.Close()
-		panic(err)
+		log.Fatal(err)
 	}()
 
 	// Initialise the application
