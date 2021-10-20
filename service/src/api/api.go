@@ -3,17 +3,16 @@ package api
 import (
 	"fmt"
 	"log"
-	"net/http"
 	"time"
 
 	"generic_apis/apps/healthcheck"
 	"generic_apis/base"
 	"generic_apis/caching"
 	"generic_apis/insight"
-	"generic_apis/taks_queue"
 	"github.com/caarlos0/env"
 	"github.com/gorilla/mux"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
+	"unit.nginx.org/go"
 )
 
 func Run(apiClient *base.Api) {
@@ -41,7 +40,6 @@ func Run(apiClient *base.Api) {
 		Client:   redisConf.GetRedisClient(),
 		HostName: redisConf.HostName,
 	}
-	apiClient.Redis.Queue = taks_queue.NewQueue(caching.SetEx(apiClient.Redis), caching.RedisMinClients)
 
 	defer func() {
 		err = apiClient.Redis.Client.Close()
@@ -52,21 +50,18 @@ func Run(apiClient *base.Api) {
 	apiClient.Router = mux.NewRouter()
 	apiClient.Initialize()
 
-	// Launch server
-	srv := &http.Server{
-		Addr:         fmt.Sprintf(":%s", apiClient.Port),
-		Handler:      apiClient.Router,
-		WriteTimeout: 5 * time.Second,
-		ReadTimeout:  5 * time.Second,
-	}
+	bindingAddr := fmt.Sprintf(":%s", apiClient.Port)
+	log.Printf("Running on '%s'\n", bindingAddr)
 
-	log.Printf("Running on '%s'\n", srv.Addr)
-	if err = srv.ListenAndServe(); err != nil {
-		panic(err)
-	}
+	// Uncomment for running locally
+	// if err = http.ListenAndServe(bindingAddr, apiClient.Router); err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	// Finalise the app - prepare to exit.
-	apiClient.Redis.Queue.FinaliseAndClose(10 * time.Second)
+	// Comment for running locally
+	if err = unit.ListenAndServe(bindingAddr, apiClient.Router); err != nil {
+		log.Fatal(err)
+	}
 
 	select {
 	case <-apiClient.Insight.Channel().Close(10 * time.Second):
