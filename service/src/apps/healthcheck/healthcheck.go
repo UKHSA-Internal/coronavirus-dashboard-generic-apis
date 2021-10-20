@@ -2,7 +2,7 @@ package healthcheck
 
 import (
 	"encoding/json"
-	"errors"
+	"log"
 	"net/http"
 	"os"
 )
@@ -11,7 +11,7 @@ type serviceStatus struct {
 	Status string `json:"status"`
 }
 
-const FilePath = "/opt/healthcheck.txt"
+const FilePath = "/opt/healthcheck/healthy.txt"
 
 var isDev, _ = os.LookupEnv("IS_DEV")
 
@@ -23,7 +23,7 @@ func isHealthy() (bool, error) {
 		return true, nil
 	}
 
-	if errors.Is(err, os.ErrNotExist) {
+	if os.IsNotExist(err) {
 		return false, nil
 	}
 
@@ -32,6 +32,7 @@ func isHealthy() (bool, error) {
 } // isHealthy
 
 func CreateHealthCheckFile() error {
+
 	var (
 		f      *os.File
 		err    error
@@ -48,16 +49,23 @@ func CreateHealthCheckFile() error {
 		return nil
 	}
 
-	f, err = os.OpenFile(FilePath, os.O_CREATE|os.O_RDWR, 0770)
+	f, err = os.OpenFile(FilePath, os.O_CREATE|os.O_RDWR, 0666)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = f.Write([]byte("1"))
 
 	if err = f.Close(); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	return err
-}
+
+} // CreateHealthCheckFile
 
 func RemoveHealthCheckFile() {
+
 	if isDev == "1" {
 		return
 	}
@@ -65,7 +73,8 @@ func RemoveHealthCheckFile() {
 	if err := os.Remove(FilePath); err != nil {
 		panic(err)
 	}
-}
+
+} // RemoveHealthCheckFile
 
 func Handler() http.HandlerFunc {
 

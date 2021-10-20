@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ -f "/opt/healthcheck.txt" ]; then
+if [ -f "/opt/healthcheck/healthy.txt" ]; then
   echo "Service healthy"
   exit 0
 else
