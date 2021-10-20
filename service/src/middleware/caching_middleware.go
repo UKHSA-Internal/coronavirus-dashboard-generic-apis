@@ -15,6 +15,14 @@ import (
 
 type HandlerFunc func(appinsights.TelemetryClient) func(http.ResponseWriter, *http.Request)
 
+const (
+	cacheHeader = "X-CACHE-HIT"
+	cacheHit    = "1"
+	cacheMiss   = "0"
+	uncached    = "-1"
+	bypassCache = 0
+)
+
 var ctx = context.Background()
 
 func FromCacheOrDB(redisCli *caching.RedisClient, insight appinsights.TelemetryClient, cacheDuration time.Duration,
@@ -24,28 +32,31 @@ func FromCacheOrDB(redisCli *caching.RedisClient, insight appinsights.TelemetryC
 
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		var (
-			payload     string
-			err         error
-			startTime   time.Time
-			endTime     time.Time
-			redisAction string
-		)
+		var payload string
 
-		if cacheDuration == 0 {
-			handlerFunc(w, r)
-			w.Header().Set("X-CACHE-HIT", "-1")
-			return
-		} else {
-			redisAction = "GET"
-			startTime = time.Now()
-			payload, err = redisCli.Client.Get(ctx, r.RequestURI).Result()
-			endTime = time.Now()
+		telemetry := &caching.TelemetryPayload{
+			Insight:       insight,
+			Key:           r.RequestURI,
+			RedisHostName: redisCli.HostName,
 		}
 
-		if err == redis.Nil {
+		if cacheDuration == bypassCache {
+			handlerFunc(w, r)
+			w.Header().Set(cacheHeader, uncached)
+			return
+		} else {
+			telemetry.Action = caching.GetCache
+			telemetry.Start = time.Now()
+			payload, telemetry.Err = redisCli.Client.Get(ctx, r.RequestURI).Result()
+			telemetry.End = time.Now()
+		}
 
-			w.Header().Set("X-CACHE-HIT", "0")
+		if telemetry.Err == redis.Nil {
+
+			telemetry.Err = nil
+			telemetry.Action = caching.SetCache
+
+			w.Header().Set(cacheHeader, cacheMiss)
 
 			rec := httptest.NewRecorder()
 			handlerFunc(rec, r)
@@ -53,49 +64,46 @@ func FromCacheOrDB(redisCli *caching.RedisClient, insight appinsights.TelemetryC
 			w.WriteHeader(statusCode)
 
 			data := bytes.NewBuffer(nil)
-			_, err = io.Copy(data, rec.Result().Body)
-			_, _ = w.Write(data.Bytes())
-			if err != nil {
-				panic(err)
+
+			_, telemetry.Err = io.Copy(data, rec.Result().Body)
+			if telemetry.Err != nil {
+				telemetry.Push()
+				panic(telemetry.Err)
 			}
-			if statusCode >= 400 {
+
+			_, telemetry.Err = w.Write(data.Bytes())
+			if telemetry.Err != nil {
+				telemetry.Push()
+				panic(telemetry.Err)
+			}
+
+			if statusCode >= http.StatusBadRequest {
 				return
 			}
 
-			redisAction = "SET"
-			startTime = time.Now()
-			setExPayload := &caching.SetExPayload{
-				Key:      r.RequestURI,
-				Value:    data.Bytes(),
-				Duration: cacheDuration,
-			}
-			redisCli.Queue.Push(setExPayload)
-			endTime = time.Now()
+			go func() {
+				telemetry.Start = time.Now()
+				redisCli.Client.SetEX(ctx, r.RequestURI, data.Bytes(), cacheDuration)
+				telemetry.End = time.Now()
+				telemetry.Push()
+			}()
 
-		} else if err != nil {
+		} else if telemetry.Err != nil {
 
-			panic(err)
+			telemetry.Push()
+			panic(telemetry.Err)
 
 		} else {
 
 			res := []byte(payload)
-			w.Header().Set("X-CACHE-HIT", "1")
-			_, err = w.Write(res)
-			if err != nil {
-				panic(err)
+			w.Header().Set(cacheHeader, cacheHit)
+
+			if _, telemetry.Err = w.Write(res); telemetry.Err != nil {
+				telemetry.Push()
+				panic(telemetry.Err)
 			}
 
 		}
-
-		dependency := appinsights.NewRemoteDependencyTelemetry(
-			redisCli.HostName,
-			"Redis",
-			"caching",
-			err == nil,
-		)
-		dependency.Data = r.RequestURI
-		dependency.Properties["action"] = redisAction
-		dependency.MarkTime(startTime, endTime)
 
 	}
 
