@@ -1,6 +1,6 @@
 module generic_apis
 
-go 1.16
+go 1.15
 
 require (
 	github.com/caarlos0/env v3.5.0+incompatible
@@ -18,4 +18,5 @@ require (
 	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/stretchr/testify v1.7.0 // indirect
 	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b // indirect
+	unit.nginx.org v0.0.0-20211019092036-11b2404d9305
 )
