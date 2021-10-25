@@ -42,7 +42,7 @@ type RedisClient struct {
 }
 
 const (
-	RedisMinClients   = 5
+	RedisMinClients   = 25
 	RedisDB           = 3
 	hostUrlDelimiter  = "."
 	redisAddrTemplate = "%s:%s"
