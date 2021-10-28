@@ -42,8 +42,10 @@ type RedisClient struct {
 }
 
 const (
-	RedisMinClients   = 25
+	RedisMinClients   = 50
 	RedisDB           = 3
+	RedisReadTimeOut  = 1
+	RedisMaxConnAge   = 180
 	hostUrlDelimiter  = "."
 	redisAddrTemplate = "%s:%s"
 	SetCache          = "SET"
@@ -80,6 +82,8 @@ func (conf *Config) GetRedisClient() *redis.Client {
 		Password:     conf.AzureRedisPassword,
 		DB:           RedisDB,
 		MinIdleConns: RedisMinClients,
+		// ReadTimeout:  RedisReadTimeOut,
+		// MaxConnAge:   RedisMaxConnAge,
 	}
 
 	redisClient := redis.NewClient(redisOpts)

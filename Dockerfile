@@ -1,4 +1,4 @@
-FROM nginx/unit:1.25.0-go1.15 as compiler
+FROM golang:1.15-buster as compiler
 
 WORKDIR /opt/src
 
@@ -8,19 +8,22 @@ RUN mkdir -p /opt/build
 RUN go mod download
 RUN go build -o /opt/build/generic_api
 
-FROM nginx/unit:1.25.0-minimal
+FROM debian:11-slim
 
-COPY /server/*.json              /docker-entrypoint.d/
-COPY /health_status.sh           /opt/health_status.sh
-COPY --from=compiler /opt/build  /opt/app
-COPY ./assets                    /opt/app/assets/generic
+RUN mkdir -p /opt/healthcheck
+COPY ./server/*.json                         /docker-entrypoint.d/
+COPY ./health_status.sh                      /opt/health_status.sh
+COPY ./assets                                /opt/app/assets/generic
+COPY ./server/entrypoint.sh                  /opt/entrypoint.sh
+COPY --from=compiler /opt/build/generic_api  /opt/app/generic_api
 
 RUN chmod +x /opt/app/generic_api
+RUN chmod +x /opt/entrypoint.sh
 RUN chmod +x /opt/health_status.sh
-RUN mkdir /opt/healthcheck
-RUN chown -R unit: /opt/healthcheck
 
 EXPOSE 5100
+
+ENTRYPOINT '/opt/entrypoint.sh'
 
 HEALTHCHECK --interval=1m --timeout=3s \
     CMD ["/opt/health_status.sh"]

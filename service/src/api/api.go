@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"generic_apis/apps/healthcheck"
@@ -12,7 +13,6 @@ import (
 	"github.com/caarlos0/env"
 	"github.com/gorilla/mux"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
-	"unit.nginx.org/go"
 )
 
 func Run(apiClient *base.Api) {
@@ -54,14 +54,14 @@ func Run(apiClient *base.Api) {
 	log.Printf("Running on '%s'\n", bindingAddr)
 
 	// Uncomment for running locally
-	// if err = http.ListenAndServe(bindingAddr, apiClient.Router); err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// Comment for running locally
-	if err = unit.ListenAndServe(bindingAddr, apiClient.Router); err != nil {
+	if err = http.ListenAndServe(bindingAddr, apiClient.Router); err != nil {
 		log.Fatal(err)
 	}
+
+	// Comment for running locally
+	// if err = unit.ListenAndServe(bindingAddr, apiClient.Router); err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	select {
 	case <-apiClient.Insight.Channel().Close(10 * time.Second):
