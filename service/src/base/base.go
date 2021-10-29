@@ -45,8 +45,8 @@ func (apiClient *Api) Initialize() {
 		Name(healthCheckName)
 
 	// Static files
-	fs := http.FileServer(http.Dir(openApiFilePath))
-	apiClient.Router.Handle(openApiUri, fs)
+	// fs := http.FileServer(http.Dir(openApiFilePath))
+	// apiClient.Router.Handle(openApiUri, fs)
 
 	// API routes
 	for _, route := range *apiClient.Routes {
