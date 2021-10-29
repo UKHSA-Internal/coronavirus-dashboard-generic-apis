@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	taks_queue "generic_apis/task_queue"
 	"github.com/caarlos0/env"
 	"github.com/go-redis/redis/v8"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
@@ -39,13 +40,12 @@ type Config struct {
 type RedisClient struct {
 	Client   *redis.Client
 	HostName string
+	Queue    *taks_queue.Queue
 }
 
 const (
 	RedisMinClients   = 50
 	RedisDB           = 3
-	RedisReadTimeOut  = 1
-	RedisMaxConnAge   = 180
 	hostUrlDelimiter  = "."
 	redisAddrTemplate = "%s:%s"
 	SetCache          = "SET"
@@ -82,8 +82,6 @@ func (conf *Config) GetRedisClient() *redis.Client {
 		Password:     conf.AzureRedisPassword,
 		DB:           RedisDB,
 		MinIdleConns: RedisMinClients,
-		// ReadTimeout:  RedisReadTimeOut,
-		// MaxConnAge:   RedisMaxConnAge,
 	}
 
 	redisClient := redis.NewClient(redisOpts)
@@ -96,3 +94,20 @@ func (conf *Config) GetRedisClient() *redis.Client {
 	return redisClient
 
 } // getRedisClient
+
+func SetEx(redis *RedisClient) func(args interface{}) {
+
+	ctx := context.Background()
+
+	return func(args interface{}) {
+
+		payload := args.(*SetExPayload)
+
+		payload.Telemetry.Start = time.Now()
+		redis.Client.SetEX(ctx, payload.Key, payload.Value, payload.Duration)
+		payload.Telemetry.Start = time.Now()
+		payload.Telemetry.Push()
+
+	}
+
+} // SetEx

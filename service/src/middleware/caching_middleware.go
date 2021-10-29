@@ -1,9 +1,7 @@
 package middleware
 
 import (
-	"bytes"
 	"context"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"time"
@@ -23,8 +21,6 @@ const (
 	bypassCache = 0
 )
 
-var ctx = context.Background()
-
 func FromCacheOrDB(redisCli *caching.RedisClient, insight appinsights.TelemetryClient, cacheDuration time.Duration,
 	handler HandlerFunc) http.HandlerFunc {
 
@@ -33,6 +29,7 @@ func FromCacheOrDB(redisCli *caching.RedisClient, insight appinsights.TelemetryC
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		var payload string
+		ctx := context.Background()
 
 		telemetry := &caching.TelemetryPayload{
 			Insight:       insight,
@@ -63,15 +60,16 @@ func FromCacheOrDB(redisCli *caching.RedisClient, insight appinsights.TelemetryC
 			statusCode := rec.Result().StatusCode
 			w.WriteHeader(statusCode)
 
-			data := bytes.NewBuffer(nil)
+			var data []byte
 
-			_, telemetry.Err = io.Copy(data, rec.Result().Body)
+			_, telemetry.Err = rec.Body.Read(data)
+
 			if telemetry.Err != nil {
 				telemetry.Push()
 				panic(telemetry.Err)
 			}
 
-			_, telemetry.Err = w.Write(data.Bytes())
+			_, telemetry.Err = w.Write(data)
 			if telemetry.Err != nil {
 				telemetry.Push()
 				panic(telemetry.Err)
@@ -81,12 +79,13 @@ func FromCacheOrDB(redisCli *caching.RedisClient, insight appinsights.TelemetryC
 				return
 			}
 
-			go func() {
-				telemetry.Start = time.Now()
-				redisCli.Client.SetEX(ctx, r.RequestURI, data.Bytes(), cacheDuration)
-				telemetry.End = time.Now()
-				telemetry.Push()
-			}()
+			setExPayload := &caching.SetExPayload{
+				Key:       r.RequestURI,
+				Value:     data,
+				Duration:  cacheDuration,
+				Telemetry: telemetry,
+			}
+			redisCli.Queue.Push(setExPayload)
 
 		} else if telemetry.Err != nil {
 
@@ -102,6 +101,8 @@ func FromCacheOrDB(redisCli *caching.RedisClient, insight appinsights.TelemetryC
 				telemetry.Push()
 				panic(telemetry.Err)
 			}
+
+			telemetry.Push()
 
 		}
 

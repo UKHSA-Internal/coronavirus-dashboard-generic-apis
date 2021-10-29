@@ -10,6 +10,7 @@ import (
 	"generic_apis/base"
 	"generic_apis/caching"
 	"generic_apis/insight"
+	"generic_apis/task_queue"
 	"github.com/caarlos0/env"
 	"github.com/gorilla/mux"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
@@ -41,6 +42,8 @@ func Run(apiClient *base.Api) {
 		HostName: redisConf.HostName,
 	}
 
+	apiClient.Redis.Queue = taks_queue.NewQueue(caching.SetEx(apiClient.Redis), caching.RedisMinClients)
+
 	defer func() {
 		err = apiClient.Redis.Client.Close()
 		log.Fatal(err)
@@ -58,10 +61,8 @@ func Run(apiClient *base.Api) {
 		log.Fatal(err)
 	}
 
-	// Comment for running locally
-	// if err = unit.ListenAndServe(bindingAddr, apiClient.Router); err != nil {
-	// 	log.Fatal(err)
-	// }
+	// Finalise the app - prepare to exit.
+	apiClient.Redis.Queue.FinaliseAndClose(10 * time.Second)
 
 	select {
 	case <-apiClient.Insight.Channel().Close(10 * time.Second):
