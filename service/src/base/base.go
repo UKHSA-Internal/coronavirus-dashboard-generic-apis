@@ -18,7 +18,7 @@ type Api struct {
 	Routes   *[]utils.RouteEntry
 	Database *db.Config
 	Insight  appinsights.TelemetryClient
-	Port     string `env:"WEBSITE_PORT"`
+	Port     string `env:"WEBSITES_PORT"`
 	Redis    *caching.RedisClient
 }
 
