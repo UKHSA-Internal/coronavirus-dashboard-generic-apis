@@ -170,13 +170,19 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 			lenData := len(response.(db.ResultType)["data"].([]interface{}))
 
 			if lenKeys == 0 || lenData == 0 {
-				w.WriteHeader(http.StatusNoContent)
+				if _, err = w.Write([]byte("{}")); err != nil {
+					panic(err)
+				}
+				w.WriteHeader(http.StatusOK)
 				return
 			} else if _, isIdQuery := pathVars["id"]; isIdQuery && lenData == 1 {
 				response = response.(db.ResultType)["data"].([]interface{})[0]
 			}
 		} else if len(response.([]db.ResultType)) == 0 {
-			w.WriteHeader(http.StatusNoContent)
+			if _, err = w.Write([]byte("{\"data\":[]}")); err != nil {
+				panic(err)
+			}
+			w.WriteHeader(http.StatusOK)
 			return
 		}
 
