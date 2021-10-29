@@ -75,7 +75,7 @@ func FromCacheOrDB(redisCli *caching.RedisClient, insight appinsights.TelemetryC
 				panic(telemetry.Err)
 			}
 
-			if len(data) == 0 || statusCode > 200 {
+			if statusCode > 200 {
 				telemetry.Push()
 				return
 			}

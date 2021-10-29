@@ -45,21 +45,20 @@ func (apiClient *Api) Initialize() {
 		Name(healthCheckName)
 
 	// Static files
-	// fs := http.FileServer(http.Dir(openApiFilePath))
-	// apiClient.Router.Handle(openApiUri, fs)
+	fs := http.FileServer(http.Dir(openApiFilePath))
+	apiClient.Router.Handle(openApiUri, fs)
 
 	// API routes
 	for _, route := range *apiClient.Routes {
 		apiClient.Router.
 			HandleFunc(
 				route.Path,
-				route.Handler(apiClient.Insight),
-				// middleware.FromCacheOrDB(
-				// 	apiClient.Redis,
-				// 	apiClient.Insight,
-				// 	route.CacheDuration,
-				// 	route.Handler,
-				// ),
+				middleware.FromCacheOrDB(
+					apiClient.Redis,
+					apiClient.Insight,
+					route.CacheDuration,
+					route.Handler,
+				),
 			).
 			Queries().
 			Name(route.Name).
