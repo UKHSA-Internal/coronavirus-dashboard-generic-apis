@@ -1,15 +1,10 @@
 package healthcheck
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"os"
 )
-
-type serviceStatus struct {
-	Status string `json:"status"`
-}
 
 const FilePath = "/opt/healthcheck/healthy.txt"
 
@@ -80,27 +75,8 @@ func Handler() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		var (
-			status      bool
-			err         error
-			jsonPayload []byte
-		)
-
-		response := &serviceStatus{}
-
-		status, err = isHealthy()
-
-		if err != nil || status == false {
-			w.WriteHeader(http.StatusServiceUnavailable)
-			response.Status = "UNHEALTHY"
-		} else {
-			w.WriteHeader(http.StatusOK)
-			response.Status = "HEALTHY"
-		}
-
-		if jsonPayload, err = json.Marshal(response); err != nil {
-			panic(err)
-		} else if _, err = w.Write(jsonPayload); err != nil {
+		w.WriteHeader(http.StatusOK)
+		if _, err := w.Write([]byte("HEALTHY")); err != nil {
 			panic(err)
 		}
 
