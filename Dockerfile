@@ -10,6 +10,8 @@ RUN go build -o /opt/build/generic_api
 
 FROM debian:11-slim
 
+ENV WEBSITED_PORT = 5100
+
 RUN mkdir -p /opt/healthcheck
 COPY ./server/*.json                         /docker-entrypoint.d/
 COPY ./health_status.sh                      /opt/health_status.sh
