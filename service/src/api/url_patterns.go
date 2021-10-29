@@ -25,7 +25,7 @@ var UrlPatterns = &[]utils.RouteEntry{
 		`/generic/code/{area_type:[a-zA-Z]{4,10}}/{area_code:[a-zA-Z0-9+%\s]{3,12}}`,
 		[]string{},
 		code.Handler,
-		time.Hour * 6,
+		time.Minute * 5,
 	},
 	{
 		"area_name",
@@ -53,7 +53,7 @@ var UrlPatterns = &[]utils.RouteEntry{
 		`/generic/page_areas/{page:[a-zA-Z]{3,12}}`,
 		[]string{},
 		page_area.Handler,
-		time.Hour * 6,
+		time.Minute * 4,
 	},
 	{
 		"metric_search",
