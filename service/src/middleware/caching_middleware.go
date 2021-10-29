@@ -1,7 +1,9 @@
 package middleware
 
 import (
+	"bytes"
 	"context"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"time"
@@ -60,16 +62,15 @@ func FromCacheOrDB(redisCli *caching.RedisClient, insight appinsights.TelemetryC
 			statusCode := rec.Result().StatusCode
 			w.WriteHeader(statusCode)
 
-			var data []byte
+			data := bytes.NewBuffer(nil)
 
-			_, telemetry.Err = rec.Body.Read(data)
-
+			_, telemetry.Err = io.Copy(data, rec.Result().Body)
 			if telemetry.Err != nil {
 				telemetry.Push()
 				panic(telemetry.Err)
 			}
 
-			_, telemetry.Err = w.Write(data)
+			_, telemetry.Err = w.Write(data.Bytes())
 			if telemetry.Err != nil {
 				telemetry.Push()
 				panic(telemetry.Err)
@@ -86,7 +87,7 @@ func FromCacheOrDB(redisCli *caching.RedisClient, insight appinsights.TelemetryC
 
 			setExPayload := &caching.SetExPayload{
 				Key:       r.RequestURI,
-				Value:     data,
+				Value:     data.Bytes(),
 				Duration:  cacheDuration,
 				Telemetry: telemetry,
 			}
