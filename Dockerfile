@@ -27,5 +27,5 @@ EXPOSE 5100
 
 ENTRYPOINT '/opt/entrypoint.sh'
 
-HEALTHCHECK --interval=1m --timeout=3s \
-    CMD ["/opt/health_status.sh"]
+#HEALTHCHECK --interval=1m --timeout=3s \
+#    CMD ["/opt/health_status.sh"]

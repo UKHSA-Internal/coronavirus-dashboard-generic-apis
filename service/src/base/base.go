@@ -53,12 +53,13 @@ func (apiClient *Api) Initialize() {
 		apiClient.Router.
 			HandleFunc(
 				route.Path,
-				middleware.FromCacheOrDB(
-					apiClient.Redis,
-					apiClient.Insight,
-					route.CacheDuration,
-					route.Handler,
-				),
+				route.Handler(apiClient.Insight),
+				// middleware.FromCacheOrDB(
+				// 	apiClient.Redis,
+				// 	apiClient.Insight,
+				// 	route.CacheDuration,
+				// 	route.Handler,
+				// ),
 			).
 			Queries().
 			Name(route.Name).
