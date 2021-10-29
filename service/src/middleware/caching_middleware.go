@@ -75,6 +75,11 @@ func FromCacheOrDB(redisCli *caching.RedisClient, insight appinsights.TelemetryC
 				panic(telemetry.Err)
 			}
 
+			if len(data) == 0 || statusCode > 200 {
+				telemetry.Push()
+				return
+			}
+
 			if statusCode >= http.StatusBadRequest {
 				return
 			}
@@ -96,13 +101,11 @@ func FromCacheOrDB(redisCli *caching.RedisClient, insight appinsights.TelemetryC
 
 			res := []byte(payload)
 			w.Header().Set(cacheHeader, cacheHit)
+			defer telemetry.Push()
 
 			if _, telemetry.Err = w.Write(res); telemetry.Err != nil {
-				telemetry.Push()
 				panic(telemetry.Err)
 			}
-
-			telemetry.Push()
 
 		}
 
