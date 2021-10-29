@@ -65,7 +65,7 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 		}
 
 		isLatest := strings.Contains(r.URL.Path, "/latest")
-		id, hasId := mux.Vars(r)["id"]
+		id, _ := mux.Vars(r)["id"]
 
 		response, err := conf.fromDatabase(isLatest, id)
 		if err != nil {
@@ -74,15 +74,10 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 
 		switch len(response) {
 		case 0:
-			if hasId {
-				if _, err = w.Write([]byte("[]")); err != nil {
-					return
-				}
-				panic(err)
-			} else {
-				http.NotFound(w, r)
+			if _, err = w.Write([]byte("[]")); err != nil {
 				return
 			}
+			panic(err)
 		case 1:
 			encoded, err = utils.JSONMarshal(response[0])
 			break
