@@ -81,10 +81,12 @@ func FromCacheOrDB(redisCli *caching.RedisClient, insight appinsights.TelemetryC
 				return
 			}
 
-			telemetry.Start = time.Now()
-			redisCli.Client.SetEX(ctx, r.RequestURI, data.Bytes(), cacheDuration)
-			telemetry.End = time.Now()
-			telemetry.Push()
+			go func() {
+				telemetry.Start = time.Now()
+				redisCli.Client.SetEX(ctx, r.RequestURI, data.Bytes(), cacheDuration)
+				telemetry.End = time.Now()
+				telemetry.Push()
+			}()
 
 		} else if telemetry.Err != nil {
 
