@@ -256,11 +256,16 @@
             "required": true,
             "schema": {
               "enum": [
+                "nation",
+                "region",
+                "utla",
+                "ltla",
                 "msoa",
-                "lsoa"
+                "nhsRegion",
+                "nhsTrust"
               ],
               "type": "string",
-              "default": "msoa"
+              "example": "msoa"
             }
           },
           {
@@ -269,20 +274,18 @@
             "description": "Code of the area for which the latest data is requested.",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "example": "E02004402"
             }
           },
           {
             "name": "metric",
             "in": "path",
-            "description": "Name of the metric for which the latest data is requested.",
+            "description": "Name of the metric for which the latest data is requested. Consult the 'Download Data' section of the site for available metrics.",
             "required": true,
             "schema": {
-              "enum": [
-                "newCasesBySpecimenDate"
-              ],
               "type": "string",
-              "default": "newCasesBySpecimenDate"
+              "example": "newCasesBySpecimenDate"
             }
           },
           {
@@ -409,12 +412,15 @@
                   "$ref": "#/components/schemas/soa"
                 },
                 "examples": {
-                  "Latest response for areacode E02004402": {
+                  "Latest response for newCasesBySpecimenDate in E02004402": {
                     "value": "{\n  \"areaCode\": \"E02004402\",\n  \"areaName\": \"Bexhill Central\",\n  \"areaType\": \"msoa\",\n  \"date\": \"2021-08-11\",\n  \"metric\": \"newCasesBySpecimenDate\",\n  \"payload\": {\n    \"change\": -2,\n    \"changePercentage\": -14.3,\n    \"direction\": \"DOWN\",\n    \"rollingRate\": 124.5,\n    \"rollingSum\": 12\n  }\n}"
                   }
                 }
               }
             }
+          },
+          "204": {
+            "description": "Undocumented. Likely that the data doesn't exist for the selected area type and metric combination."
           },
           "400": {
             "description": "Bad request. Reason provided in response body where possible."
