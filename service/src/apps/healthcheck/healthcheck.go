@@ -49,9 +49,9 @@ func CreateHealthCheckFile() error {
 		log.Fatal(err)
 	}
 
-	_, err = f.Write([]byte("1"))
-
-	if err = f.Close(); err != nil {
+	if _, err = f.Write([]byte("1")); err != nil {
+		log.Fatal(err)
+	} else if err = f.Close(); err != nil {
 		log.Fatal(err)
 	}
 
