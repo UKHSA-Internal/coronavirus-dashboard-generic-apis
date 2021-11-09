@@ -4,8 +4,21 @@ const areaQuery = `
 SELECT
 	area_code    AS "areaCode",
 	area_name    AS "areaName",
-	ar.area_type AS "areaType"
+	ar.area_type AS "areaType",
+    (
+		ST_AsGeoJSON(
+			ST_Centroid(
+				ST_GeomFromGeoJSON(
+					JSON_BUILD_OBJECT(
+						'type', gd.geometry_type,
+						'coordinates', gd.coordinates
+					)::TEXT
+				)
+			)
+		)::JSONB ->> 'coordinates'
+    )::JSONB AS centroid
 FROM covid19.area_reference AS ar
+  JOIN covid19.geo_data     AS gd ON gd.area_id = ar.id
 WHERE id IN (
 	  	 SELECT parent_id
 	  	 FROM covid19.area_reference AS ar2
