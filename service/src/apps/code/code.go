@@ -17,7 +17,7 @@ type handler struct {
 	traceparent string
 }
 
-func (conf *handler) fromDatabase(areaType, code string) (map[string]string, error) {
+func (conf *handler) fromDatabase(areaType, code string) (map[string]interface{}, error) {
 
 	var (
 		ok     bool
@@ -50,9 +50,10 @@ func (conf *handler) fromDatabase(areaType, code string) (map[string]string, err
 		return nil, err
 	}
 
-	data := make(map[string]string)
+	data := make(map[string]interface{})
 	for _, item := range results {
 		data[item["areaType"].(string)+"Name"] = item["areaName"].(string)
+		data[item["areaType"].(string)+"Centroid"] = item["centroid"].(interface{})
 		data[item["areaType"].(string)] = item["areaCode"].(string)
 	}
 
@@ -74,7 +75,7 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 
 		var (
 			err         error
-			response    map[string]string
+			response    map[string]interface{}
 			jsonPayload []byte
 		)
 
