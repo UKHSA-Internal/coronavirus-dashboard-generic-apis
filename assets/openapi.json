@@ -51,7 +51,7 @@
     "/code/{area_type}/{area_code}": {
       "get": {
         "summary": "Code",
-        "description": "Given an area type / area code combination, produces the ancestors of the area - i.e. larger, more general areas of which the requested area is a member.",
+        "description": "Given an area type / area code combination, produces the names, codes, and centroids for the ancestors of the area - i.e. larger, more general areas of which the requested area is a member.",
         "operationId": "code-get",
         "parameters": [
           {
@@ -200,20 +200,42 @@
                 },
                 "example": {
                   "ltla": "E09000033",
+                  "ltlaCentroid": [
+                    -0.157209256,
+                    51.514010951
+                  ],
                   "ltlaName": "Westminster",
                   "msoa": "E02000979",
+                  "msoaCentroid": [
+                    -0.133169461,
+                    51.49905812
+                  ],
                   "msoaName": "Central Westminster",
                   "nation": "E92000001",
+                  "nationCentroid": [
+                    -1.463684694,
+                    52.592370945
+                  ],
                   "nationName": "England",
                   "nhsRegion": "E40000003",
+                  "nhsRegionCentroid": [],
                   "nhsRegionName": "London",
                   "nhsTrust": "RJ1",
+                  "nhsTrustCentroid": [],
                   "nhsTrustName": "Guy's and St Thomas' NHS Foundation Trust",
                   "postcode": "SW1A 0AA",
                   "region": "E12000007",
+                  "regionCentroid": [
+                    -0.110578143,
+                    51.500891693
+                  ],
                   "regionName": "London",
                   "trimmedPostcode": "SW1A0AA",
                   "utla": "E09000033",
+                  "utlaCentroid": [
+                    -0.160411474,
+                    51.513701283
+                  ],
                   "utlaName": "Westminster"
                 }
               }
@@ -3453,11 +3475,23 @@
           "ltla": {
             "type": "string"
           },
+          "ltlaCentroid": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
           "ltlaName": {
             "type": "string"
           },
           "msoa": {
             "type": "string"
+          },
+          "msoaCentroid": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
           },
           "msoaName": {
             "type": "string"
@@ -3465,19 +3499,13 @@
           "nation": {
             "type": "string"
           },
+          "nationCentroid": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
           "nationName": {
-            "type": "string"
-          },
-          "nhsRegion": {
-            "type": "string"
-          },
-          "nhsRegionName": {
-            "type": "string"
-          },
-          "nhsTrust": {
-            "type": "string"
-          },
-          "nhsTrustName": {
             "type": "string"
           },
           "postcode": {
@@ -3485,6 +3513,12 @@
           },
           "region": {
             "type": "string"
+          },
+          "regionCentroid": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
           },
           "regionName": {
             "type": "string"
@@ -3494,6 +3528,12 @@
           },
           "utla": {
             "type": "string"
+          },
+          "utlaCentroid": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
           },
           "utlaName": {
             "type": "string"
