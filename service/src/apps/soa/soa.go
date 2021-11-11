@@ -27,7 +27,7 @@ func (conf *handler) getPreppedQuery(areaType, date string) (string, error) {
 		Traceparent: conf.traceparent,
 		Insight:     conf.insight,
 	}
-	timestamp, err := req.GetLatestTimestamp(areaType)
+	timestamp, err := req.GetLatestPartitionId(areaType)
 	if err != nil {
 		return "", err
 	}

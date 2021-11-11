@@ -43,7 +43,7 @@ func (conf *handler) getPreppedQuery(areaType, areaCode, date string) (string, e
 	if date != "" {
 		date, err = utils.FormatPartitionTimestamp("2006-01-02", date)
 	} else {
-		date, err = req.GetLatestTimestamp(areaType)
+		date, err = req.GetLatestPartitionId(areaType)
 	}
 
 	if err != nil {
