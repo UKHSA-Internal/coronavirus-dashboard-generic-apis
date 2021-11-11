@@ -109,7 +109,7 @@ var UrlPatterns = &[]utils.RouteEntry{
 		`/generic/metrics/props`,
 		[]string{`by`},
 		metric_props.Handler,
-		time.Hour * 2,
+		time.Hour * 5,
 	},
 	{
 		"page_areas_with_type",
