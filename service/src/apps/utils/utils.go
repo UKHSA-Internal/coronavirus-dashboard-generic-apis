@@ -30,13 +30,13 @@ func FormatPartitionTimestamp(template, timestamp string) (string, error) {
 
 } // FormatPartitionTimestamp
 
-func (req *GenericRequest) GetLatestTimestamp(areaType string) (string, error) {
+func (req *GenericRequest) GetLatestPartitionId(areaType string) (string, error) {
 
 	areaType = AreaTypes[strings.ToLower(areaType)]
 	category := ReleaseCategories[areaType]
 
 	payload := &db.Payload{
-		Query:         timestampQuery,
+		Query:         processTimestampQuery,
 		Args:          []interface{}{category},
 		OperationData: insight.GetOperationData(req.Traceparent),
 	}
@@ -62,7 +62,33 @@ func (req *GenericRequest) GetLatestTimestamp(areaType string) (string, error) {
 
 	return FormatPartitionTimestamp("2006-01-02", results["date"].(string))
 
-} // GetLatestTimestamp
+} // GetLatestPartitionId
+
+func (req *GenericRequest) GetLatestTimeStamp() (string, error) {
+
+	payload := &db.Payload{
+		Query:         timestampQuery,
+		OperationData: insight.GetOperationData(req.Traceparent),
+	}
+
+	database, err := db.Connect(req.Insight)
+	if err != nil {
+		return "", err
+	}
+	defer database.CloseConnection()
+
+	results, err := database.FetchRow(payload)
+	if err != nil {
+		return "", err
+	}
+
+	if _, ok := results["date"]; !ok {
+		return "", err
+	}
+
+	return FormatPartitionTimestamp("2006-01-02", results["date"].(string))
+
+} // GetLatestPartitionId
 
 // JSONMarshal is a custom marshal function to serialise JSON payloads
 // without escaping HTML characters and converting them to unicode codes.
