@@ -35,7 +35,7 @@ SELECT tag,
                'metric', metric,
                'metric_name', metric_name,
                'category', category,
-               'tag', array(
+               'tags', array(
                    SELECT DISTINCT tg.tag
                    FROM covid19.tag AS tg
                    LEFT OUTER JOIN covid19.metric_tag AS mt ON tg.id = mt.tag_id
