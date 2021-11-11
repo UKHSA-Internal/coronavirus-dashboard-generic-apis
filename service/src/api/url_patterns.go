@@ -86,7 +86,7 @@ var UrlPatterns = &[]utils.RouteEntry{
 	{
 		"metric_search_tags_only",
 		`/generic/metrics`,
-		[]string{"tags", `[a-zA-Z0-9,]{2,40}`},
+		[]string{"tags", `[a-zA-Z0-9\s,]{2,40}`},
 		metric_search.Handler,
 		time.Hour * 2,
 	},
@@ -100,7 +100,7 @@ var UrlPatterns = &[]utils.RouteEntry{
 	{
 		"metric_search_by_category_and_tag",
 		`/generic/metrics`,
-		[]string{"category", `[a-zA-Z]{2,120}`, "tags", `[a-zA-Z0-9,]{2,40}`},
+		[]string{"category", `[a-zA-Z]{2,120}`, "tags", `[a-zA-Z0-9\s,]{2,40}`},
 		metric_search.Handler,
 		time.Hour * 2,
 	},
