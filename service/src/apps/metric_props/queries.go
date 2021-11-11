@@ -34,8 +34,14 @@ SELECT tag,
            JSONB_BUILD_OBJECT(
                'metric', metric,
                'metric_name', metric_name,
-               'category', category
-           )
+               'category', category,
+               'tag', array(
+                   SELECT DISTINCT tg.tag
+                   FROM covid19.tag AS tg
+                   LEFT OUTER JOIN covid19.metric_tag AS mt ON tg.id = mt.tag_id
+                   WHERE metric_id = metric
+               )
+		   )
            ORDER BY metric
        ) AS payload
 FROM (
