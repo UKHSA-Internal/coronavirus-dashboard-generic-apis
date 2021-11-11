@@ -3,6 +3,7 @@ package metric_props
 import (
 	"net/http"
 	"net/url"
+	"strings"
 
 	"generic_apis/apps/utils"
 	"generic_apis/db"
@@ -12,6 +13,7 @@ import (
 
 type handler struct {
 	db          *db.Config
+	insight     appinsights.TelemetryClient
 	traceparent string
 }
 
@@ -22,10 +24,26 @@ func (conf *handler) fromDatabase(params url.Values) ([]db.ResultType, error) {
 		args         []interface{}
 	)
 
-	if search := params.Get("by"); search == "category" {
+	switch params.Get("by") {
+	case "category":
 		preppedQuery = byCategory
-	} else if search == "tag" {
+		break
+	case "tag":
 		preppedQuery = byTag
+		break
+	case "areaType":
+		req := &utils.GenericRequest{
+			Traceparent: conf.traceparent,
+			Insight:     conf.insight,
+		}
+		if timestamp, err := req.GetLatestTimeStamp(); err != nil {
+			panic(err)
+		} else {
+			preppedQuery = strings.ReplaceAll(byAreaType, partitionDatePlaceholder, timestamp)
+		}
+		break
+	default:
+		panic("invalid value for 'by'")
 	}
 
 	payload := &db.Payload{
@@ -40,7 +58,7 @@ func (conf *handler) fromDatabase(params url.Values) ([]db.ResultType, error) {
 
 func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r *http.Request) {
 
-	conf := &handler{}
+	conf := &handler{insight: insight}
 
 	return func(w http.ResponseWriter, r *http.Request) {
 
