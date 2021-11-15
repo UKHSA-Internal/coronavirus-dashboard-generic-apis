@@ -6,6 +6,7 @@ SELECT category,
            JSONB_BUILD_OBJECT(
                'metric', metric,
                'metric_name', metric_name,
+               'category', category,
                'tag', tags
            )
            ORDER BY metric
