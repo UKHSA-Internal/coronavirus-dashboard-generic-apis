@@ -136,6 +136,10 @@ func (conf *handler) fromDatabase(urlParams *map[string]string) (*Payload, error
 	response.Logs = logs
 
 	for _, item := range res {
+		if item["asset_type"] == nil {
+			continue
+		}
+
 		switch item["asset_type"].(string) {
 		case "abstract":
 			documentations.Abstract = &DocumentationPayload{
