@@ -99,7 +99,8 @@ FROM (
         SELECT MAX(title)       AS category,
                metric,
                MAX(metric_name) AS metric_name,
-               area_type
+               area_type,
+		   	   MAX(deprecated) AS deprecated
         FROM (SELECT area_id, metric_id FROM covid19.time_series_p{{partition_date}}_utla GROUP BY area_id, metric_id) AS ts
             JOIN covid19.metric_reference AS mr ON ts.metric_id = mr.id
             JOIN covid19.page 			  AS pg ON mr.category = pg.id
@@ -113,7 +114,8 @@ FROM (
         SELECT MAX(title)       AS category,
                metric,
                MAX(metric_name) AS metric_name,
-               area_type
+               area_type,
+		   	   MAX(deprecated) AS deprecated
         FROM (SELECT area_id, metric_id FROM covid19.time_series_p{{partition_date}}_ltla GROUP BY area_id, metric_id) AS ts
             JOIN covid19.metric_reference AS mr ON ts.metric_id = mr.id
             JOIN covid19.page 			  AS pg ON mr.category = pg.id
@@ -127,7 +129,8 @@ FROM (
         SELECT MAX(title)       AS category,
                metric,
                MAX(metric_name) AS metric_name,
-               area_type
+               area_type,
+		   	   MAX(deprecated) AS deprecated
         FROM (SELECT area_id, metric_id FROM covid19.time_series_p{{partition_date}}_nhstrust GROUP BY area_id, metric_id) AS ts
             JOIN covid19.metric_reference AS mr ON ts.metric_id = mr.id
             JOIN covid19.page 			  AS pg ON mr.category = pg.id
@@ -141,7 +144,8 @@ FROM (
         SELECT MAX(title)       AS category,
                metric,
                MAX(metric_name) AS metric_name,
-               area_type
+               area_type,
+		   	   MAX(deprecated) AS deprecated
         FROM (SELECT area_id, metric_id FROM covid19.time_series_p{{partition_date}}_msoa GROUP BY area_id, metric_id) AS ts
             JOIN covid19.metric_reference AS mr ON ts.metric_id = mr.id
             JOIN covid19.page 			  AS pg ON mr.category = pg.id
