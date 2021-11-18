@@ -15,6 +15,8 @@ import (
 
 type HandlerFunc func(appinsights.TelemetryClient) func(http.ResponseWriter, *http.Request)
 
+// var isDev = os.Getenv("IS_DEV")
+
 const (
 	cacheHeader = "X-CACHE-HIT"
 	cacheHit    = "1"
@@ -39,7 +41,7 @@ func FromCacheOrDB(redisCli *caching.RedisClient, insight appinsights.TelemetryC
 			RedisHostName: redisCli.HostName,
 		}
 
-		if cacheDuration == bypassCache {
+		if cacheDuration == bypassCache || isDev {
 			handlerFunc(w, r)
 			w.Header().Set(cacheHeader, uncached)
 			return
