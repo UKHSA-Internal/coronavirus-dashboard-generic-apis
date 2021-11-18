@@ -4,6 +4,7 @@ const query = `
 SELECT metric,
        MAX(metric_name)           AS metric_name,
        MAX(title)                 AS category,
+	   MAX(deprecated) AS deprecated,
        CASE
            WHEN MAX(tag) NOTNULL THEN JSONB_AGG(tag ORDER BY tag)
            ELSE '[]'::JSONB

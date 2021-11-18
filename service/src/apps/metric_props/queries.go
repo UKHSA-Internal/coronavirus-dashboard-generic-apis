@@ -36,6 +36,7 @@ SELECT tag,
                'metric', metric,
                'metric_name', metric_name,
                'category', category,
+			   'deprecated', deprecated,
                'tag', array(
                    SELECT DISTINCT tg.tag
                    FROM covid19.tag AS tg
@@ -49,7 +50,8 @@ FROM (
     SELECT tag,
            title AS category,
            metric,
-           metric_name
+           metric_name,
+		   MAX(deprecated) AS deprecated
     FROM covid19.metric_reference AS mr
              LEFT OUTER JOIN covid19.page AS pg ON mr.category = pg.id
              LEFT OUTER JOIN covid19.metric_tag AS mt ON mr.metric = mt.metric_id
@@ -69,6 +71,7 @@ SELECT area_type,
                'metric', metric,
                'metric_name', metric_name,
                'category', category,
+			   'deprecated', deprecated,
                'tag', array(
                    SELECT DISTINCT tg.tag
                    FROM covid19.tag AS tg
@@ -82,7 +85,8 @@ FROM (
     SELECT MAX(title) AS category,
            metric,
            MAX(metric_name) AS metric_name,
-           area_type
+           area_type,
+		   MAX(deprecated) AS deprecated
     FROM (SELECT area_id, metric_id FROM covid19.time_series_p{{partition_date}}_other GROUP BY area_id, metric_id) AS ts
         JOIN covid19.metric_reference AS mr ON ts.metric_id = mr.id
         JOIN covid19.page 			  AS pg ON mr.category = pg.id
