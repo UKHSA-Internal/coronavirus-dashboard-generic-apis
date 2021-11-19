@@ -9,9 +9,9 @@ SELECT MAX(metric_name) AS metric_name,
        MAX(last_modified) AS last_modified,
        (
            CASE
-               WHEN MAX(logs::TEXT) ILIKE '%null%' THEN '[]'
+               WHEN MAX(logs::TEXT) ILIKE '[null]' THEN '[]'
                ELSE MAX(logs::TEXT)
-               END
+		   END
        )::JSONB AS logs,
        MAX(tags) AS tags,
        MAX(category) AS category
