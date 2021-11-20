@@ -27,11 +27,12 @@ type DocumentationPayload struct {
 }
 
 type Log struct {
-	Id      *string `json:"id"`
-	Heading *string `json:"heading"`
-	Date    *string `json:"date"`
-	Expiry  *string `json:"expiry"`
-	Type    *string `json:"type"`
+	Id           *string   `json:"id"`
+	Heading      *string   `json:"heading"`
+	Date         *string   `json:"date"`
+	Expiry       *string   `json:"expiry"`
+	Type         *string   `json:"type"`
+	ApplicableTo *[]string `json:"applicable_to"`
 }
 
 type Documentation struct {
@@ -100,26 +101,97 @@ func (conf *handler) fromDatabase(urlParams *map[string]string) (*Payload, error
 	response.Tags = strings.Split(res[0]["tags"].(string), ",")
 	documentations := &Documentation{}
 
+	// Same metric, same logs - first item will suffice.
 	for index, item := range res[0]["logs"].([]interface{}) {
 		logItem := &Log{}
 		for key, value := range item.(map[string]interface{}) {
-			val := stringOrNil(value)
-
 			switch key {
 			case "id":
-				logItem.Id = val
+				logItem.Id = stringOrNil(value)
 				break
 			case "heading":
-				logItem.Heading = val
+				logItem.Heading = stringOrNil(value)
 				break
 			case "date":
-				logItem.Date = val
+				logItem.Date = stringOrNil(value)
 				break
 			case "expiry":
-				logItem.Expiry = val
+				logItem.Expiry = stringOrNil(value)
 				break
 			case "type":
-				logItem.Type = val
+				logItem.Type = stringOrNil(value)
+				break
+			case "applicable_to":
+
+				// Using maps to ensure uniqueness.
+				areas := make(map[string]bool, len(value.([]interface{})))
+
+				for _, area := range value.([]interface{}) {
+					switch area {
+					case "overview::^K.*$":
+						areas["UK"] = true
+						continue
+					case "nation::^E92000001$":
+						areas["England"] = true
+						continue
+					case "region::^E.*$":
+						areas["England regions"] = true
+						continue
+					case "utla::^E.*$":
+						areas["England UTLAs"] = true
+						continue
+					case "ltla::^E.*$":
+						areas["England LTLAs"] = true
+						continue
+					case "msoa::^E.*$":
+						areas["England MSOAs"] = true
+						continue
+					case "nation::^S92000003$":
+						areas["Scotland"] = true
+						continue
+					case "utla::^S.*$":
+					case "ltla::^S.*$":
+						areas["Scotland local authorities"] = true
+						continue
+					case "nation::^N92000002$":
+						areas["Northern Ireland"] = true
+						continue
+					case "utla::^N.*$":
+					case "ltla::^N.*$":
+						areas["Northern Ireland local authorities"] = true
+						continue
+					case "nation::^W.*$":
+						areas["Wales"] = true
+						continue
+					case "utla::^W.*$":
+					case "ltla::^W.*$":
+						areas["Wales local authorities"] = true
+						continue
+					case "nhsRegion::^.*$":
+						areas["All NHS regions"] = true
+						continue
+					case "nhsTrust::^.*$":
+						areas["All NHS trusts"] = true
+						continue
+					default:
+						areas["Unspecified"] = true
+						continue
+					}
+				}
+
+				uniqueAreas := make([]string, len(areas))
+				areaInd := 0
+				for areaItem := range areas {
+					// Deduplicated items leave empty spaces
+					// in the map.
+					if areaItem != "" {
+						uniqueAreas[areaInd] = areaItem
+						areaInd++
+					}
+				}
+
+				logItem.ApplicableTo = &uniqueAreas
+
 			default:
 				continue
 			}
