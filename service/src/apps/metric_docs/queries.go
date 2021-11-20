@@ -37,7 +37,8 @@ FROM (
 					 'heading', heading,
 					 'date', cl_inner.date::TEXT,
 					 'expiry', expiry::TEXT,
-					 'type', tag
+					 'type', tag,
+					 'applicable_to', area
 				 ) AS payload
 		  FROM covid19.change_log AS cl_inner
 		  LEFT JOIN covid19.tag AS t ON t.id = cl_inner.type_id
