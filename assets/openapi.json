@@ -1659,6 +1659,155 @@
         }
       }
     },
+    "/metrics/{metric}/doc": {
+      "get": {
+        "summary": "Metric documentation",
+        "operationId": "metric-doc",
+        "parameters": [
+          {
+            "name": "metric",
+            "in": "path",
+            "description": "Metric name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "enum": [
+                "application/json"
+              ],
+              "type": "string",
+              "default": "application/json"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {
+              "content-type": {
+                "required": true,
+                "schema": {
+                  "enum": [
+                    "application/vnd.PHE-COVID19.v1+json; charset=utf-8"
+                  ],
+                  "type": "string"
+                }
+              },
+              "server": {
+                "required": true,
+                "description": "Server application name and version.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Strict-Transport-Security": {
+                "required": true,
+                "description": "",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-frame-options": {
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-content-type-options": {
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-xss-protection": {
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "referrer-policy": {
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "content-security-policy": {
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-ukhsa-media-type": {
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ukhsa-server-loc": {
+                "required": false,
+                "description": "Identifier for the specific server responding to the request.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Request-Context": {
+                "required": true,
+                "description": "Correlation ID of the request.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ukhsa-website-request": {
+                "required": true,
+                "description": "Identifier to determine whether the request originates from the website.",
+                "schema": {
+                  "type": "number"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/metric-doc"
+                },
+                "examples": {
+                  "Response for newCasesBySpecimenDate": {
+                    "value": "{\"metric_name\":\"New cases by specimen date\",\"metric\":\"newCasesBySpecimenDate\",\"deprecated\":null,\"category\":\"Cases\",\"documentation\":{\"abstract\":{\"last_modified\":\"2021-10-08T10:35:23.794167Z\",\"body\":\"Daily numbers ...\"},\"description\":{\"last_modified\":\"2021-10-27T09:22:38.037085Z\",\"body\":\"# Cases definition\\r\\n\\r\\nCOVID-19 cases ...\"},\"methodology\":{\"last_modified\":\"2021-10-15T12:56:23.927413Z\",\"body\":\"## Geographic allocation of ...\"}},\"logs\":[{\"id\":\"35068770-975c-48a6-a297-c35223482b25\",\"heading\":\"Update to headlines only for Scotland\",\"date\":\"2021-10-31\",\"expiry\":null,\"type\":\"data issue\",\"applicable_to\":[\"UK\",\"Scotland\",\"Scotland local authorities\"]},{\"id\":\"0ab2c8bd-076b-44b0-a1ea-4aa6ac18995e\",\"heading\":\"Update to headlines only for Scotland\",\"date\":\"2021-10-23\",\"expiry\":null,\"type\":\"data issue\",\"applicable_to\":[\"Scotland\",\"Scotland local authorities\"]},{\"id\":\"bd8b5524-dbfb-485a-9efe-f5c1c874aa1b\",\"heading\":\"UK cases and deaths do not include figures from Wales\",\"date\":\"2021-10-08\",\"expiry\":null,\"type\":\"data issue\",\"applicable_to\":[\"Wales local authorities\",\"UK\",\"Wales\"]},{\"id\":\"3ee54ed0-ce2a-46ab-ade7-2c089b2e1ba2\",\"heading\":\"Update to headlines only for Scotland\",\"date\":\"2021-09-11\",\"expiry\":null,\"type\":\"data issue\",\"applicable_to\":[\"Scotland\",\"Scotland local authorities\"]},{\"id\":\"a1d425ef-d3fb-40b8-935d-90af118d0994\",\"heading\":\"Delay to cases by specimen date and deaths by date of death for Northern Ireland LAs\",\"date\":\"2021-08-31\",\"expiry\":null,\"type\":\"data issue\",\"applicable_to\":[\"UK\",\"Northern Ireland\",\"Northern Ireland local authorities\"]},{\"id\":\"7523cf7a-bb5d-4e5c-b72e-d4b74676d1a6\",\"heading\":\"Cases by specimen date and deaths by date of death not updated for Scottish LAs\",\"date\":\"2021-08-30\",\"expiry\":null,\"type\":\"data issue\",\"applicable_to\":[\"Scotland local authorities\"]},{\"id\":\"9ab08bc4-7295-4e96-be34-3c21d9993868\",\"heading\":\"Cases by specimen date and deaths by date of death not updated for Scottish LAs\",\"date\":\"2021-08-29\",\"expiry\":null,\"type\":\"data issue\",\"applicable_to\":[\"Scotland local authorities\"]},{\"id\":\"467fbf31-0162-4bc6-920c-caa33039386f\",\"heading\":\"Wales cases and deaths reported for 2-day period\",\"date\":\"2021-08-12\",\"expiry\":null,\"type\":\"data issue\",\"applicable_to\":[\"UK\",\"Wales\",\"Wales local authorities\"]},{\"id\":\"26631bca-22cc-4cfd-af4e-fec638c7ee1c\",\"heading\":\"UK cases and deaths figures do not include data from Wales\",\"date\":\"2021-08-11\",\"expiry\":null,\"type\":\"data issue\",\"applicable_to\":[\"UK\",\"Wales\",\"Wales local authorities\"]},{\"id\":\"fdabd13b-67e6-48e1-a684-ebc95b75b051\",\"heading\":\"Headline figures only for Wales\",\"date\":\"2021-04-13\",\"expiry\":null,\"type\":\"data issue\",\"applicable_to\":[]},{\"id\":\"60017fbc-ec23-4d9d-8595-d2f54cf7240e\",\"heading\":\"1,283 historic cases removed\",\"date\":\"2020-11-27\",\"expiry\":null,\"type\":\"data issue\",\"applicable_to\":[]},{\"id\":\"8fa4d15a-67bb-4e0a-9ba8-7cc141eb1031\",\"heading\":\"Scotland cases with no available specimen date assigned to 20 April 2020\",\"date\":\"2020-04-20\",\"expiry\":null,\"type\":\"data issue\",\"applicable_to\":[]}],\"tags\":[\"daily\",\"event date\"]}"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request. Reason provided in response body where possible."
+          },
+          "404": {
+            "description": "Not found."
+          },
+          "429": {
+            "description": "Too many requests - request has been throttled.",
+            "headers": {
+              "retry-after": {
+                "description": "Time in seconds to wait before resubmitting the request.",
+                "required": true,
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
     "/metrics/props": {
       "get": {
         "summary": "Metric props",
@@ -3828,6 +3977,139 @@
             "tags"
           ]
         }
+      },
+      "metric-doc": {
+        "type": "object",
+        "properties": {
+          "metric_name": {
+            "type": "string"
+          },
+          "metric": {
+            "type": "string"
+          },
+          "deprecated": {
+            "type": "string",
+            "nullable": true
+          },
+          "category": {
+            "type": "string"
+          },
+          "documentation": {
+            "type": "object",
+            "properties": {
+              "abstract": {
+                "type": "object",
+                "properties": {
+                  "last_modified": {
+                    "type": "string"
+                  },
+                  "body": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "last_modified",
+                  "body"
+                ]
+              },
+              "description": {
+                "type": "object",
+                "properties": {
+                  "last_modified": {
+                    "type": "string"
+                  },
+                  "body": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "last_modified",
+                  "body"
+                ]
+              },
+              "methodology": {
+                "type": "object",
+                "properties": {
+                  "last_modified": {
+                    "type": "string"
+                  },
+                  "body": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "last_modified",
+                  "body"
+                ]
+              }
+            }
+          },
+          "logs": {
+            "type": "array",
+            "items": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "heading": {
+                    "type": "string"
+                  },
+                  "date": {
+                    "type": "string"
+                  },
+                  "expiry": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "applicable_to": {
+                    "type": "array",
+                    "items": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "heading",
+                  "date",
+                  "expiry",
+                  "type",
+                  "applicable_to"
+                ]
+              }
+            ]
+          },
+          "tags": {
+            "type": "array",
+            "items": [
+              {
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "required": [
+          "metric_name",
+          "metric",
+          "deprecated",
+          "category",
+          "documentation",
+          "logs",
+          "tags"
+        ]
       },
       "log-banners": {
         "type": "array",
