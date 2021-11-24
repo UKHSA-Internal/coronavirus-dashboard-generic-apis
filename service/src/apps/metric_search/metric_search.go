@@ -116,9 +116,8 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 
 		response, failure := conf.fromDatabase(r.URL.Query())
 		if failure != nil {
-			w.WriteHeader(failure.httpCode)
 			http.Error(w, failure.response.Error(), failure.httpCode)
-			panic(err)
+			return
 		}
 
 		if _, err = w.Write(response); err != nil {
