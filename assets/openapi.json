@@ -3975,6 +3975,10 @@
               "type": "string",
               "nullable": true
             },
+            "doc_last_modified": {
+              "type": "string",
+              "nullable": true
+            },
             "tags": {
               "type": "array",
               "items": {
