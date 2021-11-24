@@ -123,6 +123,11 @@ func (conf *handler) fromDatabase(urlParams *map[string]string) (*Payload, error
 				break
 			case "applicable_to":
 
+				if value == nil {
+					logItem.ApplicableTo = &[]string{}
+					continue
+				}
+
 				// Using maps to ensure uniqueness.
 				areas := make(map[string]bool, len(value.([]interface{})))
 
