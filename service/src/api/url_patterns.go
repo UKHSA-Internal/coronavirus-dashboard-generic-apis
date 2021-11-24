@@ -63,6 +63,13 @@ var UrlPatterns = &[]utils.RouteEntry{
 		time.Minute * 30,
 	},
 	{
+		"metric_search_exact",
+		`/generic/metrics`,
+		[]string{"search", `[a-zA-Z2860\s]{2,120}`, "exact", `[0,1]`},
+		metric_search.Handler,
+		time.Minute * 30,
+	},
+	{
 		"metric_search_with_category",
 		`/generic/metrics`,
 		[]string{"search", `[a-zA-Z2860\s]{2,120}`, "category", `[a-zA-Z]{2,120}`},
