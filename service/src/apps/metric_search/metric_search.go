@@ -1,6 +1,7 @@
 package metric_search
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -17,12 +18,20 @@ type handler struct {
 	traceparent string
 }
 
-func (conf *handler) fromDatabase(params url.Values) ([]byte, error) {
+type failedResponse struct {
+	httpCode int
+	response error
+	payload  error
+}
+
+func (conf *handler) fromDatabase(params url.Values) ([]byte, *failedResponse) {
 
 	var (
 		filters string
 		args    []interface{}
+		err     error
 		counter = 0
+		failure = &failedResponse{}
 	)
 
 	if search := params.Get("search"); search != "" {
@@ -43,22 +52,47 @@ func (conf *handler) fromDatabase(params url.Values) ([]byte, error) {
 		filters += fmt.Sprintf(tagsFilter, counter)
 	}
 
+	if isExact := params.Get("exact"); isExact != "" && isExact != "0" {
+		if search := params.Get("search"); search == "" {
+			failure.httpCode = http.StatusBadRequest
+			failure.response = errors.New("`exact` flag may only be used alongside the `search` parameter")
+			failure.payload = failure.response
+			return nil, failure
+		} else {
+			counter = 1
+			filters = fmt.Sprintf(searchExactFilter, counter)
+		}
+
+	}
+
 	payload := &db.Payload{
 		Query:         fmt.Sprintf(query, filters),
 		Args:          args,
 		OperationData: insight.GetOperationData(conf.traceparent),
 	}
 
-	results, err := conf.db.FetchAll(payload)
+	var results []db.ResultType
+	results, err = conf.db.FetchAll(payload)
 	if err != nil {
-		return nil, err
+		failure.httpCode = http.StatusInternalServerError
+		failure.response = errors.New("failed to retrieve the requested data for a valid query")
+		failure.payload = err
+		return nil, failure
 	}
 
 	if len(results) == 0 {
 		return []byte("[]"), nil
 	}
 
-	return utils.JSONMarshal(results)
+	var response []byte
+	if response, err = utils.JSONMarshal(results); err != nil {
+		failure.httpCode = http.StatusInternalServerError
+		failure.response = errors.New("failed to generate JSON payload")
+		failure.payload = err
+		return nil, failure
+	} else {
+		return response, nil
+	}
 
 } // fromDatabase
 
@@ -68,7 +102,10 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		var err error
+		var (
+			failure *failedResponse
+			err     error
+		)
 
 		conf.traceparent = r.Header.Get("traceparent")
 
@@ -77,8 +114,10 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 			panic(err)
 		}
 
-		response, err := conf.fromDatabase(r.URL.Query())
-		if err != nil {
+		response, failure := conf.fromDatabase(r.URL.Query())
+		if failure != nil {
+			w.WriteHeader(failure.httpCode)
+			http.Error(w, failure.response.Error(), failure.httpCode)
 			panic(err)
 		}
 
