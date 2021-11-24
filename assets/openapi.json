@@ -1496,6 +1496,7 @@
           {
             "name": "search",
             "in": "query",
+            "required": false,
             "description": "Metric name or part thereof.",
             "schema": {
               "type": "string"
@@ -1504,6 +1505,7 @@
           {
             "name": "category",
             "in": "query",
+            "required": false,
             "description": "The category the metric(s) relates to.",
             "schema": {
               "type": "string",
@@ -1519,9 +1521,20 @@
           {
             "name": "tags",
             "in": "query",
-            "description": "return metrics by a keyword they're tagged by.",
+            "required": false,
+            "description": "Return metrics by a keyword they're tagged by.",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "exact",
+            "in": "query",
+            "required": false,
+            "description": "Return metrics that exactly match the value set for the 'search' parameter. This flag may only be set alongside 'search'.",
+            "schema": {
+              "type": "boolean",
+              "enum": ["0", "1"]
             }
           },
           {
@@ -4068,17 +4081,9 @@
                   },
                   "applicable_to": {
                     "type": "array",
-                    "items": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "string"
-                      }
-                    ]
+                    "items": {
+                      "type": "string"
+                    }
                   }
                 },
                 "required": [
@@ -4094,11 +4099,9 @@
           },
           "tags": {
             "type": "array",
-            "items": [
-              {
-                "type": "string"
-              }
-            ]
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
