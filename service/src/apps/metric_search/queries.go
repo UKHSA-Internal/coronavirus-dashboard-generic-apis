@@ -24,6 +24,8 @@ const searchFilter = ` AND (
 	OR mr.metric_name ILIKE ('%%' || REGEXP_REPLACE($%d, '\s+', '%%', 'g') || '%%')
   )`
 
+const searchExactFilter = " AND mr.metric ILIKE $%d"
+
 const categoryFilter = " AND LOWER(pg.title) = $%d"
 
 const tagsFilter = ` AND mt.metric_id IN (
