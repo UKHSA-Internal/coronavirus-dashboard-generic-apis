@@ -77,22 +77,29 @@ func (conf *handler) fromDatabase(params url.Values) ([]byte, *failedResponse) {
 		failure.httpCode = http.StatusInternalServerError
 		failure.response = errors.New("failed to retrieve the requested data for a valid query")
 		failure.payload = err
+
 		return nil, failure
 	}
 
 	if len(results) == 0 {
-		return []byte("[]"), nil
+		failure.httpCode = http.StatusNotFound
+		failure.response = errors.New("not found")
+		failure.payload = errors.New("not found")
+
+		return nil, failure
 	}
 
 	var response []byte
-	if response, err = utils.JSONMarshal(results); err != nil {
+	response, err = utils.JSONMarshal(results)
+	if err != nil {
 		failure.httpCode = http.StatusInternalServerError
 		failure.response = errors.New("failed to generate JSON payload")
 		failure.payload = err
+
 		return nil, failure
-	} else {
-		return response, nil
 	}
+
+	return response, nil
 
 } // fromDatabase
 
