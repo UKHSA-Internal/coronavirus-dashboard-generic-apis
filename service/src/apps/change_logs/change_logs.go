@@ -76,7 +76,7 @@ func (conf *handler) fromDatabase(date, id string, queryParams url.Values) (db.R
 			}
 			page, err = strconv.Atoi(value)
 			if err != nil {
-				panic(err)
+				page = 1
 			}
 
 			offset := (page - 1) * pageLimit
@@ -118,9 +118,17 @@ func (conf *handler) fromDatabase(date, id string, queryParams url.Values) (db.R
 	}
 
 	res["page"] = page
+	res["length"] = 0
 
 	if res["data"] != nil {
-		res["length"] = len(res["data"].([]interface{}))
+		data := res["data"].(interface{})
+
+		for _, row := range data.([]interface{}) {
+			item := row.(map[string]interface{})
+			item["applicable_to"] = utils.ParseAreaPattern(item["applicable_to"].([]interface{}))
+			res["length"] = res["length"].(int) + 1
+		}
+
 	} else {
 		res["data"] = []interface{}{}
 	}
