@@ -108,3 +108,77 @@ func ValidateParam(pattern, value string) bool {
 	re := regexp.MustCompile(pattern)
 	return re.MatchString(value)
 } // ValidateParam
+
+// ParseAreaPattern converts arrays of area patterns to array of
+// human-readable area names.
+func ParseAreaPattern(areasPatterns []interface{}) *[]string {
+	// Using maps to ensure uniqueness.
+	areas := make(map[string]bool, len(areasPatterns))
+
+	for _, area := range areasPatterns {
+		switch area {
+		case "overview::^K.*$":
+			areas["UK"] = true
+			continue
+		case "nation::^E92000001$":
+			areas["England"] = true
+			continue
+		case "region::^E.*$":
+			areas["England regions"] = true
+			continue
+		case "utla::^E.*$":
+			areas["England UTLAs"] = true
+			continue
+		case "ltla::^E.*$":
+			areas["England LTLAs"] = true
+			continue
+		case "msoa::^E.*$":
+			areas["England MSOAs"] = true
+			continue
+		case "nation::^S92000003$":
+			areas["Scotland"] = true
+			continue
+		case "utla::^S.*$":
+		case "ltla::^S.*$":
+			areas["Scotland local authorities"] = true
+			continue
+		case "nation::^N92000002$":
+			areas["Northern Ireland"] = true
+			continue
+		case "utla::^N.*$":
+		case "ltla::^N.*$":
+			areas["Northern Ireland local authorities"] = true
+			continue
+		case "nation::^W.*$":
+			areas["Wales"] = true
+			continue
+		case "utla::^W.*$":
+		case "ltla::^W.*$":
+			areas["Wales local authorities"] = true
+			continue
+		case "nhsRegion::^.*$":
+			areas["All NHS regions"] = true
+			continue
+		case "nhsTrust::^.*$":
+			areas["All NHS trusts"] = true
+			continue
+		default:
+			areas["Unspecified"] = true
+			continue
+		}
+	}
+
+	uniqueAreas := make([]string, len(areas))
+	areaInd := 0
+	for areaItem := range areas {
+		// Deduplicated items leave empty spaces
+		// in the map.
+		if areaItem != "" {
+			uniqueAreas[areaInd] = areaItem
+			areaInd++
+		}
+	}
+
+	return &uniqueAreas
+
+} // ParseAreaPattern
