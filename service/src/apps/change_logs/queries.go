@@ -79,6 +79,7 @@ WITH
                cl.high_priority,
                cl.display_banner,
                t.tag 		   AS type,
+               MAX(cl.area)    AS applicable_to,
                CASE
                    WHEN MAX(p.title) NOTNULL
                        THEN JSONB_BUILD_OBJECT(
@@ -136,6 +137,7 @@ WITH
                    cl.display_banner,
                    t.tag           AS type,
                    MAX(cl.details) AS details,
+  				   MAX(cl.area)    AS applicable_to,
                    CASE
                        WHEN MAX(p.title) NOTNULL
                            THEN JSONB_BUILD_OBJECT(
@@ -198,6 +200,7 @@ WITH
                cl.high_priority,
                cl.display_banner,
                t.tag 		   AS type,
+               MAX(cl.area)    AS applicable_to,
                CASE
                    WHEN MAX(p.title) NOTNULL
                        THEN JSONB_BUILD_OBJECT(
