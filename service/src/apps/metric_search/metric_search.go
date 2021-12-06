@@ -18,20 +18,14 @@ type handler struct {
 	traceparent string
 }
 
-type failedResponse struct {
-	httpCode int
-	response error
-	payload  error
-}
-
-func (conf *handler) fromDatabase(params url.Values) ([]byte, *failedResponse) {
+func (conf *handler) fromDatabase(params url.Values) ([]byte, *utils.FailedResponse) {
 
 	var (
 		filters string
 		args    []interface{}
 		err     error
 		counter = 0
-		failure = &failedResponse{}
+		failure = &utils.FailedResponse{}
 	)
 
 	if search := params.Get("search"); search != "" {
@@ -54,9 +48,9 @@ func (conf *handler) fromDatabase(params url.Values) ([]byte, *failedResponse) {
 
 	if isExact := params.Get("exact"); isExact != "" && isExact != "0" {
 		if search := params.Get("search"); search == "" {
-			failure.httpCode = http.StatusBadRequest
-			failure.response = errors.New("`exact` flag may only be used alongside the `search` parameter")
-			failure.payload = failure.response
+			failure.HttpCode = http.StatusBadRequest
+			failure.Response = errors.New("`exact` flag may only be used alongside the `search` parameter")
+			failure.Payload = failure.Response
 			return nil, failure
 		} else {
 			counter = 1
@@ -74,17 +68,17 @@ func (conf *handler) fromDatabase(params url.Values) ([]byte, *failedResponse) {
 	var results []db.ResultType
 	results, err = conf.db.FetchAll(payload)
 	if err != nil {
-		failure.httpCode = http.StatusInternalServerError
-		failure.response = errors.New("failed to retrieve the requested data for a valid query")
-		failure.payload = err
+		failure.HttpCode = http.StatusInternalServerError
+		failure.Response = errors.New("failed to retrieve the requested data for a valid query")
+		failure.Payload = err
 
 		return nil, failure
 	}
 
 	if len(results) == 0 {
-		failure.httpCode = http.StatusNotFound
-		failure.response = errors.New("not found")
-		failure.payload = errors.New("not found")
+		failure.HttpCode = http.StatusNotFound
+		failure.Response = errors.New("not found")
+		failure.Payload = errors.New("not found")
 
 		return nil, failure
 	}
@@ -92,9 +86,9 @@ func (conf *handler) fromDatabase(params url.Values) ([]byte, *failedResponse) {
 	var response []byte
 	response, err = utils.JSONMarshal(results)
 	if err != nil {
-		failure.httpCode = http.StatusInternalServerError
-		failure.response = errors.New("failed to generate JSON payload")
-		failure.payload = err
+		failure.HttpCode = http.StatusInternalServerError
+		failure.Response = errors.New("failed to generate JSON payload")
+		failure.Payload = err
 
 		return nil, failure
 	}
@@ -110,10 +104,9 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		var (
-			failure *failedResponse
+			failure *utils.FailedResponse
 			err     error
 		)
-
 		conf.traceparent = r.Header.Get("traceparent")
 
 		conf.db, err = db.Connect(insight)
@@ -123,7 +116,8 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 
 		response, failure := conf.fromDatabase(r.URL.Query())
 		if failure != nil {
-			http.Error(w, failure.response.Error(), failure.httpCode)
+			failure.Record(insight, r.URL)
+			http.Error(w, failure.Response.Error(), failure.HttpCode)
 			return
 		}
 
