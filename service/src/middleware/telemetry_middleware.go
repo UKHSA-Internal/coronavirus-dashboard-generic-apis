@@ -21,6 +21,9 @@ func PrepareTelemetryMiddleware(insightClient appinsights.TelemetryClient) func(
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 			uri := r.URL.Path
+			if r.URL.RawQuery != "" {
+				uri += "?" + r.URL.RawQuery
+			}
 			status := http.StatusOK
 			success := true
 
