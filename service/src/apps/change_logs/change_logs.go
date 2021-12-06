@@ -12,6 +12,7 @@ import (
 	"generic_apis/insight"
 	"github.com/gorilla/mux"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
+	"github.com/pkg/errors"
 )
 
 type handler struct {
@@ -28,13 +29,14 @@ var paramPatterns = map[string]string{
 
 const pageLimit = 20
 
-func (conf *handler) fromDatabase(date, id string, queryParams url.Values) (db.ResultType, error) {
+func (conf *handler) fromDatabase(date, id string, queryParams url.Values) (db.ResultType, *utils.FailedResponse) {
 
 	var (
 		err     error
 		params  []interface{}
 		filters = []string{releaseFilter, metricFilter}
 		query   = simpleQuery
+		failure = &utils.FailedResponse{}
 		pcount  = 0
 		page    = 1
 	)
@@ -67,16 +69,34 @@ func (conf *handler) fromDatabase(date, id string, queryParams url.Values) (db.R
 		}
 
 		if !utils.ValidateParam(pattern, value) {
-			return nil, fmt.Errorf("invalid query param")
+			failure.Response = errors.Errorf("invalid query param '%s=%v'", pattern, value)
+			failure.HttpCode = http.StatusBadRequest
+			failure.Payload = failure.Response
+
+			return nil, failure
 		}
 
 		if key == "page" {
 			if value == "" {
 				value = "1"
 			}
+
+			// Page number can't exceed 4 digits.
+			if len(value) > 4 {
+				failure.Response = errors.Errorf("invalid page number '%s' - length exceeds 4 digits", value)
+				failure.HttpCode = http.StatusBadRequest
+				failure.Payload = failure.Response
+
+				return nil, failure
+			}
+
 			page, err = strconv.Atoi(value)
 			if err != nil {
-				page = 1
+				failure.Response = errors.Errorf("invalid page number '%s' - not integer", value)
+				failure.HttpCode = http.StatusBadRequest
+				failure.Payload = failure.Response
+
+				return nil, failure
 			}
 
 			offset := (page - 1) * pageLimit
@@ -114,7 +134,11 @@ func (conf *handler) fromDatabase(date, id string, queryParams url.Values) (db.R
 
 	res, err := conf.db.FetchRow(payload)
 	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve data")
+		failure.Response = errors.Errorf("failed to retrieve data")
+		failure.HttpCode = http.StatusInternalServerError
+		failure.Payload = err
+
+		return nil, failure
 	}
 
 	res["page"] = page
@@ -125,7 +149,13 @@ func (conf *handler) fromDatabase(date, id string, queryParams url.Values) (db.R
 
 		for _, row := range data.([]interface{}) {
 			item := row.(map[string]interface{})
-			item["applicable_to"] = utils.ParseAreaPattern(item["applicable_to"].([]interface{}))
+
+			if item["applicable_to"] == nil {
+				item["applicable_to"] = []interface{}{}
+			} else {
+				item["applicable_to"] = utils.ParseAreaPattern(item["applicable_to"].([]interface{}))
+			}
+
 			res["length"] = res["length"].(int) + 1
 		}
 
@@ -146,6 +176,7 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 		var (
 			isComponentQuery bool
 			err              error
+			failure          *utils.FailedResponse
 			response         interface{}
 			encoded          []byte
 			componentName    string
@@ -162,35 +193,49 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 		componentName, isComponentQuery = pathVars["component"]
 
 		if isComponentQuery {
-			response, err = conf.getComponentsFromDatabase(componentName)
+			response, failure = conf.getComponentsFromDatabase(componentName)
 		} else {
-			response, err = conf.fromDatabase(pathVars["date"], pathVars["id"], r.URL.Query())
+			response, failure = conf.fromDatabase(pathVars["date"], pathVars["id"], r.URL.Query())
 		}
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
+		} else if failure != nil {
+			failure.Record(insight, r.URL)
+			http.Error(w, failure.Response.Error(), failure.HttpCode)
+			return
 		}
 
-		// Return 204 if payload is empty.
 		if !isComponentQuery {
 			lenKeys := len(response.(db.ResultType))
 			lenData := len(response.(db.ResultType)["data"].([]interface{}))
 
 			if lenKeys == 0 || lenData == 0 {
-				if _, err = w.Write([]byte("{}")); err != nil {
+				// Return 204 if payload is empty.
+				if _, err = w.Write([]byte("")); err != nil {
 					panic(err)
 				}
-				w.WriteHeader(http.StatusOK)
+
+				w.WriteHeader(http.StatusNoContent)
+
 				return
+
 			} else if _, isIdQuery := pathVars["id"]; isIdQuery && lenData == 1 {
+				// Return single object instead of array
+				// if requested using ID.
 				response = response.(db.ResultType)["data"].([]interface{})[0]
 			}
+
 		} else if len(response.([]db.ResultType)) == 0 {
+			// Return with "data" key if requested
+			// with component filters.
 			if _, err = w.Write([]byte("{\"data\":[]}")); err != nil {
 				panic(err)
 			}
+
 			w.WriteHeader(http.StatusOK)
+
 			return
 		}
 
