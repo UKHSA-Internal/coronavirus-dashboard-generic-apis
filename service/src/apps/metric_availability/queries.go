@@ -1,7 +1,7 @@
 package metric_availability
 
 const query = `
-SELECT metric, MAX(date)::DATE::TEXT AS last_update
+SELECT metric, MAX(date)::DATE::TEXT AS last_update, MAX(deprecated) AS deprecated
 FROM  %s AS ts
 JOIN covid19.area_reference AS ar ON ar.id = ts.area_id
 JOIN covid19.metric_reference AS mr ON mr.id = ts.metric_id
