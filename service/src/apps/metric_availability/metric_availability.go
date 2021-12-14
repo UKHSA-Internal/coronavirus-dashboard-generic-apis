@@ -65,8 +65,9 @@ func (conf *handler) fromDatabase(areaType, areaCode, date string) ([]db.ResultT
 	areaTypeLower := strings.ToLower(areaType)
 	areaCodeLower := strings.ToLower(areaCode)
 
-	fmt.Println(areaTypeLower)
-	fmt.Println(areaCodeLower)
+	// MSOAs are only available for England areas.
+	// Metrics associated with them are consistent across all MSOAs,
+	// which means that they do not need to be individually verified.
 	if areaTypeLower == "msoa" && (areaCodeLower != "" && !strings.HasPrefix(areaCodeLower, "e")) {
 		failure.Response = errors.New(
 			"metric availability queries for MSOAs must either be generic " +
