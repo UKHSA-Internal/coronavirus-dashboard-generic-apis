@@ -1,6 +1,7 @@
 package metric_availability
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -28,7 +29,7 @@ func (conf *handler) getPreppedQuery(areaType, areaCode, date string) (string, e
 	// Decide whether to include
 	// area code in the query.
 	areaCodeQuery := ""
-	if areaCode != "" {
+	if areaCode != "" && strings.ToLower(areaType) != "msoa" {
 		areaCodeQuery = areaCodeFilter
 	}
 
@@ -57,17 +58,37 @@ func (conf *handler) getPreppedQuery(areaType, areaCode, date string) (string, e
 
 } // getPreppedQuery
 
-func (conf *handler) fromDatabase(areaType, areaCode, date string) ([]db.ResultType, error) {
+func (conf *handler) fromDatabase(areaType, areaCode, date string) ([]db.ResultType, *utils.FailedResponse) {
+
+	failure := &utils.FailedResponse{}
+
+	areaTypeLower := strings.ToLower(areaType)
+	areaCodeLower := strings.ToLower(areaCode)
+
+	fmt.Println(areaTypeLower)
+	fmt.Println(areaCodeLower)
+	if areaTypeLower == "msoa" && (areaCodeLower != "" && !strings.HasPrefix(areaCodeLower, "e")) {
+		failure.Response = errors.New(
+			"metric availability queries for MSOAs must either be generic " +
+				"(no area code) or use an England area code")
+		failure.Payload = failure.Response
+		failure.HttpCode = http.StatusBadRequest
+
+		return nil, failure
+	}
 
 	preppedQuery, err := conf.getPreppedQuery(areaType, areaCode, date)
 	if err != nil {
-		return nil, err
+		failure.Response = errors.New("unable to format query")
+		failure.Payload = err
+		failure.HttpCode = http.StatusBadRequest
+		return nil, failure
 	}
 
 	queryArgs := []interface{}{areaType}
 
 	// If defined, add area code to query args.
-	if areaCode != "" {
+	if areaCode != "" && strings.ToLower(areaType) != "msoa" {
 		queryArgs = append(queryArgs, strings.ToUpper(areaCode))
 	}
 
@@ -76,7 +97,16 @@ func (conf *handler) fromDatabase(areaType, areaCode, date string) ([]db.ResultT
 		Args:          queryArgs,
 		OperationData: insight.GetOperationData(conf.traceparent),
 	}
-	return conf.db.FetchAll(payload)
+
+	results, resErr := conf.db.FetchAll(payload)
+	if resErr != nil {
+		failure.Response = errors.New("internal server error")
+		failure.Payload = resErr
+		failure.HttpCode = http.StatusBadRequest
+		return nil, failure
+	}
+
+	return results, nil
 
 } // fromDatabase
 
@@ -89,6 +119,7 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 		var (
 			err         error
 			response    []db.ResultType
+			failure     *utils.FailedResponse
 			jsonPayload []byte
 		)
 
@@ -102,9 +133,11 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 		pathVars := mux.Vars(r)
 		date := r.URL.Query().Get("date")
 
-		response, err = conf.fromDatabase(pathVars["area_type"], pathVars["area_code"], date)
-		if err != nil {
-			panic(err.Error())
+		response, failure = conf.fromDatabase(pathVars["area_type"], pathVars["area_code"], date)
+		if failure != nil {
+			failure.Record(insight, r.URL)
+			http.Error(w, failure.Response.Error(), failure.HttpCode)
+			return
 		}
 
 		if len(response) == 0 {
