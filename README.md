@@ -45,3 +45,25 @@ additional information. We are here to help.
 
 ## Credits
 This service is developed and maintained by [Public Health England](https://www.gov.uk/government/organisations/public-health-england).
+
+
+## Developer Notes
+
+# Prerequisites
+docker
+docker-compose
+
+```
+docker-compose up --build
+```
+or 
+```
+docker-compose up -d --build
+```
+
+
+```
+docker ps`
+docker inspect 42fd15881e41 | grep IPAddress
+pg_restore -h localhost -p 5432 -U postgres -d covid19 -v covid19.dump
+```

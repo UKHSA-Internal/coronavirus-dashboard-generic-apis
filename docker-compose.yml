@@ -1,10 +1,55 @@
 version: '3.7'
 
 services:
+  covid19-redis:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - 6379:6379
+    command: redis-server --save 20 1 --loglevel warning
+
   covid19-generic-apis:
     build: .
     restart: always
-    env_file:
-      - .env.dev
+    environment:
+      - AZURE_REDIS_HOST=covid19-redis
+      - AZURE_REDIS_PORT=6379
+      - AZURE_REDIS_PASSWORD=
+      - POSTGRES_CONNECTION_STRING=postgres://postgres:postgres@covid19-db:5432/covid19
+      - WEBSITES_PORT=8080
     ports:
       - 5300:5100
+      - 8080:8080
+    links:
+      - covid19-redis
+      - covid19-db
+
+  covid19-db:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=covid19
+    ports:
+      - '5432:5432'
+    volumes:
+      - db:/var/lib/postgresql/data
+
+  pgadmin:
+    container_name: pgadmin4_container
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5050:80"
+
+# apiv2.1
+# frontend
+# azurite
+
+volumes:
+  db:
+    driver: local
