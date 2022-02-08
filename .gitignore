@@ -18,3 +18,5 @@
 .env.dev
 service/build
 service/test.http
+
+.idea/
