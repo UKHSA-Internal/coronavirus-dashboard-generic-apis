@@ -49,21 +49,40 @@ This service is developed and maintained by [Public Health England](https://www.
 
 ## Developer Notes
 
-# Prerequisites
-docker
-docker-compose
+### Prerequisites
+- [Docker](https://docs.docker.com/get-docker)
+- [Docker-Compose](https://docs.docker.com/compose/install)
 
+#### Docker setup
+Run the following command to build the images. Omitting the -d (detached) flag is useful if one wants to monitor the output 
 ```
 docker-compose up --build
 ```
-or 
+or if you want to run the containers in detached mode
 ```
 docker-compose up -d --build
 ```
 
-
+If you have any issues execute
 ```
-docker ps`
+docker-compose logs
+```
+
+####PgAdmin4
+1. Get the ip of the PostgreSQL server. Execute the following commands
+```
+docker ps
 docker inspect 42fd15881e41 | grep IPAddress
+```
+2. Connect to PgAdmin by navigating to http://localhost:5000 and enter the username and password    
+   PGADMIN_DEFAULT_EMAIL: admin@admin.com
+   PGADMIN_DEFAULT_PASSWORD: root
+   specified in the docker-compose.yml as environment variables
+3. Connect to the server using the ip address above and the credential specified in the docker-compose file
+4. Execute the schema.sql in the data folder to apply some changes to the database.
+5. Restore the database 
+```
 pg_restore -h localhost -p 5432 -U postgres -d covid19 -v covid19.dump
 ```
+
+
