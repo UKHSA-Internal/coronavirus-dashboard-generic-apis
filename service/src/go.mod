@@ -14,8 +14,8 @@ require (
 	github.com/jackc/pgx/v4 v4.11.0
 	github.com/lib/pq v1.10.1 // indirect
 	github.com/microsoft/ApplicationInsights-Go v0.4.4
-	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pkg/errors v0.9.1
 	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/stretchr/testify v1.7.0 // indirect
-	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b // indirect
+	golang.org/x/crypto v0.1.0 // indirect
 )
