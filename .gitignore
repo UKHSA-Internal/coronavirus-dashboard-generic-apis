@@ -18,3 +18,4 @@
 .env.dev
 service/build
 service/test.http
+/.vs/slnx.sqlite

@@ -10,6 +10,7 @@ import (
 	"generic_apis/apps/utils"
 	"generic_apis/db"
 	"generic_apis/insight"
+
 	"github.com/gorilla/mux"
 	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 	"github.com/pkg/errors"
@@ -228,9 +229,7 @@ func Handler(insight appinsights.TelemetryClient) func(w http.ResponseWriter, r 
 			}
 
 		} else if len(response.([]db.ResultType)) == 0 {
-			// Return with "data" key if requested
-			// with component filters.
-			if _, err = w.Write([]byte("{\"data\":[]}")); err != nil {
+			if _, err = w.Write([]byte("[]")); err != nil {
 				panic(err)
 			}
 

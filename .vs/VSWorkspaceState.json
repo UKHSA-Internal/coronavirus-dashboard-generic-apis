@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\.github",
+    "\\.github\\workflows",
+    "\\assets",
+    "\\server",
+    "\\service",
+    "\\service\\src",
+    "\\service\\src\\db"
+  ],
+  "SelectedNode": "\\service\\src\\db\\operations.go",
+  "PreviewInSolutionExplorer": false
+}
