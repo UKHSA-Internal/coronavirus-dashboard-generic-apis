@@ -1,0 +1,40 @@
+name: Deploy Generic API to Sandbox Environment
+
+on:
+ push:
+  branches:
+   - sandbox
+
+jobs:
+ deploy:
+  runs-on: ubuntu-latest
+  name: Deploy Generic API to Sandbox Environment
+  environment: sandbox
+
+## declares credentials for Azure Container Registry!!
+  steps:
+
+  - name: Check out the Code 
+    uses: actions/checkout@v2
+
+  - name: Login to Azure Container Registry
+    uses: azure/docker-login@v1
+    with:
+      login-server: c19dashacrprod.azurecr.io
+      username: ${{ secrets.REGISTRY_USERNAME }}
+      password: ${{ secrets.REGISTRY_PASSWORD }}
+
+
+  - name: Build and Push the Image
+    run: |
+        docker build . -t c19dashacrprod.azurecr.io/genericapi-server:${{ github.run_id }}-sandbox
+        docker push c19dashacrprod.azurecr.io/genericapi-server:${{ github.run_id }}-sandbox 
+
+
+  - name: Deploy Container to Azure App Services
+    uses: azure/webapps-deploy@v2
+    with:
+      app-name: 'c19dashsbuksfe01genericapi'
+      publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+      images: 'c19dashacrprod.azurecr.io/genericapi-server:${{ github.run_id }}-sandbox'
+    
