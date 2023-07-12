@@ -6,7 +6,7 @@ FROM  %s AS ts
 JOIN covid19.area_reference AS ar ON ar.id = ts.area_id
 JOIN covid19.metric_reference AS mr ON mr.id = ts.metric_id
 WHERE area_type = $1 %s
-  AND date > (SELECT MAX(date) FROM %s) - INTERVAL '30 days'
+  AND date > (SELECT MAX(date) FROM %s) - INTERVAL '1 year'
   AND mr.released IS TRUE
 GROUP BY metric
 ORDER BY metric;
